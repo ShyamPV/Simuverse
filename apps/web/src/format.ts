@@ -3,6 +3,17 @@
 const TAU = 2 * Math.PI;
 
 /** Right ascension as "05h 55m 10.3s". */
+/** "12.3 MB": decimal units, as browsers report storage. */
+export function formatBytes(n: number): string {
+  const units = ['B', 'kB', 'MB', 'GB'];
+  let i = 0;
+  while (n >= 1000 && i < units.length - 1) {
+    n /= 1000;
+    i++;
+  }
+  return `${i === 0 ? n : n.toPrecision(3)} ${units[i]}`;
+}
+
 export function formatRa(rad: number): string {
   let s = (((rad % TAU) + TAU) % TAU) * (12 / Math.PI) * 3600;
   s = Math.round(s * 10) / 10;

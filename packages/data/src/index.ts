@@ -40,7 +40,8 @@ export * from './deepsky.ts';
 export * from './tileLoader.ts';
 export * from './exoplanets.ts';
 export * from './search.ts';
-export * from './facts.ts';
+// Curated facts are imported from '@simuverse/data/facts', so they load with the Explore page only.
+export type { CuratedInfo, Fact } from './facts.ts';
 export * from './catalog.ts';
 export * from './exotica.ts';
 export * from './smallBodies.ts';

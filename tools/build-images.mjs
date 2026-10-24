@@ -35,7 +35,7 @@ const CONCURRENCY = 3;
 const SURVEYS = {
   vphas: { red: 'CDS/P/VPHAS/DR4/Halpha', blue: 'CDS/P/VPHAS/DR4/g', credit: 'VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits', redIsHa: true },
   ps1: { red: 'CDS/P/PanSTARRS/DR1/r', blue: 'CDS/P/PanSTARRS/DR1/g', credit: 'Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits', redIsHa: false },
-  decaps: { red: 'CDS/P/DECaPS/DR2/r', blue: 'CDS/P/DECaPS/DR2/g', credit: 'DECaPS2 (NOIRLab) via CDS hips2fits', redIsHa: false },
+  decaps: { red: 'CDS/P/DECaPS/DR2/r', blue: 'CDS/P/DECaPS/DR2/g', credit: 'DECaPS2 (Saydjari et al. 2023; NSF NOIRLab/CTIO, DECam) via CDS hips2fits', redIsHa: false },
 };
 
 const HALPHA = {

@@ -337,16 +337,23 @@ const ENTRIES: Entry[] = [
   [['SN 1987A'], [['SN 1987A was the nearest supernova seen since 1604; neutrinos from it were detected on Earth.', NASA]]],
 ];
 
-const BY_NAME = new Map<string, CuratedInfo>();
-for (const [names, facts, discovered] of ENTRIES) {
-  const info: CuratedInfo = { facts: facts.map(([text, source]) => ({ text, source })), discovered };
-  for (const n of names) BY_NAME.set(normalizeName(n), info);
+// Built on first use, so this module has no load-time work and stays out of the start-up bundle.
+let byName: Map<string, CuratedInfo> | undefined;
+function index(): Map<string, CuratedInfo> {
+  if (byName) return byName;
+  byName = new Map();
+  for (const [names, facts, discovered] of ENTRIES) {
+    const info: CuratedInfo = { facts: facts.map(([text, source]) => ({ text, source })), discovered };
+    for (const n of names) byName.set(normalizeName(n), info);
+  }
+  return byName;
 }
 
 /** Curated facts for an object, looked up by any of its names. */
 export function curatedInfo(names: readonly string[]): CuratedInfo | undefined {
+  const byName = index();
   for (const n of names) {
-    const hit = BY_NAME.get(normalizeName(n));
+    const hit = byName.get(normalizeName(n));
     if (hit) return hit;
   }
   return undefined;

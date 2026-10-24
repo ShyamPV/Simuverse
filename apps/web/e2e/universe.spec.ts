@@ -96,3 +96,15 @@ test('help overlay opens and closes from the keyboard', async ({ page }) => {
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
 });
+
+test('constellation art downloads on first use and toggles from the keyboard', async ({ page }) => {
+  const toggle = page.getByRole('region', { name: 'Sky' }).getByRole('switch', { name: /Constellation art/ });
+  await expect(toggle).toHaveAttribute('aria-checked', 'false');
+  const atlas = page.waitForResponse((r) => r.url().endsWith('/data/constellation-art.jpg') && r.ok());
+  await page.locator('canvas').focus();
+  await page.keyboard.press('u');
+  await atlas;
+  await expect(toggle).toHaveAttribute('aria-checked', 'true');
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-checked', 'false');
+});

@@ -22,7 +22,8 @@
     "data:moons": "node tools/build-moons.mjs",
     "data:exoplanets": "node tools/build-exoplanets.mjs",
     "data:smallbodies": "node tools/build-smallbodies.mjs",
-    "data:images": "node tools/build-images.mjs"
+    "data:images": "node tools/build-images.mjs",
+    "data:constellation-art": "node tools/build-constellation-art.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",

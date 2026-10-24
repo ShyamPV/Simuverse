@@ -1,5 +1,6 @@
 import { formatDistance } from '@simuverse/astro';
-import { type CatalogEntry, bestMonth, curatedInfo, equipmentFor, generatedFacts } from '@simuverse/data';
+import { type CatalogEntry, bestMonth, equipmentFor, generatedFacts } from '@simuverse/data';
+import { curatedInfo } from '@simuverse/data/facts';
 import type { SelectionInfo } from '@simuverse/engine';
 import { type ReactNode, useMemo } from 'react';
 import { RiseSet, useSelectionEvents } from '../components/InfoPanel.tsx';

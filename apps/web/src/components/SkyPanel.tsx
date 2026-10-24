@@ -27,6 +27,7 @@ export function SkyPanel() {
       <fieldset className="flex flex-col gap-1">
         <legend className="label-dim mb-1">Show</legend>
         <Toggle label="Constellation lines" shortcut="K" checked={sky.figures} onChange={(v) => setSky({ figures: v })} />
+        <Toggle label="Constellation art" shortcut="U" checked={sky.art} onChange={(v) => setSky({ art: v })} />
         <Toggle label="Constellation names" checked={sky.names} onChange={(v) => setSky({ names: v })} />
         <Toggle label="Boundaries" shortcut="B" checked={sky.bounds} onChange={(v) => setSky({ bounds: v })} />
         <Toggle label="Ground" shortcut="G" checked={sky.ground} onChange={(v) => setSky({ ground: v })} />

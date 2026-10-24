@@ -171,11 +171,11 @@
   {
     "asset": "data/images/* (survey decaps)",
     "title": "DECaPS2 r and g images",
-    "author": "Saydjari et al. 2023 (DECam Plane Survey 2); NSF NOIRLab / CTIO",
-    "source": "http://decaps.skymaps.info/",
-    "license": "Public survey data; acknowledgement requested",
-    "licenseUrl": "https://noirlab.edu/public/copyright/",
-    "notes": "Used for 13 southern objects outside Pan-STARRS and VPHAS+ coverage. Cutouts made with the CDS hips2fits service (CDS, Strasbourg); stars, streaks and saturation artefacts removed and stretched by tools/build-images.mjs."
+    "author": "Saydjari et al. 2023, ApJS 264, 28 (DECaPS2); Schlafly et al. 2018 (DECaPS); NSF NOIRLab / CTIO Blanco telescope, Dark Energy Camera",
+    "source": "https://datalab.noirlab.edu/data/decaps",
+    "license": "Public survey data; acknowledgement required",
+    "licenseUrl": "https://datalab.noirlab.edu/decaps/acknowledgments.php",
+    "notes": "Used for 13 southern objects outside Pan-STARRS and VPHAS+ coverage. The Dark Energy Camera Plane Survey (DECaPS; NOAO Proposal ID 2016A-0323 and 2016B-0279, PI: D. Finkbeiner) includes data obtained at the Blanco telescope, Cerro Tololo Inter-American Observatory, National Optical Astronomy Observatory (NOAO). The NSF NOIRLab is operated by the Association of Universities for Research in Astronomy (AURA) under a cooperative agreement with the National Science Foundation. Database access and other data services are provided by the ASTRO Data Lab. This project used data obtained with the Dark Energy Camera (DECam), which was constructed by the Dark Energy Survey (DES) collaboration. Funding for the DES Projects has been provided by the U.S. Department of Energy, the U.S. National Science Foundation, the Ministry of Science and Education of Spain, the Science and Technology Facilities Council of the United Kingdom, the Higher Education Funding Council for England, the National Center for Supercomputing Applications at the University of Illinois at Urbana-Champaign, the Kavli Institute of Cosmological Physics at the University of Chicago, Center for Cosmology and Astro-Particle Physics at the Ohio State University, the Mitchell Institute for Fundamental Physics and Astronomy at Texas A&M University, Financiadora de Estudos e Projetos, Fundação Carlos Chagas Filho de Amparo, Financiadora de Estudos e Projetos, Fundação Carlos Chagas Filho de Amparo à Pesquisa do Estado do Rio de Janeiro, Conselho Nacional de Desenvolvimento Científico e Tecnológico and the Ministério da Ciência, Tecnologia e Inovação, the Deutsche Forschungsgemeinschaft and the Collaborating Institutions in the Dark Energy Survey. The Collaborating Institutions are Argonne National Laboratory, the University of California at Santa Cruz, the University of Cambridge, Centro de Investigaciones Enérgeticas, Medioambientales y Tecnológicas–Madrid, the University of Chicago, University College London, the DES-Brazil Consortium, the University of Edinburgh, the Eidgenössische Technische Hochschule (ETH) Zürich, Fermi National Accelerator Laboratory, the University of Illinois at Urbana-Champaign, the Institut de Ciències de l'Espai (IEEC/CSIC), the Institut de Física d'Altes Energies, Lawrence Berkeley National Laboratory, the Ludwig-Maximilians Universität München and the associated Excellence Cluster Universe, the University of Michigan, the National Optical Astronomy Observatory, the University of Nottingham, the Ohio State University, the OzDES Membership Consortium, the University of Pennsylvania, the University of Portsmouth, SLAC National Accelerator Laboratory, Stanford University, the University of Sussex, and Texas A&M University. Cutouts made with the CDS hips2fits service (CDS, Strasbourg); stars, streaks and saturation artefacts removed and stretched by tools/build-images.mjs."
   },
   {
     "asset": "data/images/* (survey shassa)",
@@ -220,5 +220,14 @@
     "license": "Facts (not copyrightable); text written for Simuverse",
     "licenseUrl": "https://www.atnf.csiro.au/research/pulsar/psrcat/",
     "notes": "Facts for objects without a curated entry are generated from catalogue values."
+  },
+  {
+    "asset": "data/constellation-art.jpg, data/constellation-art.json",
+    "title": "Constellation artwork (Stellarium “modern” sky culture)",
+    "author": "Illustrations by Johan Meuris; anchor-star data by the Stellarium team",
+    "source": "https://github.com/Stellarium/stellarium/tree/master/skycultures/modern",
+    "license": "Free Art License 1.3 (illustrations); CC BY-SA 4.0 (data)",
+    "licenseUrl": "https://artlibre.org/licence/lal/en/",
+    "notes": "Resampled into one atlas and mapped onto the sky through each figure’s three anchor stars by tools/build-constellation-art.mjs. The adapted artwork is distributed under the same Free Art License; star positions for the anchors come from HYG v4.1 (CC BY-SA 4.0)."
   }
 ]

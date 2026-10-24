@@ -6,6 +6,8 @@ import { defineConfig, devices } from '@playwright/test';
  * run with SIMUVERSE_E2E_GPU=1 to use it (ANGLE on D3D11 / default GL).
  */
 const gpu = process.env.SIMUVERSE_E2E_GPU === '1';
+/** SIMUVERSE_E2E_BROWSERS=all also runs the smoke test in Firefox and WebKit (`npx playwright install firefox webkit`). */
+const allBrowsers = process.env.SIMUVERSE_E2E_BROWSERS === 'all';
 const glArgs = gpu
   ? [process.platform === 'win32' ? '--use-angle=d3d11' : '--use-angle=default', '--enable-gpu', '--ignore-gpu-blocklist']
   : ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
@@ -22,7 +24,16 @@ export default defineConfig({
     viewport: { width: 1600, height: 900 },
     launchOptions: { args: glArgs },
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1600, height: 900 } } }],
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1600, height: 900 } } },
+    ...(allBrowsers
+      ? [
+          // These use their own rendering backends; Chromium's GL flags don't apply.
+          { name: 'firefox', testMatch: /smoke.spec.ts/, use: { ...devices['Desktop Firefox'], viewport: { width: 1280, height: 720 }, launchOptions: {} } },
+          { name: 'webkit', testMatch: /smoke.spec.ts/, use: { ...devices['Desktop Safari'], viewport: { width: 1280, height: 720 }, launchOptions: {} } },
+        ]
+      : []),
+  ],
   webServer: {
     command: 'pnpm build && pnpm --filter @simuverse/web preview --port 4173 --strictPort',
     url: 'http://localhost:4173',

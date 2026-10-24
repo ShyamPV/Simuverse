@@ -1,6 +1,8 @@
 import type { QualityPreset, ZoomLevel } from '@simuverse/engine';
 import { useEffect, useState } from 'react';
 import { BODY_SHORTCUTS, bodyInfo } from '../bodies.ts';
+import { formatBytes } from '../format.ts';
+import { type OfflineStatus, useOffline } from '../offline.ts';
 import { type NavSection, type Theme, useApp } from '../state/store.ts';
 import { IconClose, IconExplore, IconMenu, IconSettings, IconSky, IconUniverse } from './icons.tsx';
 import { SkyPanel } from './SkyPanel.tsx';
@@ -144,6 +146,33 @@ interface Credit {
   source: string;
   license: string;
   licenseUrl: string;
+  /** Acknowledgement text the data provider asks users to reproduce. */
+  notes?: string;
+}
+
+const OFFLINE_TEXT: Record<OfflineStatus, string> = {
+  unsupported: 'Not available in this browser or build (offline support needs the production build).',
+  installing: 'Downloading the app and core catalogues…',
+  ready: 'Ready. The sky, Solar System, catalogues and Explore work without a connection; places you visit are kept too.',
+  failed: 'Could not set up offline use.',
+};
+
+function OfflineSection() {
+  const status = useOffline((s) => s.status);
+  const usage = useOffline((s) => s.usage);
+  const refresh = useOffline((s) => s.refreshUsage);
+  useEffect(() => {
+    void refresh();
+  }, [status, refresh]);
+  return (
+    <section>
+      <h3 className="label-dim mb-2">Offline</h3>
+      <p className="text-xs text-[var(--text-dim)]">
+        {OFFLINE_TEXT[status]}
+        {usage !== null && usage > 0 && ` Stored on this device: ${formatBytes(usage)}.`}
+      </p>
+    </section>
+  );
 }
 
 function SettingsPanel() {
@@ -181,6 +210,12 @@ function SettingsPanel() {
       <fieldset className="flex flex-col gap-1">
         <legend className="label-dim mb-2">Display</legend>
         <Toggle label="Performance overlay" shortcut="P" checked={s.showPerf} onChange={(v) => s.set({ showPerf: v })} />
+        <Toggle label="Lens flare" checked={s.lensFlare} onChange={(v) => s.set({ lensFlare: v })} />
+        <Toggle
+          label="Adaptive resolution"
+          checked={s.adaptiveResolution}
+          onChange={(v) => s.set({ adaptiveResolution: v })}
+        />
         <Toggle
           label="Reduce motion"
           checked={s.reducedMotion()}
@@ -192,6 +227,7 @@ function SettingsPanel() {
           </button>
         )}
       </fieldset>
+      <OfflineSection />
       <section>
         <h3 className="label-dim mb-2">Data &amp; credits</h3>
         <ul className="flex flex-col gap-2 text-xs text-[var(--text-dim)]">
@@ -205,6 +241,12 @@ function SettingsPanel() {
               <a className="underline underline-offset-2" href={c.licenseUrl} target="_blank" rel="noreferrer">
                 {c.license}
               </a>
+              {c.notes && (
+                <details className="mt-0.5">
+                  <summary className="cursor-pointer select-none">Acknowledgement</summary>
+                  <p className="mt-1 leading-relaxed">{c.notes}</p>
+                </details>
+              )}
             </li>
           ))}
         </ul>

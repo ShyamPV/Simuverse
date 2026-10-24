@@ -1,4 +1,5 @@
-import { type CatalogCategory, type CatalogEntry, curatedInfo, equipmentFor } from '@simuverse/data';
+import { type CatalogCategory, type CatalogEntry, equipmentFor } from '@simuverse/data';
+import { curatedInfo } from '@simuverse/data/facts';
 
 export type SortKey = 'relevance' | 'name' | 'distance' | 'brightness' | 'size';
 

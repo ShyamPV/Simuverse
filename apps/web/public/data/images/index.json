@@ -832,7 +832,7 @@
    "file": "ngc-5189.jpg",
    "fov": 0.05243,
    "survey": "decaps",
-   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits",
+   "credit": "DECaPS2 (Saydjari et al. 2023; NSF NOIRLab/CTIO, DECam) via CDS hips2fits",
    "slot": 79,
    "mean": 0.055
   },
@@ -842,7 +842,7 @@
    "file": "ngc-6072.jpg",
    "fov": 0.02632,
    "survey": "decaps",
-   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits",
+   "credit": "DECaPS2 (Saydjari et al. 2023; NSF NOIRLab/CTIO, DECam) via CDS hips2fits",
    "slot": 80,
    "mean": 0
   },
@@ -932,7 +932,7 @@
    "file": "ngc-2818.jpg",
    "fov": 0.01868,
    "survey": "decaps",
-   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits",
+   "credit": "DECaPS2 (Saydjari et al. 2023; NSF NOIRLab/CTIO, DECam) via CDS hips2fits",
    "slot": 89,
    "mean": 0.0982
   },
@@ -972,7 +972,7 @@
    "file": "ngc-4071.jpg",
    "fov": 0.02363,
    "survey": "decaps",
-   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits",
+   "credit": "DECaPS2 (Saydjari et al. 2023; NSF NOIRLab/CTIO, DECam) via CDS hips2fits",
    "slot": 93,
    "mean": 0.0724
   },
@@ -1022,7 +1022,7 @@
    "file": "ngc-5844.jpg",
    "fov": 0.0198,
    "survey": "decaps",
-   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits",
+   "credit": "DECaPS2 (Saydjari et al. 2023; NSF NOIRLab/CTIO, DECam) via CDS hips2fits",
    "slot": 98,
    "mean": 0.0594
   },
@@ -1122,7 +1122,7 @@
    "file": "ngc-6153.jpg",
    "fov": 0.01,
    "survey": "decaps",
-   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits",
+   "credit": "DECaPS2 (Saydjari et al. 2023; NSF NOIRLab/CTIO, DECam) via CDS hips2fits",
    "slot": 108,
    "mean": 0.1574
   },
@@ -1888,7 +1888,7 @@
    "file": "ngc-2818a.jpg",
    "fov": 0.15525,
    "survey": "decaps",
-   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits",
+   "credit": "DECaPS2 (Saydjari et al. 2023; NSF NOIRLab/CTIO, DECam) via CDS hips2fits",
    "slot": 182,
    "mean": 0.0113
   },
@@ -2632,7 +2632,7 @@
    "file": "ic-2391.jpg",
    "fov": 0.7275,
    "survey": "decaps",
-   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits"
+   "credit": "DECaPS2 (Saydjari et al. 2023; NSF NOIRLab/CTIO, DECam) via CDS hips2fits"
   },
   "NGC 6231": {
    "name": "NGC 6231",
@@ -2720,7 +2720,7 @@
    "file": "ngc-6025.jpg",
    "fov": 0.285,
    "survey": "decaps",
-   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits"
+   "credit": "DECaPS2 (Saydjari et al. 2023; NSF NOIRLab/CTIO, DECam) via CDS hips2fits"
   },
   "NGC 6871": {
    "name": "NGC 6871",
@@ -2744,7 +2744,7 @@
    "file": "ngc-6087.jpg",
    "fov": 0.255,
    "survey": "decaps",
-   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits"
+   "credit": "DECaPS2 (Saydjari et al. 2023; NSF NOIRLab/CTIO, DECam) via CDS hips2fits"
   },
   "NGC 6281": {
    "name": "NGC 6281",
@@ -2784,7 +2784,7 @@
    "file": "ngc-2477.jpg",
    "fov": 0.465,
    "survey": "decaps",
-   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits"
+   "credit": "DECaPS2 (Saydjari et al. 2023; NSF NOIRLab/CTIO, DECam) via CDS hips2fits"
   },
   "NGC 6124": {
    "name": "NGC 6124",
@@ -2792,7 +2792,7 @@
    "file": "ngc-6124.jpg",
    "fov": 0.3375,
    "survey": "decaps",
-   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits"
+   "credit": "DECaPS2 (Saydjari et al. 2023; NSF NOIRLab/CTIO, DECam) via CDS hips2fits"
   },
   "NGC 2301": {
    "name": "Great Bird Cluster",
@@ -2824,7 +2824,7 @@
    "file": "ngc-2669.jpg",
    "fov": 0.21,
    "survey": "decaps",
-   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits"
+   "credit": "DECaPS2 (Saydjari et al. 2023; NSF NOIRLab/CTIO, DECam) via CDS hips2fits"
   },
   "NGC 2546": {
    "name": "NGC 2546",

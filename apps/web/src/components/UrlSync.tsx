@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useOffline } from '../offline.ts';
 import { decodeShare } from '../share.ts';
 import { currentShareHash } from '../shareLink.ts';
 import { useApp } from '../state/store.ts';
@@ -61,6 +62,19 @@ export function UrlSync() {
   }, [engine]);
 
   return null;
+}
+
+/** Offered when a new version of the app has been downloaded in the background. */
+export function UpdatePrompt() {
+  const ready = useOffline((s) => s.updateReady);
+  const apply = useOffline((s) => s.applyUpdate);
+  if (!ready) return null;
+  return (
+    <div role="status" className="glass absolute bottom-24 left-1/2 z-30 flex -translate-x-1/2 items-center gap-3 rounded-xl px-3 py-2 text-sm">
+      A new version of Simuverse is ready.
+      <button type="button" className="btn border border-[var(--accent)]/60 px-3" onClick={apply}>Reload</button>
+    </div>
+  );
 }
 
 /** Brief status messages ("Link copied"). */

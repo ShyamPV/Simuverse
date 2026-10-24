@@ -34,6 +34,7 @@ const GROUPS: { title: string; items: [string[], string][] }[] = [
     title: 'Sky',
     items: [
       [['K'], 'Constellation lines'],
+      [['U'], 'Constellation art'],
       [['B'], 'Constellation boundaries'],
       [['G'], 'Ground'],
       [['A'], 'Atmosphere'],

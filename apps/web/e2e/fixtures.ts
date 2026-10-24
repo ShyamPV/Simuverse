@@ -7,17 +7,20 @@ const snapshot = readFileSync(fileURLToPath(new URL('../public/data/tle-snapshot
 /**
  * Shared test setup:
  *  - never contact CelesTrak from tests (it rate-limits repeat downloads); serve the bundled snapshot;
- *  - fail the test on any console error or uncaught page error.
+ *  - fail the test on any console error or uncaught page error (except those matching `ignoreConsole`).
  */
-export const test = base.extend<{ consoleErrors: string[] }>({
+export const test = base.extend<{ consoleErrors: string[]; ignoreConsole: RegExp | null }>({
+  ignoreConsole: [null, { option: true }],
   consoleErrors: [
-    async ({ page }, use) => {
+    async ({ page, context, ignoreConsole }, use) => {
       const errors: string[] = [];
       page.on('pageerror', (e) => errors.push(e.message));
-      page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
-      await page.route(/celestrak\.org/, (route) => route.fulfill({ status: 200, contentType: 'text/plain', body: snapshot }));
+      // Resource failures name the URL, which the message itself doesn't.
+      page.on('console', (m) => m.type() === 'error' && errors.push(m.location().url ? `${m.text()} (${m.location().url})` : m.text()));
+      // On the context, so pages a test opens itself are covered too.
+      await context.route(/celestrak\.org/, (route) => route.fulfill({ status: 200, contentType: 'text/plain', body: snapshot }));
       await use(errors);
-      expect(errors, 'console errors').toEqual([]);
+      expect(errors.filter((e) => !ignoreConsole?.test(e)), 'console errors').toEqual([]);
     },
     { auto: true },
   ],

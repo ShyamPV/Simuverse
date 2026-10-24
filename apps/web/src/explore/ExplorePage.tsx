@@ -31,20 +31,8 @@ interface Row {
   caption?: string;
 }
 
-/** Full-page catalogue of everything in Simuverse, over an animated starfield. */
-export function ExplorePage() {
-  const section = useApp((s) => s.section);
-  const engine = useApp((s) => s.engine);
-  const open = section === 'explore';
-  // Nothing of the 3D view shows behind this page: don't draw it.
-  useEffect(() => {
-    engine?.setSuspended(open);
-    return () => engine?.setSuspended(false);
-  }, [engine, open]);
-  return open ? <ExploreContent /> : null;
-}
-
-function ExploreContent() {
+/** Full-page catalogue of everything in Simuverse, over an animated starfield (loaded on first open). */
+export function ExploreContent() {
   const engine = useApp((s) => s.engine);
   const set = useApp((s) => s.set);
   const tz = useDisplayTimeZone();
@@ -180,7 +168,8 @@ function ExploreContent() {
         </button>
       </header>
 
-      <nav aria-label="Catalogue lists" className="relative flex gap-1.5 overflow-x-auto border-b border-[var(--panel-border)] bg-black/20 px-5 py-2">
+      {/* The row scrolls sideways on narrow windows; the fade at the right edge shows there is more. */}
+      <nav aria-label="Catalogue lists" className="relative flex gap-1.5 overflow-x-auto border-b border-[var(--panel-border)] bg-black/20 py-2 pl-5 pr-12 [mask-image:linear-gradient(to_right,#000_calc(100%-3rem),transparent)]">
         {[...LISTS, { id: 'all' as Tab, label: 'All' }, ...CATEGORIES.map((c) => ({ id: c as Tab, label: CATEGORY_LABEL[c] }))].map((l) => (
           <button
             key={l.id}

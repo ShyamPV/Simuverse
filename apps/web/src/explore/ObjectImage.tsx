@@ -1,5 +1,6 @@
 import { blackbodyRgb } from '@simuverse/astro';
 import type { CatalogEntry } from '@simuverse/data';
+import { useState } from 'react';
 
 const rgb = (T: number) => {
   const [r, g, b] = blackbodyRgb(T);
@@ -18,7 +19,9 @@ const EXO_COLORS: Record<string, string> = {
  * planet from its class, black holes and neutron stars stylised).
  */
 export function ObjectImage({ entry, size, caption = false }: { entry: CatalogEntry; size: number; caption?: boolean }) {
-  const img = entry.image;
+  // A photo that can't load (offline and never cached) falls back to the drawn glyph.
+  const [failed, setFailed] = useState(false);
+  const img = failed ? undefined : entry.image;
   const box = { width: size, height: size };
   let body: React.ReactNode;
   if (img?.round) {
@@ -37,7 +40,7 @@ export function ObjectImage({ entry, size, caption = false }: { entry: CatalogEn
       />
     );
   } else if (img) {
-    body = <img src={img.url} alt={entry.name} loading="lazy" decoding="async" className="rounded-lg object-cover" style={box} />;
+    body = <img src={img.url} alt={entry.name} loading="lazy" decoding="async" className="rounded-lg object-cover" style={box} onError={() => setFailed(true)} />;
   } else if (entry.category === 'star' && entry.temperatureK) {
     const c = rgb(entry.temperatureK);
     body = (

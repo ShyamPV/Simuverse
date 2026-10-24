@@ -8,8 +8,8 @@ import { LeftNav } from './components/LeftNav.tsx';
 import { TimeBar } from './components/TimeBar.tsx';
 import { TopBar } from './components/TopBar.tsx';
 import { UniverseView } from './components/UniverseView.tsx';
-import { Toast, UrlSync } from './components/UrlSync.tsx';
-import { ExplorePage } from './explore/ExplorePage.tsx';
+import { Toast, UpdatePrompt, UrlSync } from './components/UrlSync.tsx';
+import { Explore } from './explore/Explore.tsx';
 import { useVisitTracking } from './explore/favorites.ts';
 import { useObserverBootstrap } from './location.ts';
 import { useApp } from './state/store.ts';
@@ -49,6 +49,7 @@ function useGlobalShortcuts() {
         case 'i': case 'I': s.set({ infoOpen: !s.infoOpen }); break;
         case 'p': case 'P': s.set({ showPerf: !s.showPerf }); break;
         case 'k': case 'K': s.setSky({ figures: !s.sky.figures }); break;
+        case 'u': case 'U': s.setSky({ art: !s.sky.art }); break;
         case 'b': case 'B': s.setSky({ bounds: !s.sky.bounds }); break;
         case 'g': case 'G': s.setSky({ ground: !s.sky.ground }); break;
         case 'a': case 'A': s.setSky({ atmosphere: !s.sky.atmosphere }); break;
@@ -87,9 +88,10 @@ export function App() {
       <PerfOverlay />
       <TimeBar />
       <HelpOverlay />
-      <ExplorePage />
+      <Explore />
       <CommandPalette />
       <Toast />
+      <UpdatePrompt />
       <UrlSync />
     </main>
   );

@@ -76,16 +76,20 @@ varying vec3 vPosV;
 varying vec3 vObj;
 ${NOISE_GLSL}
 // Untextured bodies (most moons): albedo variegation from noise. Approximate, not a map.
+// (One exit: D3D compilers flag early returns as possibly uninitialised.)
 vec3 proceduralSurface(vec3 p) {
+  float shade;
   if (uBanded > 0.5) {
     // Giant planets: latitude bands, turbulently warped.
     float warp = fbm(p * 3.0 + uSeed, 4);
     float bands = sin(p.z * 17.0 + warp * 5.0 + uSeed) * 0.5 + 0.5;
-    return baseColor * (0.72 + 0.4 * bands);
+    shade = 0.72 + 0.4 * bands;
+  } else {
+    float broad = fbm(p * 2.5 + uSeed, 5);
+    float fine = valueNoise(p * 28.0 + uSeed * 1.7);
+    shade = 0.62 + 0.75 * broad + 0.14 * (fine - 0.5);
   }
-  float broad = fbm(p * 2.5 + uSeed, 5);
-  float fine = valueNoise(p * 28.0 + uSeed * 1.7);
-  return baseColor * (0.62 + 0.75 * broad + 0.14 * (fine - 0.5));
+  return baseColor * shade;
 }
 void main() {
   #include <logdepthbuf_fragment>

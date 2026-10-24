@@ -74,3 +74,20 @@ export async function loadConstellations(baseUrl: string): Promise<Constellation
   if (!res.ok) throw new Error(`constellations: HTTP ${res.status}`);
   return res.json() as Promise<Constellations>;
 }
+
+/** Constellation artwork (tools/build-constellation-art.mjs): an atlas and a sky mesh per figure. */
+export interface ConstellationArt {
+  /** Atlas slot size in pixels, and its grid of slots. */
+  tile: number;
+  cols: number;
+  rows: number;
+  /** Each figure's mesh has (grid + 1)² vertices, row-major from the image's top left. */
+  grid: number;
+  figures: { id: string; slot: number; dirs: number[] }[];
+}
+
+export async function loadConstellationArt(baseUrl: string): Promise<ConstellationArt> {
+  const res = await fetch(new URL('constellation-art.json', baseUrl));
+  if (!res.ok) throw new Error(`constellation art: HTTP ${res.status}`);
+  return res.json() as Promise<ConstellationArt>;
+}

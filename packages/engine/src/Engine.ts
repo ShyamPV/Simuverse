@@ -18,11 +18,11 @@ import {
 } from '@simuverse/astro';
 import {
   type CatalogEntry, type Constellations, EphemerisLoader, type SearchEntry, type SearchHit, SearchIndex, type StarNameEntry,
-  type TleResult, constellationAt, loadConstellations, loadStarCatalog, loadStarNames, loadTles, starDisplayName,
+  type TleResult, constellationAt, loadConstellationArt, loadConstellations, loadStarCatalog, loadStarNames, loadTles, starDisplayName,
 } from '@simuverse/data';
 import {
-  ACESFilmicToneMapping, DepthTexture, FloatType, HalfFloatType, PerspectiveCamera, Quaternion, Scene, Vector2,
-  Vector3, WebGLRenderTarget, WebGLRenderer,
+  ACESFilmicToneMapping, DepthTexture, FloatType, HalfFloatType, PerspectiveCamera, Quaternion, Scene, TextureLoader,
+  Vector2, Vector3, WebGLRenderTarget, WebGLRenderer,
 } from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
@@ -32,8 +32,11 @@ import type { CameraRig } from './CameraRig.ts';
 import { DeepSpace, type DeepQuality, type DeepSpaceStats } from './DeepSpace.ts';
 import { FlyCameraRig } from './FlyCameraRig.ts';
 import { FrameGraph } from './frames.ts';
+import { GpuTimer } from './GpuTimer.ts';
 import { type LabelItem, LabelLayer } from './LabelLayer.ts';
+import { LensFlarePass } from './LensFlarePass.ts';
 import { AtmosphereLayer } from './layers/AtmosphereLayer.ts';
+import { ConstellationArtLayer } from './layers/ConstellationArtLayer.ts';
 import { ConstellationLayer } from './layers/ConstellationLayer.ts';
 import { GroundLayer } from './layers/GroundLayer.ts';
 import { SatelliteLayer } from './layers/SatelliteLayer.ts';
@@ -41,6 +44,7 @@ import { SolarSystemLayer, TEXTURES } from './layers/SolarSystemLayer.ts';
 import { StarLayer } from './layers/StarLayer.ts';
 import type { RenderContext, SkyContext, ViewMode } from './layers/types.ts';
 import { OrbitCameraRig, type OrbitTarget } from './OrbitCameraRig.ts';
+import { ResolutionGovernor } from './resolution.ts';
 import { exposureFor, galaxyMagRef, ladderStep, sceneFogMpc } from './scale.ts';
 import { SkyCameraRig } from './SkyCameraRig.ts';
 import { SkyEvents, type SkyEventsResponse } from './SkyEvents.ts';
@@ -139,6 +143,8 @@ export interface ObserverLocation {
 
 export interface SkyOptions {
   figures: boolean;
+  /** Constellation artwork (downloaded the first time it is shown). */
+  art: boolean;
   names: boolean;
   bounds: boolean;
   ground: boolean;
@@ -149,7 +155,7 @@ export interface SkyOptions {
 }
 
 export const DEFAULT_SKY_OPTIONS: SkyOptions = {
-  figures: true, names: true, bounds: false, ground: true, atmosphere: true, satellites: true, darkSkyLimit: 6.5,
+  figures: true, art: false, names: true, bounds: false, ground: true, atmosphere: true, satellites: true, darkSkyLimit: 6.5,
 };
 
 export type SelectionKind =
@@ -190,6 +196,14 @@ export interface EngineStats {
   mode: ViewMode;
   fps: number;
   frameMs: number;
+  /** Main-thread time spent in the frame callback, ms (smoothed). */
+  cpuMs: number;
+  /** GPU time for the frame, ms (smoothed), where the browser can measure it. */
+  gpuMs: number | null;
+  /** Draw calls in the last frame, across all passes. */
+  drawCalls: number;
+  /** Adaptive-resolution scale (1 = full resolution for the quality preset). */
+  renderScale: number;
   fovDeg: number;
   focusId: string;
   focusName: string;
@@ -237,6 +251,10 @@ export interface EngineOptions {
   dataBaseUrl: string;
   textureBaseUrl: string;
   quality?: QualityPreset;
+  /** Lower the render resolution when frames are slow (default on). */
+  adaptiveResolution?: boolean;
+  /** Lens flare from the Sun (default off). */
+  lensFlare?: boolean;
   reducedMotion?: boolean;
   observer?: ObserverLocation;
   mode?: ViewMode;
@@ -274,6 +292,12 @@ export class Engine {
   private catalogCache: { entries: CatalogEntry[]; version: string } | null = null;
   /** While true the 3D view isn't drawn (e.g. a full-page panel covers it); time and stats keep running. */
   private suspended = false;
+  private readonly governor = new ResolutionGovernor(0.5);
+  private readonly lensFlare = new LensFlarePass();
+  private flareOn: boolean;
+  private adaptive: boolean;
+  /** Frames before this time (start-up, data loading) don't count towards adaptive resolution. */
+  private governorFrom = performance.now() + 4000;
   /** Destination of the warp in progress (for the HUD). */
   private warpName = '';
   /** Fly mode: nearest object key and smoothed log of the distance to it. */
@@ -296,6 +320,8 @@ export class Engine {
   private readonly ground = new GroundLayer();
   private starLayer: StarLayer | null = null;
   private constellationLayer: ConstellationLayer | null = null;
+  private artLayer: ConstellationArtLayer | null = null;
+  private artRequested = false;
   private constellationData: Constellations | null = null;
   private satelliteLayer: SatelliteLayer | null = null;
   private tleInfo: EngineStats['satellites'] = null;
@@ -323,6 +349,9 @@ export class Engine {
   private fpsStart = performance.now();
   private fps = 0;
   private frameMs = 0;
+  private cpuMs = 0;
+  private drawCalls = 0;
+  private readonly gpuTimer: GpuTimer;
   private speed = 0;
   private readonly prevOffset: Vec3 = [0, 0, 0];
   private ephemerisRequest: Promise<unknown> | null = null;
@@ -336,6 +365,8 @@ export class Engine {
 
   constructor(private readonly opts: EngineOptions) {
     this.quality = opts.quality ?? 'high';
+    this.adaptive = opts.adaptiveResolution ?? true;
+    this.flareOn = opts.lensFlare ?? false;
     this.depthMode = supportsReversedZ() ? 'reversed-z' : 'logarithmic';
     this.renderer = new WebGLRenderer({
       canvas: opts.canvas,
@@ -343,8 +374,10 @@ export class Engine {
       powerPreference: 'high-performance',
       reversedDepthBuffer: this.depthMode === 'reversed-z',
       logarithmicDepthBuffer: this.depthMode === 'logarithmic',
-      preserveDrawingBuffer: true, // screenshots
     });
+    // Counted across every pass of a frame (the composer renders several).
+    this.renderer.info.autoReset = false;
+    this.gpuTimer = new GpuTimer(this.renderer.getContext() as WebGL2RenderingContext);
     this.renderer.toneMapping = ACESFilmicToneMapping;
     this.renderer.setClearColor(0x000000, 1);
 
@@ -463,6 +496,25 @@ export class Engine {
       this.constellationLayer.showBounds = this.skyOptions.bounds;
     }
     if (this.satelliteLayer) this.satelliteLayer.enabled = this.skyOptions.satellites;
+    if (this.artLayer) this.artLayer.visible = this.skyOptions.art;
+    else if (this.skyOptions.art) this.loadArt();
+  }
+
+  private loadArt(): void {
+    if (this.artRequested) return;
+    this.artRequested = true;
+    const base = new URL(this.opts.dataBaseUrl, location.href).href;
+    Promise.all([loadConstellationArt(base), new TextureLoader().loadAsync(new URL('constellation-art.jpg', base).href)])
+      .then(([art, atlas]) => {
+        if (this.disposed) return;
+        this.artLayer = new ConstellationArtLayer(art, atlas, this.renderer.capabilities.getMaxAnisotropy());
+        this.artLayer.visible = this.skyOptions.art;
+        this.scene.add(this.artLayer.object);
+      })
+      .catch((err) => {
+        this.artRequested = false;
+        console.error('Constellation art failed to load', err);
+      });
   }
 
   /** Switch to Sky view (standing at the observer location). */
@@ -927,8 +979,21 @@ export class Engine {
   setQuality(q: QualityPreset): void {
     if (q === this.quality) return;
     this.quality = q;
+    this.governor.reset();
+    this.governorFrom = performance.now() + 2000;
     this.deep.setQuality(QUALITY[q]);
     this.buildComposer();
+    this.resize();
+  }
+
+  setLensFlare(on: boolean): void {
+    this.flareOn = on;
+  }
+
+  setAdaptiveResolution(on: boolean): void {
+    if (on === this.adaptive) return;
+    this.adaptive = on;
+    this.governor.reset();
     this.resize();
   }
 
@@ -970,12 +1035,15 @@ export class Engine {
 
   /** PNG data URL of the current frame. */
   screenshot(): string {
+    // The drawing buffer isn't preserved between frames (that costs every frame), so draw one and read it at once.
+    this.draw(0);
     return this.renderer.domElement.toDataURL('image/png');
   }
 
   dispose(): void {
     this.disposed = true;
     cancelAnimationFrame(this.raf);
+    this.gpuTimer.dispose();
     this.resizeObserver.disconnect();
     this.detach();
     this.events.dispose();
@@ -983,6 +1051,7 @@ export class Engine {
     this.solarLayer.dispose();
     this.starLayer?.dispose();
     this.constellationLayer?.dispose();
+    this.artLayer?.dispose();
     this.satelliteLayer?.dispose();
     this.atmosphere.dispose();
     this.ground.dispose();
@@ -1079,6 +1148,7 @@ export class Engine {
         this.constellationLayer.showFigures = this.skyOptions.figures;
         this.constellationLayer.showBounds = this.skyOptions.bounds;
         this.scene.add(this.constellationLayer.object);
+        if (this.skyOptions.art) this.loadArt();
       })
       .catch((err) => console.error('Constellations failed to load', err));
 
@@ -1107,6 +1177,7 @@ export class Engine {
     this.composer.addPass(new RenderPass(this.scene, this.camera));
     this.bloom = q.bloom ? new UnrealBloomPass(new Vector2(1, 1), 0.4, 0.2, 1.0) : null;
     if (this.bloom) this.composer.addPass(this.bloom);
+    this.composer.addPass(this.lensFlare);
     this.composer.addPass(new OutputPass());
   }
 
@@ -1114,7 +1185,7 @@ export class Engine {
     const el = this.opts.canvas.parentElement ?? this.opts.canvas;
     this.width = Math.max(1, el.clientWidth);
     this.height = Math.max(1, el.clientHeight);
-    this.pixelRatio = Math.min(window.devicePixelRatio || 1, QUALITY[this.quality].maxPixelRatio);
+    this.pixelRatio = Math.min(window.devicePixelRatio || 1, QUALITY[this.quality].maxPixelRatio) * (this.adaptive ? this.governor.scale : 1);
     this.renderer.setPixelRatio(this.pixelRatio);
     this.renderer.setSize(this.width, this.height, false);
     this.composer.setPixelRatio(this.pixelRatio);
@@ -1323,6 +1394,7 @@ export class Engine {
   private readonly frame = (now: number): void => {
     if (this.disposed) return;
     this.raf = requestAnimationFrame(this.frame);
+    const started = performance.now();
     const dt = Math.min((now - this.lastFrame) / 1000, 0.1);
     this.lastFrame = now;
 
@@ -1396,22 +1468,58 @@ export class Engine {
       this.systems.refreshHidden();
     }
     this.constellationLayer?.update(ctx);
+    this.artLayer?.update(ctx, this.constellationLayer?.fade ?? 0);
     this.satelliteLayer?.update(ctx);
     this.ground.update(ctx);
     this.atmosphere.update(ctx);
     this.atmosphere.renderLut(this.renderer);
     if (!this.suspended) {
-      this.deep.renderVolumes(this.renderer, this.camera);
-      this.composer.render(dt);
+      this.draw(dt);
       this.labels.render(this.collectLabels());
     }
 
-    this.trackPerformance(now);
+    this.trackPerformance(now, performance.now() - started);
+    if (this.adaptive && !this.suspended && now > this.governorFrom && this.governor.update(dt, this.frameMs)) this.resize();
     if (now - this.lastStatsEmit > 200) {
       this.lastStatsEmit = now;
       this.emitStats(t);
     }
   };
+
+  private draw(dt: number): void {
+    this.updateLensFlare();
+    this.renderer.info.reset();
+    this.gpuTimer.begin();
+    this.deep.renderVolumes(this.renderer, this.camera);
+    this.composer.render(dt);
+    this.gpuTimer.end();
+    this.drawCalls = this.renderer.info.render.calls;
+  }
+
+  /** Flare strength: the Sun in (or just outside) the view, above the horizon, not behind a body, and bright. */
+  private updateLensFlare(): void {
+    const sun = this.flareOn ? this.solarLayer.views.find((v) => v.id === 'sun') : undefined;
+    const p = sun?.shown && !this.belowHorizon(sun.rel) ? this.project(sun.rel, 1.4) : null;
+    if (!sun || !p) {
+      this.lensFlare.enabled = false;
+      return;
+    }
+    const pos: [number, number] = [p[0] / this.width, 1 - p[1] / this.height];
+    // Full strength for the Sun from the inner Solar System, gone by a few thousand AU.
+    let k = Math.min(Math.max((-sun.magnitude - 10) / 16.7, 0), 1);
+    k *= 1 - smoothstep(0.5, 0.85, Math.max(Math.abs(pos[0] - 0.5), Math.abs(pos[1] - 0.5)));
+    const ppr = this.ctx.pixelsPerRadian;
+    const sunAng = sun.radiusPx / ppr;
+    for (const v of this.solarLayer.views) {
+      if (v === sun || !v.shown || v.distance >= sun.distance) continue;
+      const cos = (v.rel[0] * sun.rel[0] + v.rel[1] * sun.rel[1] + v.rel[2] * sun.rel[2]) / (v.distance * sun.distance);
+      const sep = Math.acos(Math.min(1, Math.max(-1, cos)));
+      const ang = v.radiusPx / ppr;
+      k *= smoothstep(ang - sunAng, ang + sunAng, sep);
+    }
+    this.lensFlare.set(pos, k, this.width / this.height);
+    this.lensFlare.enabled = k > 0.001;
+  }
 
   private buildSkyContext(t: AstroTime): SkyContext {
     this.skyRig.place(this.solar.earth);
@@ -1571,9 +1679,12 @@ export class Engine {
     items.push(...this.smallBodies.labels(
       (rel) => this.project(rel), free, placed, this.magLimit, sky ? this.selection : this.orbitRig.target.id, (rel) => this.belowHorizon(rel),
     ));
-    items.push(...this.deep.labels(
-      (rel) => this.project(rel), free, placed, this.ctx.pixelsPerRadian, this.magLimit, (rel) => this.belowHorizon(rel),
-    ));
+    // Nebulae and galaxies fade into a bright sky (see skyVisibility in the frame loop): so do their labels.
+    if (!this.skyCtx || this.skyCtx.limitMag > 3) {
+      items.push(...this.deep.labels(
+        (rel) => this.project(rel), free, placed, this.ctx.pixelsPerRadian, this.magLimit, (rel) => this.belowHorizon(rel),
+      ));
+    }
 
     const con = this.constellationLayer;
     if (con && this.skyOptions.names && con.fade > 0.2) {
@@ -1789,7 +1900,8 @@ export class Engine {
     return this.deep.describe(id)?.name ?? id;
   }
 
-  private trackPerformance(now: number): void {
+  private trackPerformance(now: number, cpuMs: number): void {
+    this.cpuMs += (cpuMs - this.cpuMs) * 0.1;
     this.fpsFrames++;
     const span = now - this.fpsStart;
     if (span >= 500) {
@@ -1817,6 +1929,10 @@ export class Engine {
       mode: this.mode,
       fps: this.fps,
       frameMs: this.frameMs,
+      cpuMs: this.cpuMs,
+      gpuMs: this.gpuTimer.ms,
+      drawCalls: this.drawCalls,
+      renderScale: this.adaptive ? this.governor.scale : 1,
       fovDeg: this.rig.fovDeg,
       focusId,
       focusName: this.focusName(focusId),

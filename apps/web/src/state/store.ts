@@ -24,6 +24,9 @@ export const DEFAULT_DEEP_OPTIONS: DeepOptions = { galaxies: true, deepSky: true
 
 interface Settings {
   quality: QualityPreset;
+  /** Lower the resolution automatically to hold the frame rate. */
+  adaptiveResolution: boolean;
+  lensFlare: boolean;
   showLabels: boolean;
   showOrbits: boolean;
   showPerf: boolean;
@@ -78,6 +81,8 @@ export const useApp = create<AppState>()(
       paletteOpen: false,
       toast: null,
       quality: 'high',
+      adaptiveResolution: true,
+      lensFlare: false,
       showLabels: true,
       showOrbits: true,
       showPerf: false,
@@ -104,6 +109,8 @@ export const useApp = create<AppState>()(
       },
       partialize: (s): Settings => ({
         quality: s.quality,
+        adaptiveResolution: s.adaptiveResolution,
+        lensFlare: s.lensFlare,
         showLabels: s.showLabels,
         showOrbits: s.showOrbits,
         showPerf: s.showPerf,

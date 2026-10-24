@@ -87,7 +87,12 @@ export function PerfOverlay() {
   return (
     <div className="glass pointer-events-none absolute bottom-3 right-3 z-10 rounded-xl px-3 py-2 font-mono text-[11px] leading-relaxed tabular-nums">
       <p><span className={tone}>{stats.fps.toFixed(0)} fps</span> · {stats.frameMs.toFixed(1)} ms</p>
-      <p className="text-[var(--text-dim)]">depth: {stats.depthMode} · {quality}</p>
+      <p className="text-[var(--text-dim)]">
+        cpu {stats.cpuMs.toFixed(1)} ms · gpu {stats.gpuMs === null ? 'n/a' : `${stats.gpuMs.toFixed(1)} ms`} · {stats.drawCalls} draws
+      </p>
+      <p className="text-[var(--text-dim)]">
+        depth: {stats.depthMode} · {quality}{stats.renderScale < 1 && ` · resolution ${Math.round(stats.renderScale * 100)}%`}
+      </p>
       <p className="text-[var(--text-dim)]">stars: {stats.starsLoaded ? 'loaded' : 'loading…'}</p>
       <p className="text-[var(--text-dim)]">ephemeris: {stats.precise ? 'DE440' : 'approximate'}</p>
       <p className="text-[var(--text-dim)]">satellites: {sats ? `${sats.count} (${sats.source})` : 'loading…'}</p>
