@@ -6,14 +6,25 @@ const GROUPS: { title: string; items: [string[], string][] }[] = [
   {
     title: 'Navigate',
     items: [
-      [['Drag'], 'Orbit the focused object'],
-      [['Scroll'], 'Zoom (continuous, logarithmic)'],
-      [['←', '→', '↑', '↓'], 'Rotate (hold Shift for bigger steps)'],
+      [['Drag'], 'Look around (Sky) / orbit (Universe)'],
+      [['Scroll'], 'Zoom; zoom out fully in Sky to lift off'],
+      [['←', '→', '↑', '↓'], 'Turn (hold Shift for bigger steps)'],
       [['+', '−'], 'Zoom in / out'],
-      [['Click'], 'Focus an object or label'],
+      [['Click'], 'Select an object'],
+      [['Double-click'], 'Centre the selection'],
+      [['Esc'], 'Clear selection'],
       [['0'], 'Sun'],
       [['1–8'], 'Mercury … Neptune'],
       [['9'], 'Moon'],
+    ],
+  },
+  {
+    title: 'Sky',
+    items: [
+      [['K'], 'Constellation lines'],
+      [['B'], 'Constellation boundaries'],
+      [['G'], 'Ground'],
+      [['A'], 'Atmosphere'],
     ],
   },
   {
@@ -56,7 +67,7 @@ export function HelpOverlay() {
       aria-labelledby="help-title"
       onClose={() => set({ helpOpen: false })}
       onClick={(e) => e.target === dialog.current && set({ helpOpen: false })}
-      className="glass m-auto w-[min(44rem,calc(100vw-2rem))] rounded-2xl p-0 text-[var(--text)] backdrop:bg-black/60 backdrop:backdrop-blur-sm"
+      className="glass m-auto w-[min(46rem,calc(100vw-2rem))] rounded-2xl p-0 text-[var(--text)] backdrop:bg-black/60 backdrop:backdrop-blur-sm"
     >
       <div className="flex items-center justify-between border-b border-[var(--panel-border)] px-5 py-3">
         <h2 id="help-title" className="font-display text-lg font-semibold">Keyboard shortcuts</h2>
@@ -64,7 +75,7 @@ export function HelpOverlay() {
           <IconClose size={16} />
         </button>
       </div>
-      <div className="grid gap-6 p-5 sm:grid-cols-3">
+      <div className="grid gap-6 p-5 sm:grid-cols-2">
         {GROUPS.map((g) => (
           <section key={g.title}>
             <h3 className="label-dim mb-2">{g.title}</h3>

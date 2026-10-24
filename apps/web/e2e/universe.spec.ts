@@ -1,46 +1,74 @@
-import { type Page, expect, test } from '@playwright/test';
+import type { Page } from '@playwright/test';
+import { expect, test } from './fixtures.ts';
 
-const infoHeading = (page: Page) => page.getByRole('complementary', { name: 'Object information' }).getByRole('heading');
+// Deterministic default location: the most populous city in the browser's time zone.
+test.use({ timezoneId: 'Pacific/Auckland' });
 
-let errors: string[] = [];
+const info = (page: Page) => page.getByRole('complementary', { name: 'Object information' });
+const crumbs = (page: Page) => page.getByRole('navigation', { name: 'Cosmic address' });
 
 test.beforeEach(async ({ page }) => {
-  errors = [];
-  page.on('pageerror', (e) => errors.push(e.message));
-  page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
   await page.goto('/');
-  // Engine is up once the info panel shows the initial focus.
-  await expect(infoHeading(page)).toHaveText('Earth');
+  // The app opens in Sky view at the time-zone default location.
+  await expect(crumbs(page).getByRole('button', { name: 'Sky · Auckland' })).toHaveAttribute('aria-current', 'location');
 });
 
-test.afterEach(() => {
-  expect(errors, 'console errors').toEqual([]);
-});
+/** Sets the simulated time and returns keyboard focus to the 3D view. */
+async function setTime(page: Page, local: string) {
+  await page.getByLabel('Simulation date and time').fill(local);
+  await page.locator('canvas').focus();
+}
 
-test('renders the scene and loads the star catalogue', async ({ page }) => {
+test('loads catalogues and the DE440 ephemeris', async ({ page }) => {
   await page.keyboard.press('p');
-  const perf = page.getByText(/stars: (loaded|loading…)/);
-  await expect(perf).toBeVisible();
   await expect(page.getByText('stars: loaded')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText('ephemeris: DE440')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText(/satellites: \d+ \((celestrak|cache|stale-cache|snapshot)\)/)).toBeVisible({ timeout: 15_000 });
   await expect(page.getByText(/depth: (reversed-z|logarithmic)/)).toBeVisible();
-  // Labels for bright stars and planets are placed by the engine.
-  await expect(page.locator('.sv-label--body').first()).toBeAttached();
 });
 
-test('number keys and labels focus bodies', async ({ page }) => {
+test('selecting a planet shows where it is and when it rises and sets', async ({ page }) => {
+  await page.keyboard.press('Space');
+  await setTime(page, '2026-10-24T23:00');
   await page.keyboard.press('6');
-  await expect(infoHeading(page)).toHaveText('Saturn');
-  await page.getByRole('button', { name: 'Jupiter' }).first().click();
-  await expect(infoHeading(page)).toHaveText('Jupiter');
+  const panel = info(page);
+  await expect(panel.getByRole('heading', { name: 'Saturn' })).toBeVisible();
+  await expect(panel.getByText('Constellation', { exact: true })).toBeVisible();
+  await expect(panel.getByText('RA / Dec (J2000)', { exact: true })).toBeVisible();
+  await expect(panel.getByText('Altitude', { exact: true })).toBeVisible();
+  // Rise/transit/set computed in the worker, shown in the observer's time zone.
+  await expect(panel.getByText('Transit')).toBeVisible({ timeout: 15_000 });
+  // Shown in the locale's clock format (23:49 or 11:49 PM).
+  await expect(panel.getByText(/^(23:49|11:49\sPM)$/)).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(panel.getByRole('heading', { name: 'Look around' })).toBeVisible();
 });
 
-test('zooms out through the cosmic address breadcrumb', async ({ page }) => {
-  const crumbs = page.getByRole('navigation', { name: 'Cosmic address' });
-  await crumbs.getByRole('button', { name: 'Solar System' }).click();
-  await expect(crumbs.getByRole('button', { name: 'Solar System' })).toHaveAttribute('aria-current', 'location', { timeout: 15_000 });
-  await crumbs.getByRole('button', { name: 'Milky Way' }).click();
-  await expect(crumbs.getByRole('button', { name: 'Milky Way' })).toHaveAttribute('aria-current', 'location', { timeout: 15_000 });
-  await expect(page.getByText(/to Sun .* ly · .* pc/)).toBeVisible();
+test('tonight summary and city search', async ({ page }) => {
+  const sky = page.getByRole('region', { name: 'Sky' });
+  await expect(sky.getByText('Sunset')).toBeVisible({ timeout: 15_000 });
+  await sky.getByRole('combobox', { name: 'Search for a city' }).fill('Reykjav');
+  await sky.getByRole('option').first().getByRole('button').click();
+  await expect(crumbs(page).getByRole('button', { name: /^Sky · Reykjav/ })).toBeVisible();
+  await expect(sky.getByText(/64\.1\d° N, 21\.\d\d° W/)).toBeVisible();
+});
+
+test('zooming out of the sky lifts off into space', async ({ page }) => {
+  await page.mouse.move(800, 450);
+  // Widen to the maximum field of view, then keep pushing: a few notches lift off.
+  for (let i = 0; i < 4; i++) await page.mouse.wheel(0, 600);
+  await expect(crumbs(page).getByRole('button', { name: 'Earth' })).toHaveAttribute('aria-current', 'location', { timeout: 15_000 });
+  await page.getByRole('button', { name: /^Sky · Auckland/ }).click();
+  await expect(crumbs(page).getByRole('button', { name: 'Sky · Auckland' })).toHaveAttribute('aria-current', 'location');
+});
+
+test('universe view focuses bodies and zooms through the cosmic address', async ({ page }) => {
+  await crumbs(page).getByRole('button', { name: 'Solar System' }).click();
+  await expect(crumbs(page).getByRole('button', { name: 'Solar System' })).toHaveAttribute('aria-current', 'location', { timeout: 15_000 });
+  await page.keyboard.press('5');
+  await expect(info(page).getByRole('heading', { name: 'Jupiter' })).toBeVisible();
+  await crumbs(page).getByRole('button', { name: 'Milky Way' }).click();
+  await expect(crumbs(page).getByRole('button', { name: 'Milky Way' })).toHaveAttribute('aria-current', 'location', { timeout: 15_000 });
 });
 
 test('time controls pause, speed up and return to now', async ({ page }) => {
@@ -64,6 +92,7 @@ test('help overlay opens and closes from the keyboard', async ({ page }) => {
   await page.keyboard.press('?');
   const dialog = page.getByRole('dialog', { name: 'Keyboard shortcuts' });
   await expect(dialog).toBeVisible();
+  await expect(dialog.getByText('Constellation lines')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
 });

@@ -1,4 +1,4 @@
-import type { Engine, EngineStats, QualityPreset } from '@simuverse/engine';
+import { DEFAULT_SKY_OPTIONS, type Engine, type EngineStats, type ObserverLocation, type QualityPreset, type SkyOptions } from '@simuverse/engine';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -7,6 +7,20 @@ export type NavSection = 'universe' | 'sky' | 'explore' | 'settings';
 
 const prefersReducedMotion = () =>
   typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+export interface SavedLocation extends ObserverLocation {
+  /** How the location was chosen: permission-free default, device geolocation, or search. */
+  source: 'timezone' | 'geolocation' | 'search';
+}
+
+/** Deep-sky layer toggles (Universe panel). */
+export interface DeepOptions {
+  galaxies: boolean;
+  deepSky: boolean;
+  milkyWay: boolean;
+}
+
+export const DEFAULT_DEEP_OPTIONS: DeepOptions = { galaxies: true, deepSky: true, milkyWay: true };
 
 interface Settings {
   quality: QualityPreset;
@@ -17,6 +31,9 @@ interface Settings {
   /** null = follow the OS `prefers-reduced-motion` setting. */
   reducedMotionOverride: boolean | null;
   navOpen: boolean;
+  location: SavedLocation | null;
+  sky: SkyOptions;
+  deep: DeepOptions;
 }
 
 interface AppState extends Settings {
@@ -26,6 +43,8 @@ interface AppState extends Settings {
   helpOpen: boolean;
   infoOpen: boolean;
   set: (patch: Partial<AppState>) => void;
+  setSky: (patch: Partial<SkyOptions>) => void;
+  setDeep: (patch: Partial<DeepOptions>) => void;
   reducedMotion: () => boolean;
 }
 
@@ -50,7 +69,7 @@ export const useApp = create<AppState>()(
     (set, get) => ({
       engine: null,
       stats: null,
-      section: 'universe',
+      section: 'sky',
       helpOpen: false,
       infoOpen: true,
       quality: 'high',
@@ -60,12 +79,24 @@ export const useApp = create<AppState>()(
       theme: 'default',
       reducedMotionOverride: null,
       navOpen: true,
+      location: null,
+      sky: DEFAULT_SKY_OPTIONS,
+      deep: DEFAULT_DEEP_OPTIONS,
       set: (patch) => set(patch),
+      setSky: (patch) => set({ sky: { ...get().sky, ...patch } }),
+      setDeep: (patch) => set({ deep: { ...get().deep, ...patch } }),
       reducedMotion: () => get().reducedMotionOverride ?? prefersReducedMotion(),
     }),
     {
       name: 'simuverse.settings.v1',
+      version: 2,
       storage: safeStorage,
+      // v1 (milestone 1) had no location or sky options; defaults fill them in.
+      migrate: (persisted) => ({ location: null, sky: DEFAULT_SKY_OPTIONS, deep: DEFAULT_DEEP_OPTIONS, ...(persisted as Partial<Settings>) }) as Settings,
+      merge: (persisted, current) => {
+        const p = persisted as Partial<Settings>;
+        return { ...current, ...p, sky: { ...DEFAULT_SKY_OPTIONS, ...p?.sky }, deep: { ...DEFAULT_DEEP_OPTIONS, ...p?.deep } };
+      },
       partialize: (s): Settings => ({
         quality: s.quality,
         showLabels: s.showLabels,
@@ -74,7 +105,16 @@ export const useApp = create<AppState>()(
         theme: s.theme,
         reducedMotionOverride: s.reducedMotionOverride,
         navOpen: s.navOpen,
+        location: s.location,
+        sky: s.sky,
+        deep: s.deep,
       }),
     },
   ),
 );
+
+/** Time zone for displaying times: the observer's if known, else the browser's. */
+export function useDisplayTimeZone(): string {
+  const tz = useApp((s) => s.location?.tz);
+  return tz ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+}

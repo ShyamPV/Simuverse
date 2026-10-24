@@ -52,6 +52,7 @@ export const ROTATION: Record<string, RotationElements> = {
     dec: (T) => 43.46 - 0.51 * Math.cos(neptuneN(T)),
     w: (d, T) => 249.978 + 541.1397757 * d - 0.48 * Math.sin(neptuneN(T)),
   },
+  pluto: { ra: () => 132.993, dec: () => -6.163, w: (d) => 302.695 + 56.3625225 * d },
 };
 
 /**

@@ -22,6 +22,11 @@ attribute float absMag;
 attribute vec3 color;
 uniform vec3 uCamPc;
 uniform float uShellRadius;
+// Sky mode: observer velocity / c (aberration), local zenith, extinction (mag per airmass).
+uniform float uSky;
+uniform vec3 uVelocityC;
+uniform vec3 uZenith;
+uniform float uExtinction;
 varying vec3 vColor;
 varying float vIntensity;
 ${STAR_PSF_VERTEX}
@@ -29,14 +34,24 @@ void main() {
   vec3 rel = position - uCamPc;
   float d = max(length(rel), 1e-9);
   float appMag = absMag + 5.0 * log2(d / 10.0) * 0.30103;
+  vec3 dir = rel / d;
+  if (uSky > 0.5) {
+    dir = normalize(dir + uVelocityC);
+    float s = max(dot(dir, uZenith), 0.0);
+    // Rozenberg (1966) airmass; finite at the horizon.
+    appMag += uExtinction / (s + 0.025 * exp(-11.0 * s));
+  }
   vec2 psf = starPsf(appMag);
   vColor = color;
   vIntensity = psf.y;
   gl_PointSize = psf.x;
-  gl_Position = projectionMatrix * (viewMatrix * vec4(rel / d * uShellRadius, 1.0));
+  gl_Position = projectionMatrix * (viewMatrix * vec4(dir * uShellRadius, 1.0));
   if (psf.x == 0.0) gl_Position = vec4(2.0, 2.0, 2.0, 1.0); // clip away
 }
 `;
+
+/** Typical extinction coefficient in V at a good site, magnitudes per airmass. */
+export const EXTINCTION_V = 0.2;
 
 const fragmentShader = /* glsl */ `
 varying vec3 vColor;
@@ -80,6 +95,10 @@ export class StarLayer implements Layer {
         uMagLimit: { value: photometry.magLimit },
         uPixelRatio: { value: 1 },
         uMaxSize: { value: 48 },
+        uSky: { value: 0 },
+        uVelocityC: { value: new Vector3() },
+        uZenith: { value: new Vector3(0, 0, 1) },
+        uExtinction: { value: 0 },
       },
       // Opaque pass (not `transparent`) so stars draw first and planets cover them;
       // additive blending still applies because three only drops NormalBlending for opaque materials.
@@ -101,8 +120,16 @@ export class StarLayer implements Layer {
   update(ctx: RenderContext): void {
     // Camera position relative to the Sun = −(camera → Sun).
     const v = ctx.toCamera(this.sunFrame, [0, 0, 0], this.tmp);
-    (this.material.uniforms.uCamPc!.value as Vector3).set(-v[0] / PC, -v[1] / PC, -v[2] / PC);
-    this.material.uniforms.uPixelRatio!.value = ctx.pixelRatio;
+    const u = this.material.uniforms;
+    (u.uCamPc!.value as Vector3).set(-v[0] / PC, -v[1] / PC, -v[2] / PC);
+    u.uPixelRatio!.value = ctx.pixelRatio;
+    const sky = ctx.sky;
+    u.uSky!.value = sky ? 1 : 0;
+    if (sky) {
+      (u.uVelocityC!.value as Vector3).set(...sky.velocityC);
+      (u.uZenith!.value as Vector3).set(...sky.rig.basis.up);
+      u.uExtinction!.value = sky.atmosphere ? EXTINCTION_V : 0;
+    }
   }
 
   dispose(): void {

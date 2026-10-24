@@ -3,26 +3,35 @@
  * each frame at its float64 camera-relative offset; nothing is ever placed at
  * an absolute heliocentric coordinate on the GPU. Orbit-line vertices are
  * likewise rewritten relative to their body so they stay exact up close.
+ *
+ * In Sky mode bodies are placed at their *apparent* positions (light-time and
+ * aberration corrected), so what you see matches the RA/Dec and alt/az shown
+ * in the info panel. Bodies smaller than about a pixel are drawn as
+ * star-like points from their computed visual magnitude.
  */
 
 import {
-  AU, type Mat3, type PlanetId, PLANET_IDS, PC, type Vec3, apparentMagnitude, centuriesSinceJ2000,
-  moonGeocentricEcliptic, planetElements, planetPeriodDays, sampleOrbit, type AstroTime,
+  AU, type Mat3, PC, type SolarBodyId, type Vec3, angleBetween, apparentBody, apparentMagnitude, bodyMagnitude,
+  sampleOrbit, stateToElements, type AstroTime,
 } from '@simuverse/astro';
 import {
-  BufferAttribute, BufferGeometry, Color, Group, LineBasicMaterial, LineLoop, Matrix4, Mesh,
-  Points, Quaternion, RingGeometry, SRGBColorSpace, type ShaderMaterial,
-  type Texture, TextureLoader, Vector3,
+  BufferAttribute, BufferGeometry, Color, Group, LineBasicMaterial, LineLoop, Matrix4, Mesh, Points, Quaternion,
+  RingGeometry, SRGBColorSpace, type ShaderMaterial, type Texture, TextureLoader, Vector3,
 } from 'three';
 import type { BodyState, SolarSystemModel } from '../SolarSystemModel.ts';
 import {
-  createBodyGeometry, createPlanetMaterial, createRingMaterial, createSunGlowMaterial, createSunMaterial,
+  createBodyGeometry, createBodyPointsMaterial, createPlanetMaterial, createRingMaterial, createSunGlowMaterial,
+  createSunMaterial,
 } from './bodyMaterials.ts';
 import type { Layer, RenderContext } from './types.ts';
 
 const SUN_ABS_MAG = 4.83;
 const ORBIT_SEGMENTS = 256;
 const MOON_SIDEREAL_MONTH_DAYS = 27.321661;
+const GM_SUN_KM3_S2 = 1.32712440018e11;
+const SUN_MASS_KG = 1.98847e30;
+/** Below this apparent radius (CSS px) a body is drawn as a point instead of a mesh. */
+const POINT_THRESHOLD_PX = 1.2;
 
 const TEXTURES: Record<string, { map: string; night?: string; clouds?: string; rings?: string }> = {
   sun: { map: '2k_sun.jpg' },
@@ -51,17 +60,21 @@ const ATMOSPHERES: Record<string, [string, number]> = {
 export interface BodyView {
   id: string;
   name: string;
-  /** Camera → body centre, metres. */
+  /** Camera → body centre, metres (apparent position in Sky mode). */
   rel: Vec3;
   distance: number;
   /** Apparent radius in CSS pixels. */
   radiusPx: number;
+  /** Visual magnitude as seen from the camera. */
+  magnitude: number;
+  /** False when the body isn't drawn at all (e.g. Earth while standing on it). */
+  shown: boolean;
 }
 
 interface OrbitTrack {
   line: LineLoop;
   material: LineBasicMaterial;
-  /** Sampled orbit points in the parent frame, metres (float64). */
+  /** Sampled orbit points relative to the parent body, metres (float64). */
   points: Vec3[];
   sampledAtJd: number;
   resampleDays: number;
@@ -85,6 +98,8 @@ export class SolarSystemLayer implements Layer {
   private readonly bodies: BodyRender[] = [];
   private readonly sunGlow: Points;
   private readonly sunGlowMaterial: ShaderMaterial;
+  private readonly points: Points;
+  private readonly pointsMaterial: ShaderMaterial;
   private readonly loader = new TextureLoader();
   private readonly textures: Texture[] = [];
   private showOrbits = true;
@@ -92,7 +107,6 @@ export class SolarSystemLayer implements Layer {
   private readonly v3 = new Vector3();
   private readonly invCam = new Quaternion();
   private readonly m4 = new Matrix4();
-  private readonly tmp: Vec3 = [0, 0, 0];
   private readonly sunRel: Vec3 = [0, 0, 0];
 
   constructor(private readonly model: SolarSystemModel, textureBaseUrl: string, private readonly maxAnisotropy: number) {
@@ -120,7 +134,7 @@ export class SolarSystemLayer implements Layer {
       group.add(mesh);
       const render: BodyRender = {
         state, group, mesh, material,
-        view: { id, name: state.info.name, rel: [0, 0, 0], distance: 0, radiusPx: 0 },
+        view: { id, name: state.info.name, rel: [0, 0, 0], distance: 0, radiusPx: 0, magnitude: 99, shown: true },
       };
 
       if (tex?.clouds) {
@@ -154,6 +168,20 @@ export class SolarSystemLayer implements Layer {
     this.sunGlow.frustumCulled = false;
     this.sunGlow.renderOrder = 5;
     this.object.add(this.sunGlow);
+
+    const n = this.bodies.length;
+    const pg = new BufferGeometry();
+    pg.setAttribute('position', new BufferAttribute(new Float32Array(n * 3), 3));
+    pg.setAttribute('mag', new BufferAttribute(new Float32Array(n), 1));
+    pg.setAttribute('visible', new BufferAttribute(new Float32Array(n), 1));
+    const colors = new Float32Array(n * 3);
+    this.bodies.forEach((b, i) => new Color(b.state.info.color).toArray(colors, i * 3));
+    pg.setAttribute('color', new BufferAttribute(colors, 3));
+    this.pointsMaterial = createBodyPointsMaterial();
+    this.points = new Points(pg, this.pointsMaterial);
+    this.points.frustumCulled = false;
+    this.points.renderOrder = 4;
+    this.object.add(this.points);
   }
 
   private load(url: string): Texture {
@@ -189,30 +217,75 @@ export class SolarSystemLayer implements Layer {
 
   update(ctx: RenderContext): void {
     this.invCam.copy(ctx.camera.quaternion).invert();
+    const sky = ctx.sky;
     const sun = this.model.get('sun')!;
-    ctx.toCamera(sun.frame, [0, 0, 0], this.sunRel);
+    this.placeBody(ctx, sun, this.sunRel);
     // Close to a body, other planets' orbits project as streaks across the sky
     // (we look along the ecliptic), so they fade in only beyond ~0.02 AU.
-    const focusId = ctx.rig.target.id;
-    const othersFade = Math.min(Math.max((Math.log10(ctx.rig.distance) - 8) / 1.5, 0), 1);
+    const focusId = ctx.rig.focusId;
+    const othersFade = sky ? 0 : Math.min(Math.max((Math.log10(ctx.rig.focusDistance) - 8) / 1.5, 0), 1);
 
-    for (const b of this.bodies) {
-      const rel = ctx.toCamera(b.state.frame, [0, 0, 0], b.view.rel);
+    const posAttr = this.points.geometry.getAttribute('position') as BufferAttribute;
+    const magAttr = this.points.geometry.getAttribute('mag') as BufferAttribute;
+    const visAttr = this.points.geometry.getAttribute('visible') as BufferAttribute;
+
+    this.bodies.forEach((b, i) => {
+      const id = b.state.info.id;
+      const rel = b.view.rel;
+      if (id === 'sun') {
+        rel[0] = this.sunRel[0]; rel[1] = this.sunRel[1]; rel[2] = this.sunRel[2];
+      } else this.placeBody(ctx, b.state, rel);
       const d = Math.hypot(rel[0], rel[1], rel[2]);
       b.view.distance = d;
       b.view.radiusPx = Math.asin(Math.min(1, b.state.info.radius / Math.max(d, 1))) * ctx.pixelsPerRadian;
+      b.view.shown = !(sky && id === 'earth');
+      b.view.magnitude = this.magnitude(b, rel);
       b.group.position.set(rel[0], rel[1], rel[2]);
       this.setOrientation(b.group, b.state.orientation);
-      // Bodies below a pixel are represented by markers/labels instead.
-      b.group.visible = b.view.radiusPx > 0.35 || b.state.info.id === 'sun';
+      b.group.visible = b.view.shown && (b.view.radiusPx > POINT_THRESHOLD_PX * 0.3 || id === 'sun');
 
-      if (b.state.info.id !== 'sun') this.updateLighting(b);
+      posAttr.setXYZ(i, rel[0], rel[1], rel[2]);
+      magAttr.setX(i, b.view.magnitude);
+      visAttr.setX(i, b.view.shown && id !== 'sun' && b.view.radiusPx < POINT_THRESHOLD_PX ? 1 : 0);
+
+      if (id !== 'sun') this.updateLighting(b);
       if (b.orbit) {
-        const local = b.state.info.id === focusId || b.state.info.parent === focusId;
-        this.updateOrbit(b, ctx.time, d, local ? 1 : othersFade);
+        const local = id === focusId || b.state.info.parent === focusId;
+        this.updateOrbit(b, ctx, d, sky ? 0 : local ? 1 : othersFade);
       }
-    }
+    });
+    posAttr.needsUpdate = magAttr.needsUpdate = visAttr.needsUpdate = true;
+    this.pointsMaterial.uniforms.uPixelRatio!.value = ctx.pixelRatio;
     this.updateSunGlow(ctx);
+  }
+
+  /** Camera → body vector: geometric in Universe mode, apparent (light-time + aberration) in Sky mode. */
+  private placeBody(ctx: RenderContext, b: BodyState, out: Vec3): void {
+    if (ctx.sky && b.info.id !== 'earth') {
+      const p = apparentBody(ctx.ephemeris, ctx.sky.observer, b.info.id as SolarBodyId);
+      const m = p.distanceKm * 1000;
+      out[0] = p.direction[0] * m;
+      out[1] = p.direction[1] * m;
+      out[2] = p.direction[2] * m;
+      return;
+    }
+    ctx.toCamera(b.frame, [0, 0, 0], out);
+  }
+
+  /** Visual magnitude from wherever the camera is (phase from Sun–body–camera geometry). */
+  private magnitude(b: BodyRender, rel: Readonly<Vec3>): number {
+    const id = b.state.info.id as SolarBodyId;
+    const delta = Math.hypot(rel[0], rel[1], rel[2]) / AU;
+    if (id === 'sun') return bodyMagnitude('sun', 1, delta, 0);
+    const toSun: Vec3 = [this.sunRel[0] - rel[0], this.sunRel[1] - rel[1], this.sunRel[2] - rel[2]];
+    const r = Math.hypot(toSun[0], toSun[1], toSun[2]) / AU;
+    const phase = angleBetween(toSun, [-rel[0], -rel[1], -rel[2]]) * (180 / Math.PI);
+    let tilt = 0;
+    if (b.rings) {
+      const m = b.state.orientation;
+      tilt = Math.PI / 2 - angleBetween([m[2], m[5], m[8]], [-rel[0], -rel[1], -rel[2]]);
+    }
+    return bodyMagnitude(id, r, delta, phase, tilt);
   }
 
   private setOrientation(obj: Group, m: Mat3): void {
@@ -238,28 +311,40 @@ export class SolarSystemLayer implements Layer {
     }
   }
 
-  private updateOrbit(b: BodyRender, t: AstroTime, camDist: number, contextFade: number): void {
+  private resampleOrbit(b: BodyRender, ctx: RenderContext): void {
     const o = b.orbit!;
-    const id = b.state.info.id;
-    if (!(Math.abs(t.jdTdb - o.sampledAtJd) < o.resampleDays)) {
-      o.sampledAtJd = t.jdTdb;
-      if (id === 'moon') {
-        o.points = [];
-        for (let k = 0; k < ORBIT_SEGMENTS; k++) {
-          const T = centuriesSinceJ2000(t.jdTdb + (MOON_SIDEREAL_MONTH_DAYS * k) / ORBIT_SEGMENTS);
-          const p = moonGeocentricEcliptic(T);
-          o.points.push([p[0] * AU, p[1] * AU, p[2] * AU]);
-        }
-        o.resampleDays = MOON_SIDEREAL_MONTH_DAYS / 200;
-        o.semiMajor = 384_400e3;
-      } else if ((PLANET_IDS as readonly string[]).includes(id)) {
-        const el = planetElements(id as PlanetId, centuriesSinceJ2000(t.jdTdb));
-        o.points = sampleOrbit(el, ORBIT_SEGMENTS).map((p) => [p[0] * AU, p[1] * AU, p[2] * AU] as Vec3);
-        o.resampleDays = planetPeriodDays(id as PlanetId) / 400;
-        o.semiMajor = el.a * AU;
+    const id = b.state.info.id as SolarBodyId;
+    const t: AstroTime = ctx.time;
+    const eph = ctx.ephemeris;
+    o.sampledAtJd = t.jdTdb;
+    if (id === 'moon') {
+      // The Moon's orbit is strongly perturbed: trace the actual path over one month.
+      o.points = [];
+      const p: Vec3 = [0, 0, 0];
+      for (let k = 0; k < ORBIT_SEGMENTS; k++) {
+        eph.relative('moon', t.jdTdb + (MOON_SIDEREAL_MONTH_DAYS * k) / ORBIT_SEGMENTS, p);
+        o.points.push([p[0] * 1000, p[1] * 1000, p[2] * 1000]);
       }
+      o.resampleDays = MOON_SIDEREAL_MONTH_DAYS / 200;
+      o.semiMajor = 384_400e3;
+      return;
     }
+    // Planets: osculating ellipse from the precise state, so the line passes exactly through the body.
+    const r: Vec3 = [0, 0, 0], r1: Vec3 = [0, 0, 0], r2: Vec3 = [0, 0, 0];
+    const h = 0.5;
+    eph.relative(id, t.jdTdb, r);
+    eph.relative(id, t.jdTdb + h, r2);
+    eph.relative(id, t.jdTdb - h, r1);
+    const s = 1 / (2 * h * 86400);
+    const v: Vec3 = [(r2[0] - r1[0]) * s, (r2[1] - r1[1]) * s, (r2[2] - r1[2]) * s];
+    const el = stateToElements(r, v, GM_SUN_KM3_S2 * (1 + b.state.info.mass / SUN_MASS_KG));
+    o.points = sampleOrbit(el, ORBIT_SEGMENTS).map((p) => [p[0] * 1000, p[1] * 1000, p[2] * 1000] as Vec3);
+    o.semiMajor = el.a * 1000;
+    o.resampleDays = (2 * Math.PI * Math.sqrt(el.a ** 3 / GM_SUN_KM3_S2)) / 86400 / 400;
+  }
 
+  private updateOrbit(b: BodyRender, ctx: RenderContext, camDist: number, contextFade: number): void {
+    const o = b.orbit!;
     // Fade out when very close to the body (orbit is a straight line through it)
     // or so far away that the orbit is a dot.
     const ratio = Math.log10(camDist / o.semiMajor);
@@ -268,6 +353,7 @@ export class SolarSystemLayer implements Layer {
     o.material.opacity = 0.45 * fade;
     o.line.visible = this.showOrbits && fade > 0.01;
     if (!o.line.visible) return;
+    if (!(Math.abs(ctx.time.jdTdb - o.sampledAtJd) < o.resampleDays)) this.resampleOrbit(b, ctx);
 
     // Vertices relative to the body's current position (body frame origin in its parent).
     const origin = b.state.frame.origin;
@@ -294,10 +380,12 @@ export class SolarSystemLayer implements Layer {
     u.uPixelRatio!.value = ctx.pixelRatio;
   }
 
-  /** Copies star photometry so the Sun-as-a-star matches catalogue stars. */
+  /** Shares star photometry so planets and the Sun-as-a-star match catalogue stars. */
   setPhotometry(magRef: number, magLimit: number): void {
-    this.sunGlowMaterial.uniforms.uMagRef!.value = magRef;
-    this.sunGlowMaterial.uniforms.uMagLimit!.value = magLimit;
+    for (const m of [this.sunGlowMaterial, this.pointsMaterial]) {
+      m.uniforms.uMagRef!.value = magRef;
+      m.uniforms.uMagLimit!.value = magLimit;
+    }
   }
 
   dispose(): void {
@@ -312,6 +400,8 @@ export class SolarSystemLayer implements Layer {
     this.bodies[0]?.mesh.geometry.dispose();
     this.sunGlow.geometry.dispose();
     this.sunGlowMaterial.dispose();
+    this.points.geometry.dispose();
+    this.pointsMaterial.dispose();
     for (const t of this.textures) t.dispose();
   }
 }

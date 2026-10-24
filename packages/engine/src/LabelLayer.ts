@@ -6,7 +6,7 @@
 export interface LabelItem {
   key: string;
   text: string;
-  kind: 'body' | 'star';
+  kind: 'body' | 'star' | 'satellite' | 'constellation' | 'cardinal' | 'reticle' | 'galaxy' | 'nebula';
   x: number;
   y: number;
   /** Draw a marker dot at (x, y) — used when the object is under a few pixels. */

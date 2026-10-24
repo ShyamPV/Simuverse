@@ -1,12 +1,14 @@
-import type { QualityPreset } from '@simuverse/engine';
+import type { QualityPreset, ZoomLevel } from '@simuverse/engine';
 import { useEffect, useState } from 'react';
 import { BODY_SHORTCUTS, bodyInfo } from '../bodies.ts';
 import { type NavSection, type Theme, useApp } from '../state/store.ts';
 import { IconClose, IconExplore, IconMenu, IconSettings, IconSky, IconUniverse } from './icons.tsx';
+import { SkyPanel } from './SkyPanel.tsx';
+import { Toggle } from './Toggle.tsx';
 
 const SECTIONS: { id: NavSection; label: string; Icon: typeof IconUniverse; pending?: number }[] = [
   { id: 'universe', label: 'Universe', Icon: IconUniverse },
-  { id: 'sky', label: 'Sky', Icon: IconSky, pending: 2 },
+  { id: 'sky', label: 'Sky', Icon: IconSky },
   { id: 'explore', label: 'Explore', Icon: IconExplore, pending: 5 },
   { id: 'settings', label: 'Settings', Icon: IconSettings },
 ];
@@ -37,7 +39,13 @@ export function LeftNav() {
             aria-pressed={section === id}
             disabled={!!pending}
             title={pending ? `${label}: arrives in milestone ${pending}` : label}
-            onClick={() => set({ section: id, navOpen: true })}
+            onClick={() => {
+              set({ section: id, navOpen: true });
+              // The Sky and Universe sections double as view-mode switches.
+              const engine = useApp.getState().engine;
+              if (id === 'sky') engine?.enterSky();
+              if (id === 'universe' && engine?.viewMode === 'sky') engine.zoomToLevel('planet');
+            }}
           >
             <Icon size={18} />
             <span className="mt-0.5 leading-none">{label}</span>
@@ -56,6 +64,7 @@ export function LeftNav() {
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto p-3">
             {section === 'universe' && <UniversePanel />}
+            {section === 'sky' && <SkyPanel />}
             {section === 'settings' && <SettingsPanel />}
           </div>
         </section>
@@ -69,6 +78,8 @@ function UniversePanel() {
   const focusId = useApp((s) => s.stats?.focusId);
   const showLabels = useApp((s) => s.showLabels);
   const showOrbits = useApp((s) => s.showOrbits);
+  const deep = useApp((s) => s.deep);
+  const setDeep = useApp((s) => s.setDeep);
   const set = useApp((s) => s.set);
   return (
     <div className="flex flex-col gap-4">
@@ -94,14 +105,38 @@ function UniversePanel() {
           })}
         </ul>
       </div>
+      <div>
+        <p className="label-dim mb-2">Beyond the Solar System</p>
+        <ul className="flex flex-col gap-0.5">
+          {BEYOND.map(([level, label, hint]) => (
+            <li key={level}>
+              <button type="button" className="btn w-full justify-between" onClick={() => engine?.zoomToLevel(level)}>
+                <span>{label}</span>
+                <span className="text-[11px] text-[var(--text-dim)]">{hint}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
       <div className="flex flex-col gap-1">
         <p className="label-dim mb-1">Overlays</p>
         <Toggle label="Labels" shortcut="L" checked={showLabels} onChange={(v) => set({ showLabels: v })} />
         <Toggle label="Orbits" shortcut="O" checked={showOrbits} onChange={(v) => set({ showOrbits: v })} />
+        <Toggle label="Galaxies" checked={deep.galaxies} onChange={(v) => setDeep({ galaxies: v })} />
+        <Toggle label="Nebulae & clusters" checked={deep.deepSky} onChange={(v) => setDeep({ deepSky: v })} />
+        <Toggle label="Milky Way" checked={deep.milkyWay} onChange={(v) => setDeep({ milkyWay: v })} />
       </div>
     </div>
   );
 }
+
+const BEYOND: [ZoomLevel, string, string][] = [
+  ['milky-way', 'Milky Way', '30 kpc'],
+  ['local-group', 'Local Group', '3 Mpc'],
+  ['virgo', 'Virgo Supercluster', '33 Mpc'],
+  ['laniakea', 'Laniakea', '160 Mpc'],
+  ['universe', 'Observable Universe', '28.5 Gpc'],
+];
 
 interface Credit {
   title: string;
@@ -178,23 +213,3 @@ function SettingsPanel() {
   );
 }
 
-function Toggle(props: { label: string; checked: boolean; onChange: (v: boolean) => void; shortcut?: string }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={props.checked}
-      className="btn w-full justify-start"
-      onClick={() => props.onChange(!props.checked)}
-    >
-      <span
-        className={`relative h-4 w-7 rounded-full transition-colors ${props.checked ? 'bg-[var(--accent)]' : 'bg-white/15'}`}
-        aria-hidden="true"
-      >
-        <span className={`absolute top-0.5 h-3 w-3 rounded-full bg-white transition-all ${props.checked ? 'left-3.5' : 'left-0.5'}`} />
-      </span>
-      {props.label}
-      {props.shortcut && <span className="kbd ml-auto">{props.shortcut}</span>}
-    </button>
-  );
-}

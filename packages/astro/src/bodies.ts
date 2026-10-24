@@ -34,6 +34,7 @@ export const SOLAR_SYSTEM: readonly BodyInfo[] = [
   },
   { id: 'uranus', name: 'Uranus', kind: 'planet', parent: 'sun', radius: 25_559e3, polarRadius: 24_973e3, mass: 8.681e25, color: '#a6d8e0' },
   { id: 'neptune', name: 'Neptune', kind: 'planet', parent: 'sun', radius: 24_764e3, polarRadius: 24_341e3, mass: 1.02409e26, color: '#4b70dd' },
+  { id: 'pluto', name: 'Pluto', kind: 'dwarf-planet', parent: 'sun', radius: 1_188.3e3, polarRadius: 1_188.3e3, mass: 1.303e22, color: '#d9c4a8' },
 ];
 
 export const bodyById = (id: string): BodyInfo | undefined => SOLAR_SYSTEM.find((b) => b.id === id);

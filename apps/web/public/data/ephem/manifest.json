@@ -1,0 +1,130 @@
+{
+  "source": "JPL Horizons (DE440), geometric states; Chebyshev fit by tools/build-ephemeris.mjs",
+  "frame": "ecliptic J2000 (IAU 2006 obliquity), km, TDB",
+  "bodies": [
+    {
+      "id": "sun",
+      "horizons": "10",
+      "center": "500@0",
+      "segmentDays": 32,
+      "degree": 11
+    },
+    {
+      "id": "mercury",
+      "horizons": "199",
+      "center": "500@10",
+      "segmentDays": 8,
+      "degree": 13
+    },
+    {
+      "id": "venus",
+      "horizons": "299",
+      "center": "500@10",
+      "segmentDays": 16,
+      "degree": 10
+    },
+    {
+      "id": "emb",
+      "horizons": "3",
+      "center": "500@10",
+      "segmentDays": 16,
+      "degree": 13
+    },
+    {
+      "id": "mars",
+      "horizons": "499",
+      "center": "500@10",
+      "segmentDays": 32,
+      "degree": 11
+    },
+    {
+      "id": "jupiter",
+      "horizons": "599",
+      "center": "500@10",
+      "segmentDays": 32,
+      "degree": 8
+    },
+    {
+      "id": "saturn",
+      "horizons": "699",
+      "center": "500@10",
+      "segmentDays": 32,
+      "degree": 7
+    },
+    {
+      "id": "uranus",
+      "horizons": "799",
+      "center": "500@10",
+      "segmentDays": 64,
+      "degree": 7
+    },
+    {
+      "id": "neptune",
+      "horizons": "899",
+      "center": "500@10",
+      "segmentDays": 64,
+      "degree": 6
+    },
+    {
+      "id": "pluto",
+      "horizons": "999",
+      "center": "500@10",
+      "segmentDays": 64,
+      "degree": 6
+    },
+    {
+      "id": "moon",
+      "horizons": "301",
+      "center": "500@399",
+      "segmentDays": 4,
+      "degree": 12
+    }
+  ],
+  "blocks": [
+    {
+      "file": "de440-1900-1950.bin",
+      "startJd": 2415020.5,
+      "endJd": 2433282.5,
+      "startYear": 1900,
+      "endYear": 1950,
+      "bytes": 1795260
+    },
+    {
+      "file": "de440-1950-2000.bin",
+      "startJd": 2433282.5,
+      "endJd": 2451544.5,
+      "startYear": 1950,
+      "endYear": 2000,
+      "bytes": 1795260
+    },
+    {
+      "file": "de440-2000-2050.bin",
+      "startJd": 2451544.5,
+      "endJd": 2469807.5,
+      "startYear": 2000,
+      "endYear": 2050,
+      "bytes": 1795260
+    },
+    {
+      "file": "de440-2050-2100.bin",
+      "startJd": 2469807.5,
+      "endJd": 2488069.5,
+      "startYear": 2050,
+      "endYear": 2100,
+      "bytes": 1795260
+    }
+  ],
+  "maxFitErrorKm": {
+    "sun": 0.0625,
+    "mercury": 4.0173,
+    "venus": 4.885,
+    "emb": 8.3739,
+    "mars": 8.9098,
+    "jupiter": 163.5233,
+    "saturn": 116.4721,
+    "uranus": 169.8903,
+    "neptune": 324.1375,
+    "pluto": 2327.6515,
+    "moon": 0.0199
+  }
+}

@@ -9,6 +9,47 @@
     "notes": "Derived from Hipparcos, Yale Bright Star and Gliese catalogues. Our binary re-encoding is distributed under the same licence."
   },
   {
+    "asset": "data/ephem/*",
+    "title": "JPL DE440 planetary and lunar ephemeris (via the Horizons API)",
+    "author": "NASA/JPL Solar System Dynamics; Park et al. (2021), AJ 161:105",
+    "source": "https://ssd.jpl.nasa.gov/horizons/",
+    "license": "Public domain (U.S. Government work)",
+    "licenseUrl": "https://www.jpl.nasa.gov/jpl-image-use-policy",
+    "notes": "Re-fitted as Chebyshev series by tools/build-ephemeris.mjs."
+  },
+  {
+    "asset": "data/constellations.json",
+    "title": "d3-celestial constellation lines, boundaries and names",
+    "author": "Olaf Frohn",
+    "source": "https://github.com/ofrohn/d3-celestial",
+    "license": "BSD 3-Clause",
+    "licenseUrl": "https://github.com/ofrohn/d3-celestial/blob/master/LICENSE"
+  },
+  {
+    "asset": "data/cities.json, data/tz-default-city.json",
+    "title": "GeoNames cities with population ≥ 15,000",
+    "author": "GeoNames",
+    "source": "https://www.geonames.org/",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  {
+    "asset": "data/tle-snapshot.txt and live element sets",
+    "title": "CelesTrak GP element sets (stations, visual)",
+    "author": "T.S. Kelso, CelesTrak",
+    "source": "https://celestrak.org/",
+    "license": "Free to use with attribution (CelesTrak terms)",
+    "licenseUrl": "https://celestrak.org/webmaster.php"
+  },
+  {
+    "asset": "SGP4/SDP4 propagation",
+    "title": "satellite.js",
+    "author": "Shashwat Kandadai and contributors",
+    "source": "https://github.com/shashwatak/satellite-js",
+    "license": "MIT",
+    "licenseUrl": "https://github.com/shashwatak/satellite-js/blob/develop/LICENSE"
+  },
+  {
     "asset": "textures/planets/*",
     "title": "Solar System Scope planet textures (2K)",
     "author": "INOVE / Solar System Scope, based on NASA imagery",
@@ -17,19 +58,78 @@
     "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
   },
   {
-    "asset": "packages/astro (test fixtures)",
-    "title": "JPL Horizons ephemeris vectors",
-    "author": "NASA/JPL Solar System Dynamics",
-    "source": "https://ssd.jpl.nasa.gov/horizons/",
-    "license": "Public domain (U.S. Government work)",
-    "licenseUrl": "https://www.jpl.nasa.gov/jpl-image-use-policy"
-  },
-  {
-    "asset": "packages/astro/src/planets.ts",
+    "asset": "packages/astro/src/planets.ts (fallback outside 1900–2100)",
     "title": "Keplerian Elements for Approximate Positions of the Major Planets",
     "author": "E. M. Standish, JPL",
     "source": "https://ssd.jpl.nasa.gov/planets/approx_pos.html",
     "license": "Public domain (U.S. Government work)",
     "licenseUrl": "https://ssd.jpl.nasa.gov/"
+  },
+  {
+    "asset": "data/stars/*",
+    "title": "AT-HYG v4.0 (Gaia DR3 and Tycho-2 stars with distances)",
+    "author": "David Nash (astronexus)",
+    "source": "https://codeberg.org/astronexus/athyg",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "notes": "Includes data from ESA Gaia DR3 (ESA/Gaia/DPAC) and Tycho-2. Re-encoded into a magnitude-sorted octree by tools/build-star-octree.mjs and distributed under the same licence."
+  },
+  {
+    "asset": "data/milkyway/*",
+    "title": "Deep Star Maps 2020 (Milky Way panorama)",
+    "author": "NASA/Goddard Space Flight Center Scientific Visualization Studio; Gaia DR2: ESA/Gaia/DPAC",
+    "source": "https://svs.gsfc.nasa.gov/4851",
+    "license": "NASA media usage guidelines (credit required)",
+    "licenseUrl": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+    "notes": "Downsampled from the 8K EXR to a 4K JPEG by tools/build-milkyway.mjs."
+  },
+  {
+    "asset": "data/galaxies.bin, data/galaxy-names.json",
+    "title": "2MASS Redshift Survey (2MRS)",
+    "author": "Huchra et al. (2012), ApJS 199:26",
+    "source": "https://vizier.cds.unistra.fr/viz-bin/VizieR?-source=J/ApJS/199/26",
+    "license": "Free for scientific and educational use with citation (VizieR)",
+    "licenseUrl": "https://cds.unistra.fr/vizier-org/licences_vizier.html"
+  },
+  {
+    "asset": "data/galaxies.bin",
+    "title": "Cosmicflows-4 galaxy distances",
+    "author": "Tully et al. (2023), ApJ 944:94",
+    "source": "https://vizier.cds.unistra.fr/viz-bin/VizieR?-source=J/ApJ/944/94",
+    "license": "Free for scientific and educational use with citation (VizieR)",
+    "licenseUrl": "https://cds.unistra.fr/vizier-org/licences_vizier.html"
+  },
+  {
+    "asset": "data/galaxies.bin, data/galaxy-names.json",
+    "title": "Nearby dwarf galaxies of the Local Group and around it",
+    "author": "A. W. McConnachie (2012), AJ 144:4",
+    "source": "https://vizier.cds.unistra.fr/viz-bin/VizieR?-source=J/AJ/144/4",
+    "license": "Free for scientific and educational use with citation (VizieR)",
+    "licenseUrl": "https://cds.unistra.fr/vizier-org/licences_vizier.html"
+  },
+  {
+    "asset": "data/deepsky.json, data/galaxy-names.json",
+    "title": "OpenNGC",
+    "author": "Mattia Verga and contributors",
+    "source": "https://github.com/mattiaverga/OpenNGC",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "notes": "Names, types, sizes and orientations of NGC/IC/Messier objects. Derived files are distributed under the same licence."
+  },
+  {
+    "asset": "data/deepsky.json",
+    "title": "Catalog of Parameters for Milky Way Globular Clusters (2010 edition)",
+    "author": "W. E. Harris (1996, 2010)",
+    "source": "https://vizier.cds.unistra.fr/viz-bin/VizieR?-source=VII/202",
+    "license": "Free for scientific and educational use with citation (VizieR)",
+    "licenseUrl": "https://cds.unistra.fr/vizier-org/licences_vizier.html"
+  },
+  {
+    "asset": "data/deepsky.json",
+    "title": "Open cluster parameters from Gaia DR2",
+    "author": "Cantat-Gaudin et al. (2020), A&A 640:A1",
+    "source": "https://vizier.cds.unistra.fr/viz-bin/VizieR?-source=J/A+A/640/A1",
+    "license": "Free for scientific and educational use with citation (VizieR)",
+    "licenseUrl": "https://cds.unistra.fr/vizier-org/licences_vizier.html"
   }
 ]

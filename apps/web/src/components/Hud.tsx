@@ -1,12 +1,38 @@
 import { LY, formatDistance, formatSpeed, niceRoundDown } from '@simuverse/astro';
+import { compassPoint, formatDeg } from '../format.ts';
 import { useApp } from '../state/store.ts';
 
 const SCALE_BAR_MAX_PX = 140;
 
-/** Bottom-left readout: scale bar, distance (in two unit systems when interstellar) and speed. */
+/**
+ * Bottom-left readout. Universe mode: scale bar, distance (two unit systems
+ * when interstellar) and speed. Sky mode: view direction, field of view and Sun altitude.
+ */
 export function Hud() {
   const stats = useApp((s) => s.stats);
   if (!stats) return null;
+
+  if (stats.mode === 'sky' && stats.view) {
+    const sun = stats.sunAltDeg;
+    const phase =
+      sun === null ? '' : sun > -0.833 ? 'Daytime' : sun > -6 ? 'Civil twilight' : sun > -12 ? 'Nautical twilight' : sun > -18 ? 'Astronomical twilight' : 'Night';
+    return (
+      <div className="glass pointer-events-none absolute bottom-3 left-3 z-10 min-w-52 rounded-xl px-3 py-2 text-xs">
+        <p className="font-mono tabular-nums">
+          <span className="text-[var(--text-dim)]">looking</span> {compassPoint(stats.view.az)} · {formatDeg(stats.view.alt, 0)}
+        </p>
+        <p className="font-mono tabular-nums">
+          <span className="text-[var(--text-dim)]">field</span>{' '}
+          {stats.fovDeg >= 1 ? `${stats.fovDeg.toFixed(stats.fovDeg < 10 ? 1 : 0)}°` : `${(stats.fovDeg * 60).toFixed(1)}′`}
+        </p>
+        {sun !== null && (
+          <p className="font-mono tabular-nums">
+            <span className="text-[var(--text-dim)]">{phase}</span> · Sun {sun.toFixed(1)}°
+          </p>
+        )}
+      </div>
+    );
+  }
 
   const barMetres = niceRoundDown(stats.metresPerPixel * SCALE_BAR_MAX_PX);
   const barPx = barMetres / stats.metresPerPixel;
@@ -36,11 +62,19 @@ export function PerfOverlay() {
   const quality = useApp((s) => s.quality);
   if (!show || !stats) return null;
   const tone = stats.fps >= 55 ? 'text-[var(--accent-2)]' : stats.fps >= 30 ? 'text-amber-300' : 'text-rose-400';
+  const sats = stats.satellites;
   return (
     <div className="glass pointer-events-none absolute bottom-3 right-3 z-10 rounded-xl px-3 py-2 font-mono text-[11px] leading-relaxed tabular-nums">
       <p><span className={tone}>{stats.fps.toFixed(0)} fps</span> · {stats.frameMs.toFixed(1)} ms</p>
       <p className="text-[var(--text-dim)]">depth: {stats.depthMode} · {quality}</p>
       <p className="text-[var(--text-dim)]">stars: {stats.starsLoaded ? 'loaded' : 'loading…'}</p>
+      <p className="text-[var(--text-dim)]">ephemeris: {stats.precise ? 'DE440' : 'approximate'}</p>
+      <p className="text-[var(--text-dim)]">satellites: {sats ? `${sats.count} (${sats.source})` : 'loading…'}</p>
+      <p className="text-[var(--text-dim)]">gaia/tycho stars: {stats.deep.octreeStars.toLocaleString('en-US')}</p>
+      <p className="text-[var(--text-dim)]">
+        galaxies: {stats.deep.catalogGalaxies.toLocaleString('en-US')} + {stats.deep.proceduralGalaxies.toLocaleString('en-US')} procedural
+      </p>
+      {stats.exposureMag > 0.05 && <p className="text-[var(--text-dim)]">auto-exposure: +{stats.exposureMag.toFixed(1)} mag</p>}
     </div>
   );
 }

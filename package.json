@@ -12,11 +12,19 @@
     "data:stars": "node tools/build-stars.mjs",
     "data:textures": "node tools/fetch-textures.mjs",
     "test:e2e": "playwright test",
-    "data:fixtures": "node tools/fetch-horizons-fixtures.mjs"
+    "data:fixtures": "node tools/fetch-horizons-fixtures.mjs",
+    "data:ephemeris": "node tools/build-ephemeris.mjs",
+    "data:sky": "node tools/build-sky-data.mjs",
+    "data:stars-octree": "node tools/build-star-octree.mjs",
+    "data:galaxies": "node tools/build-galaxies.mjs",
+    "data:deepsky": "node tools/build-deepsky.mjs",
+    "data:milkyway": "node tools/build-milkyway.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
     "@types/node": "^26.6.5",
+    "jpeg-js": "^0.4.4",
+    "three": "0.186.1",
     "typescript": "^7.0.2",
     "vitest": "^5.0.5"
   }

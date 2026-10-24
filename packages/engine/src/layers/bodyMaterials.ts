@@ -196,6 +196,55 @@ export function createSunGlowMaterial(): ShaderMaterial {
 }
 
 /**
+ * Bodies too small to resolve, drawn as star-like points from their computed
+ * visual magnitude (attribute `mag`; `visible` 0 hides a point whose mesh is drawn).
+ */
+export function createBodyPointsMaterial(): ShaderMaterial {
+  return new ShaderMaterial({
+    vertexShader: /* glsl */ `
+      #include <common>
+      #include <logdepthbuf_pars_vertex>
+      attribute float mag;
+      attribute float visible;
+      attribute vec3 color;
+      varying vec3 vColor;
+      varying float vIntensity;
+      ${STAR_PSF_VERTEX}
+      void main() {
+        vec2 psf = visible > 0.5 ? starPsf(mag) : vec2(0.0);
+        vColor = color;
+        vIntensity = psf.y;
+        gl_PointSize = psf.x;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        #include <logdepthbuf_vertex>
+        if (psf.x == 0.0) gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+      }
+    `,
+    fragmentShader: /* glsl */ `
+      #include <logdepthbuf_pars_fragment>
+      varying vec3 vColor;
+      varying float vIntensity;
+      ${STAR_PSF_FRAGMENT}
+      void main() {
+        #include <logdepthbuf_fragment>
+        float p = starProfile(gl_PointCoord);
+        if (p <= 0.0) discard;
+        gl_FragColor = vec4(vColor * vIntensity * p, 1.0);
+      }
+    `,
+    uniforms: {
+      uMagRef: { value: 5.5 },
+      uMagLimit: { value: 8.5 },
+      uPixelRatio: { value: 1 },
+      uMaxSize: { value: 48 },
+    },
+    blending: AdditiveBlending,
+    depthWrite: false,
+    transparent: true,
+  });
+}
+
+/**
  * Planetary ring lit by the Sun, with the planet's shadow cast onto it via a
  * ray–sphere test in view space. The ring texture is a radial strip (u = r).
  */

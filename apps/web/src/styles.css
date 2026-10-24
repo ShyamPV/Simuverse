@@ -165,9 +165,67 @@ body,
   color: #fff;
   font-weight: 600;
 }
-.sv-label--star .sv-label__text {
+.sv-label--star .sv-label__text,
+.sv-label--satellite .sv-label__text {
+  pointer-events: auto;
+  cursor: pointer;
   color: rgb(190 200 255 / 0.62);
   font-size: 11px;
+}
+.sv-label--star .sv-label__text:hover,
+.sv-label--satellite .sv-label__text:hover {
+  color: #fff;
+}
+.sv-label--satellite .sv-label__text {
+  color: rgb(255 236 179 / 0.8);
+}
+.sv-label--galaxy .sv-label__text,
+.sv-label--nebula .sv-label__text {
+  pointer-events: auto;
+  cursor: pointer;
+  font-size: 11px;
+  font-style: italic;
+}
+.sv-label--galaxy .sv-label__text {
+  color: rgb(194 185 255 / 0.75);
+}
+.sv-label--nebula .sv-label__text {
+  color: rgb(253 164 175 / 0.72);
+}
+.sv-label--galaxy .sv-label__text:hover,
+.sv-label--nebula .sv-label__text:hover {
+  color: #fff;
+}
+.sv-label--constellation .sv-label__text {
+  left: 0;
+  transform: translateX(-50%);
+  color: rgb(94 234 212 / 0.42);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.sv-label--cardinal .sv-label__text {
+  left: 0;
+  top: 0.4em;
+  transform: translateX(-50%);
+  color: rgb(253 230 138 / 0.85);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+}
+/* Selection ring: --sv-label-offset is its radius. */
+.sv-label--reticle .sv-label__dot {
+  display: block;
+  left: calc(-1 * var(--sv-label-offset));
+  top: calc(-1 * var(--sv-label-offset));
+  width: calc(2 * var(--sv-label-offset));
+  height: calc(2 * var(--sv-label-offset));
+  background: transparent;
+  border: 1.5px solid var(--color-aurora-300);
+  box-shadow: 0 0 10px rgb(94 234 212 / 0.5), inset 0 0 6px rgb(94 234 212 / 0.3);
+}
+.sv-label--reticle .sv-label__text {
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

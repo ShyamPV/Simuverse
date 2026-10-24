@@ -51,6 +51,45 @@ export function orbitalPlaneToReference(xp: number, yp: number, el: OrbitalEleme
 }
 
 /**
+ * Osculating elements from a position/velocity state (any consistent units,
+ * e.g. km and km/s with μ in km³/s²). Handles near-zero inclination by
+ * measuring the periapsis from the reference x-axis.
+ */
+export function stateToElements(r: Readonly<Vec3>, v: Readonly<Vec3>, mu: number): OrbitalElements {
+  const rl = Math.hypot(r[0], r[1], r[2]);
+  const v2 = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+  const h: Vec3 = [r[1] * v[2] - r[2] * v[1], r[2] * v[0] - r[0] * v[2], r[0] * v[1] - r[1] * v[0]];
+  const hl = Math.hypot(h[0], h[1], h[2]);
+  const rv = r[0] * v[0] + r[1] * v[1] + r[2] * v[2];
+  // Eccentricity vector: ((v² − μ/r) r − (r·v) v) / μ
+  const k = v2 - mu / rl;
+  const ev: Vec3 = [(k * r[0] - rv * v[0]) / mu, (k * r[1] - rv * v[1]) / mu, (k * r[2] - rv * v[2]) / mu];
+  const e = Math.hypot(ev[0], ev[1], ev[2]);
+  const a = 1 / (2 / rl - v2 / mu);
+  const i = Math.acos(Math.max(-1, Math.min(1, h[2] / hl)));
+  const n: Vec3 = [-h[1], h[0], 0];
+  const nl = Math.hypot(n[0], n[1]);
+
+  let node: number, argPeri: number;
+  // Angle within the orbital plane from a reference direction p to vector q.
+  const planeAngle = (p: Readonly<Vec3>, q: Readonly<Vec3>) => {
+    const cx = p[1] * q[2] - p[2] * q[1], cy = p[2] * q[0] - p[0] * q[2], cz = p[0] * q[1] - p[1] * q[0];
+    return Math.atan2((cx * h[0] + cy * h[1] + cz * h[2]) / hl, p[0] * q[0] + p[1] * q[1] + p[2] * q[2]);
+  };
+  const periDir: Vec3 = e > 1e-10 ? ev : [r[0], r[1], r[2]];
+  if (nl < 1e-12 * hl) {
+    node = 0;
+    argPeri = planeAngle([1, 0, 0], periDir);
+  } else {
+    node = Math.atan2(n[1], n[0]);
+    argPeri = planeAngle(n, periDir);
+  }
+  const nu = e > 1e-10 ? planeAngle(ev, r) : 0;
+  const E = 2 * Math.atan(Math.sqrt((1 - e) / (1 + e)) * Math.tan(nu / 2));
+  return { a, e, i, node, argPeri, M: E - e * Math.sin(E) };
+}
+
+/**
  * Samples the full ellipse, starting at the body's current position so the
  * first point coincides with it. Returns `count` points (not closed).
  */

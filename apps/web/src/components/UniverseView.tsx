@@ -14,14 +14,17 @@ export function UniverseView() {
   const showLabels = useApp((s) => s.showLabels);
   const showOrbits = useApp((s) => s.showOrbits);
   const reducedMotionOverride = useApp((s) => s.reducedMotionOverride);
+  const location = useApp((s) => s.location);
+  const sky = useApp((s) => s.sky);
+  const deep = useApp((s) => s.deep);
 
   useEffect(() => {
-    const { set, reducedMotion, quality: q } = useApp.getState();
+    const { set, reducedMotion, quality: q, location: loc, sky: skyOptions } = useApp.getState();
     // A fresh canvas per mount keeps StrictMode's double-mount from sharing a GL context.
     const canvas = document.createElement('canvas');
     canvas.className = 'absolute inset-0 block h-full w-full touch-none outline-none';
     canvas.tabIndex = 0;
-    canvas.setAttribute('aria-label', '3D universe view. Drag to orbit, scroll to zoom, arrow keys to rotate.');
+    canvas.setAttribute('aria-label', '3D view. Drag to look around, scroll to zoom, click an object to select it.');
     host.current!.prepend(canvas);
 
     let instance: Engine;
@@ -33,6 +36,9 @@ export function UniverseView() {
         textureBaseUrl: `${BASE}textures/planets/`,
         quality: q,
         reducedMotion: reducedMotion(),
+        observer: loc ?? undefined,
+        skyOptions,
+        mode: 'sky',
       });
     } catch (err) {
       console.error(err);
@@ -41,10 +47,18 @@ export function UniverseView() {
       return;
     }
     const offStats = instance.onStats((stats) => set({ stats }));
+    const offMode = instance.onModeChange((m) => {
+      const section = useApp.getState().section;
+      if (m === 'sky' && section === 'universe') set({ section: 'sky' });
+      if (m === 'universe' && section === 'sky') set({ section: 'universe' });
+    });
     set({ engine: instance });
+    // Development builds only: a console/automation handle (not present in production bundles).
+    if (import.meta.env.DEV) (window as unknown as { __simuverse?: Engine }).__simuverse = instance;
     canvas.focus({ preventScroll: true });
     return () => {
       offStats();
+      offMode();
       instance.dispose();
       canvas.remove();
       set({ engine: null, stats: null });
@@ -54,6 +68,11 @@ export function UniverseView() {
   useEffect(() => engine?.setQuality(quality), [engine, quality]);
   useEffect(() => engine?.setLabelsVisible(showLabels), [engine, showLabels]);
   useEffect(() => engine?.setOrbitsVisible(showOrbits), [engine, showOrbits]);
+  useEffect(() => engine?.setSkyOptions(sky), [engine, sky]);
+  useEffect(() => engine?.setDeepSkyOptions(deep), [engine, deep]);
+  useEffect(() => {
+    if (engine && location) engine.setObserver(location);
+  }, [engine, location]);
   useEffect(() => {
     if (!engine) return;
     const mq = matchMedia('(prefers-reduced-motion: reduce)');
