@@ -21,6 +21,16 @@ function Icon({ size = 18, children, ...rest }: IconProps & { children: React.Re
   );
 }
 
+export const IconSearch = (p: IconProps) => <Icon {...p}><circle cx="11" cy="11" r="6.5" /><path d="M20 20l-4.2-4.2" /></Icon>;
+export const IconLink = (p: IconProps) => (
+  <Icon {...p}><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></Icon>
+);
+export const IconFly = (p: IconProps) => (
+  <Icon {...p}><path d="M12 3l2.2 6.3L21 12l-6.8 2.7L12 21l-2.2-6.3L3 12l6.8-2.7z" /></Icon>
+);
+export const IconDice = (p: IconProps) => (
+  <Icon {...p}><rect x="4" y="4" width="16" height="16" rx="3" /><path d="M9 9h.01M15 15h.01M15 9h.01M9 15h.01M12 12h.01" /></Icon>
+);
 export const IconMenu = (p: IconProps) => <Icon {...p}><path d="M4 6h16M4 12h16M4 18h16" /></Icon>;
 export const IconClose = (p: IconProps) => <Icon {...p}><path d="M6 6l12 12M18 6L6 18" /></Icon>;
 export const IconUniverse = (p: IconProps) => (

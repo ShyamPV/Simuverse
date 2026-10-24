@@ -51,9 +51,30 @@ export function Hud() {
       </p>
       <p className="font-mono tabular-nums">
         <span className="text-[var(--text-dim)]">speed</span> {formatSpeed(stats.speed).text}
+        {stats.nav === 'fly' && <span className="text-[var(--text-dim)]"> · ×{formatFactor(stats.flyFactor)}</span>}
       </p>
+      {stats.warp && (
+        <div className="mt-1.5" aria-live="polite">
+          <p className="font-mono tabular-nums">
+            <span className="text-[var(--accent-2)]">warping</span> to {stats.warp.name} · {stats.warp.remaining.toFixed(1)} s
+          </p>
+          <div className="mt-1 h-1 overflow-hidden rounded bg-white/10" aria-hidden="true">
+            <div className="h-full bg-[var(--accent-2)]" style={{ width: `${(stats.warp.progress * 100).toFixed(1)}%` }} />
+          </div>
+        </div>
+      )}
+      {stats.nav === 'fly' && (
+        <p className="mt-1.5 text-[var(--text-dim)]">
+          <span className="text-[var(--accent-2)]">free flight</span> · <kbd className="kbd">W</kbd><kbd className="kbd">A</kbd><kbd className="kbd">S</kbd><kbd className="kbd">D</kbd> move ·{' '}
+          <kbd className="kbd">Q</kbd><kbd className="kbd">E</kbd> down/up · <kbd className="kbd">⇧</kbd> boost · scroll: speed · <kbd className="kbd">F</kbd> orbit
+        </p>
+      )}
     </div>
   );
+}
+
+function formatFactor(f: number): string {
+  return f >= 1 ? f.toFixed(f < 10 ? 2 : 0) : `1/${(1 / f).toFixed(1 / f < 10 ? 2 : 0)}`;
 }
 
 export function PerfOverlay() {

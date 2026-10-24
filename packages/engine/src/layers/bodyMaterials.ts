@@ -4,6 +4,7 @@ import {
   AdditiveBlending, BufferGeometry, Color, DoubleSide, Float32BufferAttribute, ShaderMaterial,
   type Texture, Vector3,
 } from 'three';
+import { NOISE_GLSL } from './noise.ts';
 import { STAR_PSF_FRAGMENT, STAR_PSF_VERTEX } from './shaders.ts';
 
 /**
@@ -43,8 +44,10 @@ const bodyVertex = /* glsl */ `
 varying vec2 vUv;
 varying vec3 vNormalV;
 varying vec3 vPosV;
+varying vec3 vObj;
 void main() {
   vUv = uv;
+  vObj = position;
   vNormalV = normalize(normalMatrix * normal);
   vec4 mv = modelViewMatrix * vec4(position, 1.0);
   vPosV = mv.xyz;
@@ -65,14 +68,30 @@ uniform float sunIntensity;
 uniform vec3 atmoColor;
 uniform float atmoStrength;
 uniform float alphaFromLuma;
+uniform float uSeed;
+uniform float uBanded;
 varying vec2 vUv;
 varying vec3 vNormalV;
 varying vec3 vPosV;
+varying vec3 vObj;
+${NOISE_GLSL}
+// Untextured bodies (most moons): albedo variegation from noise. Approximate, not a map.
+vec3 proceduralSurface(vec3 p) {
+  if (uBanded > 0.5) {
+    // Giant planets: latitude bands, turbulently warped.
+    float warp = fbm(p * 3.0 + uSeed, 4);
+    float bands = sin(p.z * 17.0 + warp * 5.0 + uSeed) * 0.5 + 0.5;
+    return baseColor * (0.72 + 0.4 * bands);
+  }
+  float broad = fbm(p * 2.5 + uSeed, 5);
+  float fine = valueNoise(p * 28.0 + uSeed * 1.7);
+  return baseColor * (0.62 + 0.75 * broad + 0.14 * (fine - 0.5));
+}
 void main() {
   #include <logdepthbuf_fragment>
   vec3 n = normalize(vNormalV);
   vec3 v = normalize(-vPosV);
-  vec4 tex = hasMap > 0.5 ? texture2D(map, vUv) : vec4(baseColor, 1.0);
+  vec4 tex = hasMap > 0.5 ? texture2D(map, vUv) : vec4(proceduralSurface(vObj), 1.0);
   float ndl = dot(n, sunDirV);
   // Slightly softened terminator; real scattering arrives with the atmosphere shader.
   float diffuse = smoothstep(-0.04, 0.12, ndl) * max(ndl, 0.0) + smoothstep(-0.04, 0.12, ndl) * 0.02;
@@ -96,6 +115,10 @@ export interface PlanetMaterialOptions {
   atmoStrength?: number;
   /** For cloud layers: use the texture's luminance as alpha. */
   clouds?: boolean;
+  /** Seeds the procedural surface of untextured bodies. */
+  seed?: number;
+  /** Procedural latitude bands (giant planets) instead of mottling. */
+  banded?: boolean;
 }
 
 export function createPlanetMaterial(o: PlanetMaterialOptions): ShaderMaterial {
@@ -113,6 +136,8 @@ export function createPlanetMaterial(o: PlanetMaterialOptions): ShaderMaterial {
       atmoColor: { value: o.atmoColor ?? new Color(0, 0, 0) },
       atmoStrength: { value: o.atmoStrength ?? 0 },
       alphaFromLuma: { value: o.clouds ? 1 : 0 },
+      uSeed: { value: o.seed ?? 0 },
+      uBanded: { value: o.banded ? 1 : 0 },
     },
     transparent: !!o.clouds,
     depthWrite: !o.clouds,
@@ -135,6 +160,34 @@ void main() {
   gl_FragColor = vec4(vec3(1.0, 0.93, 0.82) * (0.55 + 0.9 * tex) * limb * intensity, 1.0);
 }
 `;
+
+const starFragment = /* glsl */ `
+#include <logdepthbuf_pars_fragment>
+uniform vec3 uColor;
+uniform float uIntensity;
+uniform float uTime;
+varying vec3 vNormalV;
+varying vec3 vPosV;
+varying vec3 vObj;
+${NOISE_GLSL}
+void main() {
+  #include <logdepthbuf_fragment>
+  float mu = max(dot(normalize(vNormalV), normalize(-vPosV)), 0.0);
+  // Quadratic limb darkening (solar-like coefficients) and slowly evolving granulation.
+  float limb = 1.0 - 0.47 * (1.0 - mu) - 0.23 * (1.0 - mu) * (1.0 - mu);
+  float gran = fbm(vObj * 30.0 + vec3(0.0, 0.0, uTime * 0.01), 3);
+  gl_FragColor = vec4(uColor * (0.75 + 0.5 * gran) * limb * uIntensity, 1.0);
+}
+`;
+
+/** Another star seen close up: colour from its temperature, limb darkening, procedural granulation. */
+export function createStarMaterial(): ShaderMaterial {
+  return new ShaderMaterial({
+    vertexShader: bodyVertex,
+    fragmentShader: starFragment,
+    uniforms: { uColor: { value: new Color(1, 1, 1) }, uIntensity: { value: 14 }, uTime: { value: 0 } },
+  });
+}
 
 export function createSunMaterial(map: Texture): ShaderMaterial {
   return new ShaderMaterial({
@@ -167,6 +220,7 @@ export function createSunGlowMaterial(): ShaderMaterial {
     `,
     fragmentShader: /* glsl */ `
       #include <logdepthbuf_pars_fragment>
+      uniform vec3 uTint;
       varying float vIntensity;
       varying float vHalo;
       ${STAR_PSF_FRAGMENT}
@@ -178,12 +232,13 @@ export function createSunGlowMaterial(): ShaderMaterial {
         // Star core scaled into the inner part of the sprite, plus a soft corona.
         float core = vHalo > 0.0 ? starProfile((d / max(vHalo, 1e-3)) * 0.5 + 0.5) : 0.0;
         float corona = pow(1.0 - r, 3.0) * 0.6;
-        gl_FragColor = vec4(vec3(1.0, 0.92, 0.8) * (core * vIntensity + corona), 1.0);
+        gl_FragColor = vec4(uTint * (core * vIntensity + corona), 1.0);
       }
     `,
     uniforms: {
       uAppMag: { value: -26.7 },
       uHaloPx: { value: 0 },
+      uTint: { value: new Vector3(1.0, 0.92, 0.8) },
       uMagRef: { value: 4 },
       uMagLimit: { value: 8 },
       uPixelRatio: { value: 1 },

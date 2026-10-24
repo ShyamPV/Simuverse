@@ -84,6 +84,8 @@ export interface StarTile {
   positions: Float32Array;
   absMag: Float32Array;
   colors: Float32Array;
+  /** B−V colour index (quantised to 1/70 mag). */
+  bv: Float32Array;
   ids: Uint32Array;
 }
 
@@ -97,6 +99,7 @@ export function decodeStarTile(buffer: ArrayBuffer, node: OctreeNode): StarTile 
   const positions = new Float32Array(count * 3);
   const absMag = new Float32Array(count);
   const colors = new Float32Array(count * 3);
+  const bv = new Float32Array(count);
   const ids = new Uint32Array(count);
   const m = EQUATORIAL_TO_ECLIPTIC;
   const scale = (2 * node.h) / 65535;
@@ -111,6 +114,7 @@ export function decodeStarTile(buffer: ArrayBuffer, node: OctreeNode): StarTile 
     positions[i * 3 + 2] = m[6] * x + m[7] * y + m[8] * z;
     absMag[i] = view.getInt16(o + 6, true) / 1000;
     const q = view.getUint8(o + 8);
+    bv[i] = q / 70 - 0.5;
     let rgb = colorLut.get(q);
     if (!rgb) {
       rgb = bvToRgb(q / 70 - 0.5);
@@ -119,5 +123,5 @@ export function decodeStarTile(buffer: ArrayBuffer, node: OctreeNode): StarTile 
     colors.set(rgb, i * 3);
     ids[i] = view.getUint32(o + 10, true);
   }
-  return { count, positions, absMag, colors, ids };
+  return { count, positions, absMag, colors, bv, ids };
 }

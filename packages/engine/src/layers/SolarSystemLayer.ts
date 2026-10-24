@@ -11,8 +11,8 @@
  */
 
 import {
-  AU, type Mat3, PC, type SolarBodyId, type Vec3, angleBetween, apparentBody, apparentMagnitude, bodyMagnitude,
-  sampleOrbit, stateToElements, type AstroTime,
+  AU, type Mat3, PC, type SolarBodyId, type Vec3, angleBetween, apparentBody, apparentMagnitude, apparentMoon,
+  bodyMagnitude, isFittedMoon, moonMagnitude, moonPeriodDays, moonPosition, sampleOrbit, stateToElements, type AstroTime,
 } from '@simuverse/astro';
 import {
   BufferAttribute, BufferGeometry, Color, Group, LineBasicMaterial, LineLoop, Matrix4, Mesh, Points, Quaternion,
@@ -33,7 +33,7 @@ const SUN_MASS_KG = 1.98847e30;
 /** Below this apparent radius (CSS px) a body is drawn as a point instead of a mesh. */
 const POINT_THRESHOLD_PX = 1.2;
 
-const TEXTURES: Record<string, { map: string; night?: string; clouds?: string; rings?: string }> = {
+export const TEXTURES: Record<string, { map: string; night?: string; clouds?: string; rings?: string }> = {
   sun: { map: '2k_sun.jpg' },
   mercury: { map: '2k_mercury.jpg' },
   venus: { map: '2k_venus_atmosphere.jpg' },
@@ -54,6 +54,9 @@ const ATMOSPHERES: Record<string, [string, number]> = {
   saturn: ['#efe0b8', 0.25],
   uranus: ['#a8e4f0', 0.45],
   neptune: ['#6a8cff', 0.45],
+  // Titan's thick orange haze and Triton's tenuous nitrogen are what you'd notice close up.
+  titan: ['#e0a850', 0.9],
+  triton: ['#c8d4ff', 0.12],
 };
 
 /** Per-frame screen-space info used by labels, picking and the HUD. */
@@ -126,6 +129,7 @@ export class SolarSystemLayer implements Layer {
           color,
           atmoColor: atmo ? new Color(atmo[0]) : undefined,
           atmoStrength: atmo?.[1],
+          seed: [...id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 997, 7),
         });
       }
       const group = new Group();
@@ -250,8 +254,12 @@ export class SolarSystemLayer implements Layer {
 
       if (id !== 'sun') this.updateLighting(b);
       if (b.orbit) {
-        const local = id === focusId || b.state.info.parent === focusId;
-        this.updateOrbit(b, ctx, d, sky ? 0 : local ? 1 : othersFade);
+        const parent = b.state.info.parent;
+        const local = id === focusId || parent === focusId;
+        // A moon's siblings share the view: show their orbits too, but never other planets' moons.
+        const sibling = b.state.info.kind === 'moon' && this.model.get(focusId)?.info.parent === parent;
+        const context = local || sibling ? 1 : isFittedMoon(id) ? 0 : othersFade;
+        this.updateOrbit(b, ctx, d, sky ? 0 : context);
       }
     });
     posAttr.needsUpdate = magAttr.needsUpdate = visAttr.needsUpdate = true;
@@ -262,7 +270,9 @@ export class SolarSystemLayer implements Layer {
   /** Camera → body vector: geometric in Universe mode, apparent (light-time + aberration) in Sky mode. */
   private placeBody(ctx: RenderContext, b: BodyState, out: Vec3): void {
     if (ctx.sky && b.info.id !== 'earth') {
-      const p = apparentBody(ctx.ephemeris, ctx.sky.observer, b.info.id as SolarBodyId);
+      const p = isFittedMoon(b.info.id)
+        ? apparentMoon(ctx.ephemeris, ctx.sky.observer, b.info.id)
+        : apparentBody(ctx.ephemeris, ctx.sky.observer, b.info.id as SolarBodyId);
       const m = p.distanceKm * 1000;
       out[0] = p.direction[0] * m;
       out[1] = p.direction[1] * m;
@@ -280,6 +290,7 @@ export class SolarSystemLayer implements Layer {
     const toSun: Vec3 = [this.sunRel[0] - rel[0], this.sunRel[1] - rel[1], this.sunRel[2] - rel[2]];
     const r = Math.hypot(toSun[0], toSun[1], toSun[2]) / AU;
     const phase = angleBetween(toSun, [-rel[0], -rel[1], -rel[2]]) * (180 / Math.PI);
+    if (isFittedMoon(id)) return moonMagnitude(id, r, delta, phase);
     let tilt = 0;
     if (b.rings) {
       const m = b.state.orientation;
@@ -317,6 +328,18 @@ export class SolarSystemLayer implements Layer {
     const t: AstroTime = ctx.time;
     const eph = ctx.ephemeris;
     o.sampledAtJd = t.jdTdb;
+    if (isFittedMoon(id)) {
+      // One revolution of the precessing ellipse, centred on now.
+      const period = moonPeriodDays(id);
+      o.points = [];
+      for (let k = 0; k < ORBIT_SEGMENTS; k++) {
+        const p = moonPosition(id, t.jdTdb + period * (k / ORBIT_SEGMENTS - 0.5));
+        o.points.push([p[0] * 1000, p[1] * 1000, p[2] * 1000]);
+      }
+      o.resampleDays = period / 100;
+      o.semiMajor = Math.hypot(...o.points[0]!);
+      return;
+    }
     if (id === 'moon') {
       // The Moon's orbit is strongly perturbed: trace the actual path over one month.
       o.points = [];

@@ -23,17 +23,35 @@ export interface CachedBinary {
   bytes: number;
 }
 
+/** An object the user starred in the Explore catalogue (keyed by its stable reference). */
+export interface Favorite {
+  ref: string;
+  name: string;
+  addedAt: number;
+}
+
+/** An object the user has travelled to. */
+export interface Visit {
+  ref: string;
+  name: string;
+  lastAt: number;
+  count: number;
+}
+
 /** Tiles beyond this total are evicted, least recently used first. */
 export const TILE_CACHE_BUDGET_BYTES = 200 * 1024 * 1024;
 
 class SimuverseDb extends Dexie {
   texts!: Table<CachedText, string>;
   binaries!: Table<CachedBinary, string>;
+  favorites!: Table<Favorite, string>;
+  visits!: Table<Visit, string>;
 
   constructor() {
     super('simuverse');
     this.version(1).stores({ texts: 'key' });
     this.version(2).stores({ texts: 'key', binaries: 'key, usedAt' });
+    this.version(3).stores({ texts: 'key', binaries: 'key, usedAt', favorites: 'ref, addedAt', visits: 'ref, lastAt' });
   }
 }
 
@@ -101,4 +119,43 @@ async function trimBinaries(d: SimuverseDb): Promise<void> {
     if (total > TILE_CACHE_BUDGET_BYTES) victims.push(e.key);
   });
   if (victims.length) await d.binaries.bulkDelete(victims);
+}
+
+// ---------------------------------------------------------------- favourites and visits
+
+export async function listFavorites(): Promise<Favorite[]> {
+  try {
+    return (await open()?.favorites.orderBy('addedAt').reverse().toArray()) ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function setFavorite(ref: string, name: string, on: boolean): Promise<void> {
+  try {
+    const d = open();
+    if (on) await d?.favorites.put({ ref, name, addedAt: Date.now() });
+    else await d?.favorites.delete(ref);
+  } catch {
+    // Storage blocked: favourites just don't persist.
+  }
+}
+
+export async function listVisits(limit = 50): Promise<Visit[]> {
+  try {
+    return (await open()?.visits.orderBy('lastAt').reverse().limit(limit).toArray()) ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function recordVisit(ref: string, name: string): Promise<void> {
+  try {
+    const d = open();
+    if (!d) return;
+    const prev = await d.visits.get(ref);
+    await d.visits.put({ ref, name, lastAt: Date.now(), count: (prev?.count ?? 0) + 1 });
+  } catch {
+    // Best-effort.
+  }
 }

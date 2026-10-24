@@ -36,6 +36,7 @@ export class StarOctreeLayer implements Layer {
   private lastSelectAt = -Infinity;
   private lastCam: Vec3 = [Infinity, 0, 0];
   private magLimit = 8.5;
+  private hiddenId = -1;
   /** Most stars kept on the GPU at once (set by the quality preset). */
   budget = 1_500_000;
   private readonly tmp: Vec3 = [0, 0, 0];
@@ -79,6 +80,27 @@ export class StarOctreeLayer implements Layer {
       if (i >= 0) return { tile: t.tile, i, centerPc: t.center };
     }
     return null;
+  }
+
+  /** Hides one star's point (drawn close up by another layer), or restores it with null. */
+  hideStar(id: number | null): void {
+    const next = id ?? -1;
+    if (next === this.hiddenId) return;
+    for (const t of this.tiles.values()) {
+      const attr = t.points.geometry.getAttribute('absMag') as BufferAttribute;
+      const arr = attr.array as Float32Array;
+      let changed = false;
+      if (this.hiddenId >= 0) {
+        const k = t.tile.ids.indexOf(this.hiddenId);
+        if (k >= 0) { arr[k] = t.tile.absMag[k]!; changed = true; }
+      }
+      if (next >= 0) {
+        const k = t.tile.ids.indexOf(next);
+        if (k >= 0) { arr[k] = 99; changed = true; }
+      }
+      if (changed) attr.needsUpdate = true;
+    }
+    this.hiddenId = next;
   }
 
   setMagLimit(limit: number): void {
@@ -131,7 +153,12 @@ export class StarOctreeLayer implements Layer {
         if (!this.wanted.has(id)) return;
         const g = new BufferGeometry();
         g.setAttribute('position', new BufferAttribute(tile.positions, 3));
-        g.setAttribute('absMag', new BufferAttribute(tile.absMag, 1));
+        const mags = tile.absMag.slice();
+        if (this.hiddenId >= 0) {
+          const k = tile.ids.indexOf(this.hiddenId);
+          if (k >= 0) mags[k] = 99;
+        }
+        g.setAttribute('absMag', new BufferAttribute(mags, 1));
         g.setAttribute('color', new BufferAttribute(tile.colors, 3));
         const material = this.template.material.clone();
         const points = new Points(g, material);

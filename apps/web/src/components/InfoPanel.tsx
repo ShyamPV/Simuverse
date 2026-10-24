@@ -1,30 +1,19 @@
-import { C_MPS, formatDistance } from '@simuverse/astro';
+import { formatDistance } from '@simuverse/astro';
 import type { SelectionInfo, SkyEventsResponse } from '@simuverse/engine';
 import { useEffect, useMemo, useState } from 'react';
 import { bodyInfo } from '../bodies.ts';
-import { compassPoint, formatAzimuth, formatDec, formatDeg, formatRa, visibilityClass } from '../format.ts';
+import {
+  compassPoint, formatAzimuth, formatDec, formatDeg, formatRa, formatSci as sci, lightTime, visibilityClass,
+} from '../format.ts';
 import { useApp, useDisplayTimeZone } from '../state/store.ts';
 import { formatTime, localMidnight, zoneAbbreviation } from '../zonedTime.ts';
 import { IconClose, IconPanel } from './icons.tsx';
 
 const KIND_LABEL: Record<string, string> = {
   star: 'Star', planet: 'Planet', moon: 'Moon', 'dwarf-planet': 'Dwarf planet', satellite: 'Satellite',
-  galaxy: 'Galaxy', nebula: 'Nebula', cluster: 'Star cluster',
+  galaxy: 'Galaxy', nebula: 'Nebula', cluster: 'Star cluster', exoplanet: 'Exoplanet', 'small-body': 'Asteroid or comet',
+  'black-hole': 'Black hole', 'neutron-star': 'Neutron star',
 };
-
-function sci(x: number, unit: string): string {
-  const [m, e] = x.toExponential(3).split('e');
-  return `${m} × 10${Number(e).toString().replace(/-/g, '⁻').replace(/\d/g, (d) => '⁰¹²³⁴⁵⁶⁷⁸⁹'[Number(d)]!)} ${unit}`;
-}
-
-function lightTime(m: number): string {
-  const s = m / C_MPS;
-  if (s < 60) return `${s.toFixed(2)} light-seconds`;
-  if (s < 3600) return `${(s / 60).toFixed(1)} light-minutes`;
-  if (s < 86400) return `${(s / 3600).toFixed(1)} light-hours`;
-  const ly = s / 31_557_600;
-  return `${ly.toLocaleString('en-US', { maximumSignificantDigits: ly < 100 ? 3 : 4 })} light-years`;
-}
 
 export function InfoPanel() {
   const stats = useApp((s) => s.stats);
@@ -184,7 +173,7 @@ function SelectionView({ sel }: { sel: SelectionInfo }) {
   );
 }
 
-function RiseSet({ r, t }: { r?: SkyEventsResponse['results'][string]; t: (ms?: number) => string }) {
+export function RiseSet({ r, t }: { r?: SkyEventsResponse['results'][string]; t: (ms?: number) => string }) {
   if (!r) return <p className="text-[var(--text-dim)]">—</p>;
   if (r.alwaysUp) return <p>Above the horizon all day (circumpolar today).</p>;
   if (r.alwaysDown) return <p>Doesn’t rise today from here.</p>;
@@ -218,7 +207,7 @@ function PassList({ passes, t }: { passes: SkyEventsResponse['passes'][string]; 
 }
 
 /** Rise/transit/set for the selection's local day, or satellite passes for the next 24 h. */
-function useSelectionEvents(sel: SelectionInfo, simTime: number, tz: string): SkyEventsResponse | null {
+export function useSelectionEvents(sel: SelectionInfo, simTime: number, tz: string): SkyEventsResponse | null {
   const engine = useApp((s) => s.engine);
   const location = useApp((s) => s.location);
   const [data, setData] = useState<SkyEventsResponse | null>(null);

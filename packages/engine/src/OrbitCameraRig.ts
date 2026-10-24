@@ -5,6 +5,12 @@
  *
  * Zoom acts on log(altitude above the surface), so one wheel notch is the
  * same fraction of the distance whether you are 10 km or 10 kpc away.
+ *
+ * Warps (travel to a new target) follow a timed ease in log(altitude): the
+ * speed builds up, peaks mid-way (orders of magnitude faster than light on
+ * long trips) and settles, taking 1–7 s from a planet hop to a trip across
+ * the observable universe. Near the end the camera swings round to the
+ * arrival viewpoint.
  */
 
 import { type Vec3, length } from '@simuverse/astro';
@@ -39,6 +45,13 @@ export class OrbitCameraRig implements CameraRig {
   private goalEl = 0.3;
   private goalLogAlt: number;
   private look: { from: Quaternion; t: number; duration: number } | null = null;
+  private travel: {
+    from: number; to: number; t: number; duration: number;
+    swing: { az0: number; el0: number; az1: number; el1: number } | null;
+  } | null = null;
+
+  /** Wall-clock time of the last update, so timed warps keep their duration on slow machines. */
+  private lastUpdateMs = 0;
 
   private readonly m4 = new Matrix4();
   private readonly eye = new Vector3();
@@ -76,6 +89,27 @@ export class OrbitCameraRig implements CameraRig {
     return Math.exp(this.logAlt);
   }
 
+  /** Direction from the target to the camera: azimuth and elevation in ecliptic axes, radians. */
+  get azimuth(): number {
+    return this.az;
+  }
+
+  get elevation(): number {
+    return this.el;
+  }
+
+  /** Puts the camera at a given direction and distance from a target, instantly. */
+  place(target: OrbitTarget, az: number, el: number, distance: number): void {
+    this.travel = null;
+    this.look = null;
+    this.target = target;
+    this.anchor = target.frame;
+    this.logAlt = this.goalLogAlt = MathUtils.clamp(
+      Math.log(Math.max(distance - target.radius, this.minAltitude())), Math.log(this.minAltitude()), Math.log(MAX_DISTANCE),
+    );
+    this.setAngles(az, el);
+  }
+
   setAngles(az: number, el: number): void {
     this.az = this.goalAz = az;
     this.el = this.goalEl = MathUtils.clamp(el, -MAX_ELEVATION, MAX_ELEVATION);
@@ -86,8 +120,56 @@ export class OrbitCameraRig implements CameraRig {
     return Math.max(this.target.radius * 1e-3, 10);
   }
 
+  /** True while a warp is in progress. */
+  get warping(): boolean {
+    return !!this.travel;
+  }
+
+  /** Warp progress 0–1 and seconds remaining, or null when not warping. */
+  get warpState(): { progress: number; remaining: number } | null {
+    const t = this.travel;
+    return t ? { progress: Math.min(t.t / t.duration, 1), remaining: Math.max(t.duration - t.t, 0) } : null;
+  }
+
+  /** Stops a warp where it is. */
+  cancelWarp(): void {
+    if (!this.travel) return;
+    this.travel = null;
+    this.goalLogAlt = this.logAlt;
+    this.goalAz = this.az;
+    this.goalEl = this.el;
+  }
+
+  /**
+   * Travels to a target: turns to face it, then eases log(altitude) to
+   * viewDistance over a duration that grows with the number of e-foldings
+   * crossed, swinging round to view from `arrive` (unit vector from the target) on the way in.
+   */
+  warpTo(target: OrbitTarget, viewDistance: number, arrive: Readonly<Vec3> | null): void {
+    this.travel = null;
+    // The scale we leave from (height above the old target) counts too: a hop from a
+    // planet to Andromeda crosses ~15 orders of magnitude even though, measured from
+    // Andromeda, the distance only shrinks eightfold.
+    const startLog = this.logAlt;
+    this.takeOver(target, this.anchor, [...this.offset], this.quaternion, viewDistance, 'exact');
+    const from = this.logAlt, to = this.goalLogAlt;
+    const span = Math.abs(to - from) + Math.max(0, from - startLog);
+    let swing: { az0: number; el0: number; az1: number; el1: number } | null = null;
+    if (arrive) {
+      const l = Math.hypot(arrive[0], arrive[1], arrive[2]) || 1;
+      let az1 = Math.atan2(arrive[1], arrive[0]);
+      while (az1 - this.az > Math.PI) az1 -= 2 * Math.PI;
+      while (az1 - this.az < -Math.PI) az1 += 2 * Math.PI;
+      swing = { az0: this.az, el0: this.el, az1, el1: MathUtils.clamp(Math.asin(arrive[2] / l), -MAX_ELEVATION, MAX_ELEVATION) };
+    }
+    if (span < 0.3 && !swing) return;
+    const duration = this.reducedMotion ? 0.001 : MathUtils.clamp(1.2 + 0.1 * span, 1.4, 7);
+    this.travel = { from, to, t: 0, duration, swing };
+  }
+
   /** Multiplies the distance to the surface by exp(amount). */
   zoomBy(amount: number): void {
+    this.cancelWarp();
     this.goalLogAlt = MathUtils.clamp(
       this.goalLogAlt + amount,
       Math.log(this.minAltitude()),
@@ -96,6 +178,7 @@ export class OrbitCameraRig implements CameraRig {
   }
 
   zoomToDistance(distance: number): void {
+    this.travel = null;
     this.goalLogAlt = MathUtils.clamp(
       Math.log(Math.max(distance - this.target.radius, this.minAltitude())),
       Math.log(this.minAltitude()),
@@ -105,6 +188,7 @@ export class OrbitCameraRig implements CameraRig {
 
   /** Rotates around the target; dx/dy in radians at "full" sensitivity. */
   rotateBy(dAz: number, dEl: number): void {
+    if (this.travel) this.travel.swing = null;
     // Slow rotation down near the surface so a drag moves the ground predictably.
     const k = MathUtils.clamp(this.altitude / Math.max(this.target.radius, 1), 0.02, 1);
     this.goalAz += dAz * k;
@@ -145,6 +229,7 @@ export class OrbitCameraRig implements CameraRig {
    * already in progress (used by the scale ladder while the wheel is turning).
    */
   retarget(target: OrbitTarget): void {
+    this.travel = null;
     const pending = this.goalLogAlt - this.logAlt;
     this.takeOver(target, this.anchor, this.offset, this.quaternion, 1, 'exact');
     const d = length(this.frames.difference(target.frame, [0, 0, 0], this.anchor, this.offset));
@@ -169,14 +254,31 @@ export class OrbitCameraRig implements CameraRig {
     const k = 1 - Math.exp(-dt * rate);
     this.az += (this.goalAz - this.az) * k;
     this.el += (this.goalEl - this.el) * k;
+    // Warps and the turn towards a target run on real time (the frame dt is capped at 0.1 s),
+    // so at a few frames per second they still take seconds, not minutes.
+    const nowMs = performance.now();
+    const realDt = this.lastUpdateMs ? Math.min(Math.max((nowMs - this.lastUpdateMs) / 1000, dt), 2) : dt;
+    this.lastUpdateMs = nowMs;
     const lookHalfDone = !this.look || this.look.t / this.look.duration > 0.4;
-    if (lookHalfDone) {
+    const tr = this.travel;
+    if (tr && lookHalfDone) {
+      tr.t += realDt;
+      const s = MathUtils.smootherstep(tr.t / tr.duration, 0, 1);
+      this.logAlt = this.goalLogAlt = tr.from + (tr.to - tr.from) * s;
+      if (tr.swing) {
+        // Swing round to the arrival viewpoint over the second half of the trip.
+        const w = MathUtils.smoothstep(s, 0.35, 1);
+        this.az = this.goalAz = tr.swing.az0 + (tr.swing.az1 - tr.swing.az0) * w;
+        this.el = this.goalEl = tr.swing.el0 + (tr.swing.el1 - tr.swing.el0) * w;
+      }
+      if (tr.t >= tr.duration) this.travel = null;
+    } else if (lookHalfDone) {
       // Travel speed is proportional to distance: constant in log space.
       const travel = 1 - Math.exp(-dt * (this.reducedMotion ? 30 : 4));
       this.logAlt += (this.goalLogAlt - this.logAlt) * travel;
     }
     if (this.look) {
-      this.look.t += dt;
+      this.look.t += realDt;
       if (this.look.t >= this.look.duration) this.look = null;
     }
     this.apply();

@@ -18,7 +18,11 @@
     "data:stars-octree": "node tools/build-star-octree.mjs",
     "data:galaxies": "node tools/build-galaxies.mjs",
     "data:deepsky": "node tools/build-deepsky.mjs",
-    "data:milkyway": "node tools/build-milkyway.mjs"
+    "data:milkyway": "node tools/build-milkyway.mjs",
+    "data:moons": "node tools/build-moons.mjs",
+    "data:exoplanets": "node tools/build-exoplanets.mjs",
+    "data:smallbodies": "node tools/build-smallbodies.mjs",
+    "data:images": "node tools/build-images.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",

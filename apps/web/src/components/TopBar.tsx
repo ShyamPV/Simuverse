@@ -1,7 +1,10 @@
 import { AU, KPC, MPC } from '@simuverse/astro';
 import type { ZoomLevel } from '@simuverse/engine';
+import { copyShareLink } from '../shareLink.ts';
 import { useApp } from '../state/store.ts';
-import { IconCamera, IconChevronRight, IconHelp } from './icons.tsx';
+import { IconCamera, IconChevronRight, IconFly, IconHelp, IconLink, IconSearch } from './icons.tsx';
+
+const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
 
 interface Crumb {
   label: string;
@@ -43,7 +46,11 @@ function useCrumbs(): { crumbs: Crumb[]; current: number } {
 export function TopBar() {
   const engine = useApp((s) => s.engine);
   const set = useApp((s) => s.set);
+  const nav = useApp((s) => s.stats?.nav ?? 'orbit');
   const { crumbs, current } = useCrumbs();
+  const share = () => {
+    if (engine) void copyShareLink(engine, useApp.getState().location).then(() => set({ toast: 'Link to this view copied' }));
+  };
 
   const screenshot = () => {
     if (!engine) return;
@@ -75,6 +82,32 @@ export function TopBar() {
         </ol>
       </nav>
       <div className="glass pointer-events-auto flex items-center gap-1 rounded-xl p-1">
+        <button
+          type="button"
+          className="btn gap-2 px-2.5 text-xs text-[var(--text-dim)]"
+          onClick={() => set({ paletteOpen: true })}
+          aria-label="Search and go"
+          title={`Search and go (${isMac ? '⌘' : 'Ctrl'}+K)`}
+          aria-keyshortcuts="Control+K Meta+K"
+        >
+          <IconSearch size={16} />
+          <span className="hidden lg:inline">Search</span>
+          <kbd className="kbd hidden lg:inline">{isMac ? '⌘K' : 'Ctrl K'}</kbd>
+        </button>
+        <button
+          type="button"
+          className={`btn ${nav === 'fly' ? 'is-active' : ''}`}
+          aria-pressed={nav === 'fly'}
+          onClick={() => engine?.setNavMode(engine.navMode === 'fly' ? 'orbit' : 'fly')}
+          title="Free flight (F): WASD to move, Q/E down/up, drag to look"
+          aria-label="Free flight"
+          disabled={!engine}
+        >
+          <IconFly />
+        </button>
+        <button type="button" className="btn" onClick={share} title="Copy a link to this view" aria-label="Copy link to this view" disabled={!engine}>
+          <IconLink />
+        </button>
         <button type="button" className="btn" onClick={screenshot} title="Save screenshot (C)" aria-label="Save screenshot">
           <IconCamera />
         </button>

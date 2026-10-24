@@ -14,6 +14,7 @@ self.onmessage = async (ev: MessageEvent<StarWorkerRequest>) => {
       stars.positions.buffer,
       stars.absMag.buffer,
       stars.colors.buffer,
+      stars.bv.buffer,
       stars.flags.buffer,
     ]);
   } catch (err) {

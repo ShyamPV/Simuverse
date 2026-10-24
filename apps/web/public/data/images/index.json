@@ -1,0 +1,4010 @@
+{
+ "version": 1,
+ "size": 384,
+ "tile": 128,
+ "atlasCols": 16,
+ "orientation": "north up, east left; fov is the full width in degrees (gnomonic)",
+ "objects": {
+  "NGC 1976": {
+   "name": "Great Orion Nebula",
+   "kind": "nebula",
+   "file": "ngc-1976.jpg",
+   "fov": 2.025,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 0,
+   "mean": 0.0362
+  },
+  "NGC 6523": {
+   "name": "Lagoon Nebula",
+   "kind": "nebula",
+   "file": "ngc-6523.jpg",
+   "fov": 1.0125,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 1,
+   "mean": 0.0773
+  },
+  "NGC 6611": {
+   "name": "Eagle Nebula",
+   "kind": "nebula",
+   "file": "ngc-6611.jpg",
+   "fov": 2.7,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 2,
+   "mean": 0.008
+  },
+  "NGC 6514": {
+   "name": "Trifid Nebula",
+   "kind": "nebula",
+   "file": "ngc-6514.jpg",
+   "fov": 0.63,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 3,
+   "mean": 0.024
+  },
+  "NGC 1982": {
+   "name": "Mairan's Nebula",
+   "kind": "nebula",
+   "file": "ngc-1982.jpg",
+   "fov": 0.45,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 4,
+   "mean": 0
+  },
+  "NGC 6618": {
+   "name": "Checkmark Nebula",
+   "kind": "nebula",
+   "file": "ngc-6618.jpg",
+   "fov": 0.2835,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 5,
+   "mean": 0.05
+  },
+  "NGC 6853": {
+   "name": "Dumbbell Nebula",
+   "kind": "nebula",
+   "file": "ngc-6853.jpg",
+   "fov": 0.15075,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 6,
+   "mean": 0.1049
+  },
+  "NGC 1952": {
+   "name": "Crab Nebula",
+   "kind": "nebula",
+   "file": "ngc-1952.jpg",
+   "fov": 0.18,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 7,
+   "mean": 0.0697
+  },
+  "NGC 2068": {
+   "name": "M78",
+   "kind": "nebula",
+   "file": "ngc-2068.jpg",
+   "fov": 0.10125,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 8,
+   "mean": 0.06
+  },
+  "NGC 3587": {
+   "name": "Owl Nebula",
+   "kind": "nebula",
+   "file": "ngc-3587.jpg",
+   "fov": 0.08055,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 9,
+   "mean": 0.1789
+  },
+  "NGC 6720": {
+   "name": "Ring Nebula",
+   "kind": "nebula",
+   "file": "ngc-6720.jpg",
+   "fov": 0.02858,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 10,
+   "mean": 0.2219
+  },
+  "NGC 650": {
+   "name": "Barbell Nebula",
+   "kind": "nebula",
+   "file": "ngc-650.jpg",
+   "fov": 0.0252,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 11,
+   "mean": 0
+  },
+  "NGC 3372": {
+   "name": "Carina Nebula",
+   "kind": "nebula",
+   "file": "ngc-3372.jpg",
+   "fov": 2.7,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 12,
+   "mean": 0.0326
+  },
+  "NGC 1499": {
+   "name": "California Nebula",
+   "kind": "nebula",
+   "file": "ngc-1499.jpg",
+   "fov": 3.6,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 13,
+   "mean": 0.042
+  },
+  "NGC 7000": {
+   "name": "North America Nebula",
+   "kind": "nebula",
+   "file": "ngc-7000.jpg",
+   "fov": 2.7,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 14,
+   "mean": 0.0599
+  },
+  "NGC 2238": {
+   "name": "Rosette Nebula",
+   "kind": "nebula",
+   "file": "ngc-2238.jpg",
+   "fov": 1.8,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 15,
+   "mean": 0.074
+  },
+  "NGC 6960": {
+   "name": "Veil Nebula",
+   "kind": "nebula",
+   "file": "ngc-6960.jpg",
+   "fov": 4.725,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 16,
+   "mean": 0
+  },
+  "IC 4604": {
+   "name": "rho Oph Nebula",
+   "kind": "nebula",
+   "file": "ic-4604.jpg",
+   "fov": 1.35,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 17,
+   "mean": 0.0076
+  },
+  "IC 1805": {
+   "name": "IC 1805",
+   "kind": "nebula",
+   "file": "ic-1805.jpg",
+   "fov": 1.35,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 18,
+   "mean": 0
+  },
+  "NGC 6992": {
+   "name": "Eastern Veil",
+   "kind": "nebula",
+   "file": "ngc-6992.jpg",
+   "fov": 1.35,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 19,
+   "mean": 0
+  },
+  "NGC 1909": {
+   "name": "the Witch Head Nebula",
+   "kind": "nebula",
+   "file": "ngc-1909.jpg",
+   "fov": 4.05,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 20,
+   "mean": 0
+  },
+  "IC 1848": {
+   "name": "IC 1848",
+   "kind": "nebula",
+   "file": "ic-1848.jpg",
+   "fov": 0.9,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 21,
+   "mean": 0.0033
+  },
+  "IC 434": {
+   "name": "Orion B",
+   "kind": "nebula",
+   "file": "ic-434.jpg",
+   "fov": 2.025,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 22,
+   "mean": 0.0356
+  },
+  "IC 5070": {
+   "name": "Pelican Nebula",
+   "kind": "nebula",
+   "file": "ic-5070.jpg",
+   "fov": 1.35,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 23,
+   "mean": 0
+  },
+  "NGC 2237": {
+   "name": "Rosette A",
+   "kind": "nebula",
+   "file": "ngc-2237.jpg",
+   "fov": 1.8,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 24,
+   "mean": 0.0763
+  },
+  "NGC 1980": {
+   "name": "Lower Sword",
+   "kind": "nebula",
+   "file": "ngc-1980.jpg",
+   "fov": 0.20925,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 25,
+   "mean": 0.0297
+  },
+  "IC 405": {
+   "name": "Flaming Star Nebula",
+   "kind": "nebula",
+   "file": "ic-405.jpg",
+   "fov": 1.125,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 26,
+   "mean": 0
+  },
+  "NGC 7380": {
+   "name": "NGC 7380",
+   "kind": "nebula",
+   "file": "ngc-7380.jpg",
+   "fov": 0.5625,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 27,
+   "mean": 0.0641
+  },
+  "NGC 1432": {
+   "name": "Maia Nebula",
+   "kind": "nebula",
+   "file": "ngc-1432.jpg",
+   "fov": 1.35,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 28,
+   "mean": 0.0097
+  },
+  "NGC 2264": {
+   "name": "Christmas Tree Cluster",
+   "kind": "nebula",
+   "file": "ngc-2264.jpg",
+   "fov": 0.2565,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 29,
+   "mean": 0.0166
+  },
+  "NGC 6888": {
+   "name": "Crescent Nebula",
+   "kind": "nebula",
+   "file": "ngc-6888.jpg",
+   "fov": 0.45,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 30,
+   "mean": 0
+  },
+  "IC 443": {
+   "name": "Gem A",
+   "kind": "nebula",
+   "file": "ic-443.jpg",
+   "fov": 1.125,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 31,
+   "mean": 0.0404
+  },
+  "NGC 1981": {
+   "name": "Upper Sword",
+   "kind": "nebula",
+   "file": "ngc-1981.jpg",
+   "fov": 0.2025,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 32,
+   "mean": 0.014
+  },
+  "C009": {
+   "name": "Cave Nebula",
+   "kind": "nebula",
+   "file": "c009.jpg",
+   "fov": 1.125,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 33,
+   "mean": 0
+  },
+  "NGC 2239": {
+   "name": "NGC 2239",
+   "kind": "nebula",
+   "file": "ngc-2239.jpg",
+   "fov": 0.20925,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 34,
+   "mean": 0.0085
+  },
+  "NGC 7293": {
+   "name": "Helix Nebula",
+   "kind": "nebula",
+   "file": "ngc-7293.jpg",
+   "fov": 0.36743,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 35,
+   "mean": 0.0404
+  },
+  "NGC 2174": {
+   "name": "Monkey Head Nebula",
+   "kind": "nebula",
+   "file": "ngc-2174.jpg",
+   "fov": 0.9,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 36,
+   "mean": 0.0583
+  },
+  "IC 2944": {
+   "name": "lam Cen Nebula",
+   "kind": "nebula",
+   "file": "ic-2944.jpg",
+   "fov": 0.162,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits",
+   "slot": 37,
+   "mean": 0.0566
+  },
+  "NGC 6250": {
+   "name": "NGC 6250",
+   "kind": "nebula",
+   "file": "ngc-6250.jpg",
+   "fov": 0.216,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits",
+   "slot": 38,
+   "mean": 0.0159
+  },
+  "NGC 6995": {
+   "name": "Eastern Veil",
+   "kind": "nebula",
+   "file": "ngc-6995.jpg",
+   "fov": 0.27,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 39,
+   "mean": 0.0274
+  },
+  "NGC 6530": {
+   "name": "NGC 6530",
+   "kind": "nebula",
+   "file": "ngc-6530.jpg",
+   "fov": 0.135,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 40,
+   "mean": 0.0243
+  },
+  "NGC 1435": {
+   "name": "Merope Nebula",
+   "kind": "nebula",
+   "file": "ngc-1435.jpg",
+   "fov": 0.675,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 41,
+   "mean": 0.0022
+  },
+  "IC 5146": {
+   "name": "Cocoon Nebula",
+   "kind": "nebula",
+   "file": "ic-5146.jpg",
+   "fov": 0.225,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 42,
+   "mean": 0.0545
+  },
+  "NGC 7023": {
+   "name": "Iris Nebula",
+   "kind": "nebula",
+   "file": "ngc-7023.jpg",
+   "fov": 0.225,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 43,
+   "mean": 0.0247
+  },
+  "NGC 2024": {
+   "name": "Flame Nebula",
+   "kind": "nebula",
+   "file": "ngc-2024.jpg",
+   "fov": 0.675,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 44,
+   "mean": 0.0209
+  },
+  "NGC 2736": {
+   "name": "Pencil Nebula",
+   "kind": "nebula",
+   "file": "ngc-2736.jpg",
+   "fov": 0.675,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 45,
+   "mean": 0.0075
+  },
+  "IC 349": {
+   "name": "Barnard's Merope Nebula",
+   "kind": "nebula",
+   "file": "ic-349.jpg",
+   "fov": 0.57825,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 46,
+   "mean": 0.0029
+  },
+  "NGC 1333": {
+   "name": "NGC 1333",
+   "kind": "nebula",
+   "file": "ngc-1333.jpg",
+   "fov": 0.43875,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 47,
+   "mean": 0.0285
+  },
+  "NGC 6188": {
+   "name": "Rim Nebula",
+   "kind": "nebula",
+   "file": "ngc-6188.jpg",
+   "fov": 0.45,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 48,
+   "mean": 0.001
+  },
+  "IC 4703": {
+   "name": "Eagle Nebula",
+   "kind": "nebula",
+   "file": "ic-4703.jpg",
+   "fov": 0.11363,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 49,
+   "mean": 0.009
+  },
+  "NGC 7635": {
+   "name": "Bubble Nebula",
+   "kind": "nebula",
+   "file": "ngc-7635.jpg",
+   "fov": 0.3375,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 50,
+   "mean": 0.0183
+  },
+  "NGC 6823": {
+   "name": "NGC 6823",
+   "kind": "nebula",
+   "file": "ngc-6823.jpg",
+   "fov": 0.135,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 51,
+   "mean": 0.0147
+  },
+  "NGC 3324": {
+   "name": "NGC 3324",
+   "kind": "nebula",
+   "file": "ngc-3324.jpg",
+   "fov": 0.108,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits",
+   "slot": 52,
+   "mean": 0.0091
+  },
+  "IC 1396": {
+   "name": "IC 1396",
+   "kind": "nebula",
+   "file": "ic-1396.jpg",
+   "fov": 0.315,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 53,
+   "mean": 0.0103
+  },
+  "NGC 1360": {
+   "name": "NGC 1360",
+   "kind": "nebula",
+   "file": "ngc-1360.jpg",
+   "fov": 0.14445,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 54,
+   "mean": 0.0724
+  },
+  "NGC 6997": {
+   "name": "NGC 6997",
+   "kind": "nebula",
+   "file": "ngc-6997.jpg",
+   "fov": 0.15525,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 55,
+   "mean": 0.0113
+  },
+  "NGC 1579": {
+   "name": "NGC 1579",
+   "kind": "nebula",
+   "file": "ngc-1579.jpg",
+   "fov": 0.2295,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 56,
+   "mean": 0.0252
+  },
+  "NGC 1977": {
+   "name": "the Running Man Nebula",
+   "kind": "nebula",
+   "file": "ngc-1977.jpg",
+   "fov": 0.2295,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 57,
+   "mean": 0.0118
+  },
+  "IC 348": {
+   "name": "omi Per Cloud",
+   "kind": "nebula",
+   "file": "ic-348.jpg",
+   "fov": 0.225,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 58,
+   "mean": 0.0216
+  },
+  "NGC 2246": {
+   "name": "Rosette B",
+   "kind": "nebula",
+   "file": "ngc-2246.jpg",
+   "fov": 0.225,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 59,
+   "mean": 0.0129
+  },
+  "IC 1590": {
+   "name": "IC 1590",
+   "kind": "nebula",
+   "file": "ic-1590.jpg",
+   "fov": 0.14175,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 60,
+   "mean": 0.0095
+  },
+  "IC 2948": {
+   "name": "IC 2948",
+   "kind": "nebula",
+   "file": "ic-2948.jpg",
+   "fov": 0.135,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits",
+   "slot": 61,
+   "mean": 0.0132
+  },
+  "NGC 2183": {
+   "name": "NGC 2183",
+   "kind": "nebula",
+   "file": "ngc-2183.jpg",
+   "fov": 0.27,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 62,
+   "mean": 0.0142
+  },
+  "NGC 246": {
+   "name": "NGC 246",
+   "kind": "nebula",
+   "file": "ngc-246.jpg",
+   "fov": 0.0918,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 63,
+   "mean": 0.0724
+  },
+  "NGC 6357": {
+   "name": "the War and Peace Nebula",
+   "kind": "nebula",
+   "file": "ngc-6357.jpg",
+   "fov": 0.08775,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits",
+   "slot": 64,
+   "mean": 0.0481
+  },
+  "NGC 1514": {
+   "name": "NGC 1514",
+   "kind": "nebula",
+   "file": "ngc-1514.jpg",
+   "fov": 0.0495,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 65,
+   "mean": 0.0861
+  },
+  "NGC 2371": {
+   "name": "NGC 2371",
+   "kind": "nebula",
+   "file": "ngc-2371.jpg",
+   "fov": 0.0495,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 66,
+   "mean": 0.0373
+  },
+  "NGC 7129": {
+   "name": "NGC 7129",
+   "kind": "nebula",
+   "file": "ngc-7129.jpg",
+   "fov": 0.04725,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 67,
+   "mean": 0.0283
+  },
+  "NGC 2261": {
+   "name": "Hubble's Nebula",
+   "kind": "nebula",
+   "file": "ngc-2261.jpg",
+   "fov": 0.045,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 68,
+   "mean": 0.1011
+  },
+  "NGC 6781": {
+   "name": "NGC 6781",
+   "kind": "nebula",
+   "file": "ngc-6781.jpg",
+   "fov": 0.0405,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 69,
+   "mean": 0.1304
+  },
+  "NGC 7008": {
+   "name": "NGC 7008",
+   "kind": "nebula",
+   "file": "ngc-7008.jpg",
+   "fov": 0.03218,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 70,
+   "mean": 0.0984
+  },
+  "NGC 6543": {
+   "name": "Cat's Eye Nebula",
+   "kind": "nebula",
+   "file": "ngc-6543.jpg",
+   "fov": 0.02025,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 71,
+   "mean": 0.0538
+  },
+  "NGC 7009": {
+   "name": "Saturn Nebula",
+   "kind": "nebula",
+   "file": "ngc-7009.jpg",
+   "fov": 0.01575,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 72,
+   "mean": 0.1027
+  },
+  "NGC 2392": {
+   "name": "Eskimo Nebula",
+   "kind": "nebula",
+   "file": "ngc-2392.jpg",
+   "fov": 0.01935,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 73,
+   "mean": 0.1702
+  },
+  "NGC 1535": {
+   "name": "NGC 1535",
+   "kind": "nebula",
+   "file": "ngc-1535.jpg",
+   "fov": 0.01912,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 74,
+   "mean": 0.1478
+  },
+  "NGC 6818": {
+   "name": "Little Gem Nebula",
+   "kind": "nebula",
+   "file": "ngc-6818.jpg",
+   "fov": 0.01733,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 75,
+   "mean": 0.1048
+  },
+  "NGC 2438": {
+   "name": "NGC 2438",
+   "kind": "nebula",
+   "file": "ngc-2438.jpg",
+   "fov": 0.02408,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 76,
+   "mean": 0.176
+  },
+  "NGC 4361": {
+   "name": "NGC 4361",
+   "kind": "nebula",
+   "file": "ngc-4361.jpg",
+   "fov": 0.02363,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 77,
+   "mean": 0.0873
+  },
+  "IC 1295": {
+   "name": "IC 1295",
+   "kind": "nebula",
+   "file": "ic-1295.jpg",
+   "fov": 0.03375,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 78,
+   "mean": 0.0252
+  },
+  "NGC 5189": {
+   "name": "NGC 5189",
+   "kind": "nebula",
+   "file": "ngc-5189.jpg",
+   "fov": 0.05243,
+   "survey": "decaps",
+   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits",
+   "slot": 79,
+   "mean": 0.055
+  },
+  "NGC 6072": {
+   "name": "NGC 6072",
+   "kind": "nebula",
+   "file": "ngc-6072.jpg",
+   "fov": 0.02632,
+   "survey": "decaps",
+   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits",
+   "slot": 80,
+   "mean": 0
+  },
+  "NGC 7094": {
+   "name": "NGC 7094",
+   "kind": "nebula",
+   "file": "ngc-7094.jpg",
+   "fov": 0.03712,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 81,
+   "mean": 0.0422
+  },
+  "NGC 3242": {
+   "name": "Jupiter's Ghost Nebula",
+   "kind": "nebula",
+   "file": "ngc-3242.jpg",
+   "fov": 0.01,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 82,
+   "mean": 0.1152
+  },
+  "NGC 7048": {
+   "name": "NGC 7048",
+   "kind": "nebula",
+   "file": "ngc-7048.jpg",
+   "fov": 0.02295,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 83,
+   "mean": 0.1846
+  },
+  "NGC 6563": {
+   "name": "NGC 6563",
+   "kind": "nebula",
+   "file": "ngc-6563.jpg",
+   "fov": 0.01778,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits",
+   "slot": 84,
+   "mean": 0.1889
+  },
+  "NGC 1501": {
+   "name": "NGC 1501",
+   "kind": "nebula",
+   "file": "ngc-1501.jpg",
+   "fov": 0.01958,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 85,
+   "mean": 0.2698
+  },
+  "NGC 2346": {
+   "name": "NGC 2346",
+   "kind": "nebula",
+   "file": "ngc-2346.jpg",
+   "fov": 0.01958,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 86,
+   "mean": 0.0282
+  },
+  "NGC 7139": {
+   "name": "NGC 7139",
+   "kind": "nebula",
+   "file": "ngc-7139.jpg",
+   "fov": 0.0288,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 87,
+   "mean": 0.1508
+  },
+  "NGC 6772": {
+   "name": "NGC 6772",
+   "kind": "nebula",
+   "file": "ngc-6772.jpg",
+   "fov": 0.02408,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 88,
+   "mean": 0.1919
+  },
+  "NGC 2818": {
+   "name": "NGC 2818",
+   "kind": "nebula",
+   "file": "ngc-2818.jpg",
+   "fov": 0.01868,
+   "survey": "decaps",
+   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits",
+   "slot": 89,
+   "mean": 0.0982
+  },
+  "IC 4593": {
+   "name": "IC 4593",
+   "kind": "nebula",
+   "file": "ic-4593.jpg",
+   "fov": 0.01485,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 90,
+   "mean": 0.0508
+  },
+  "NGC 3699": {
+   "name": "NGC 3699",
+   "kind": "nebula",
+   "file": "ngc-3699.jpg",
+   "fov": 0.01688,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits",
+   "slot": 91,
+   "mean": 0.0585
+  },
+  "NGC 6210": {
+   "name": "NGC 6210",
+   "kind": "nebula",
+   "file": "ngc-6210.jpg",
+   "fov": 0.01125,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 92,
+   "mean": 0.0729
+  },
+  "NGC 4071": {
+   "name": "NGC 4071",
+   "kind": "nebula",
+   "file": "ngc-4071.jpg",
+   "fov": 0.02363,
+   "survey": "decaps",
+   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits",
+   "slot": 93,
+   "mean": 0.0724
+  },
+  "NGC 6905": {
+   "name": "Blue Flash Nebula",
+   "kind": "nebula",
+   "file": "ngc-6905.jpg",
+   "fov": 0.01508,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 94,
+   "mean": 0.1956
+  },
+  "NGC 40": {
+   "name": "Bow-Tie nebula",
+   "kind": "nebula",
+   "file": "ngc-40.jpg",
+   "fov": 0.018,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 95,
+   "mean": 0.1426
+  },
+  "NGC 6337": {
+   "name": "NGC 6337",
+   "kind": "nebula",
+   "file": "ngc-6337.jpg",
+   "fov": 0.01912,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits",
+   "slot": 96,
+   "mean": 0.0875
+  },
+  "NGC 6826": {
+   "name": "Blinking Planetary",
+   "kind": "nebula",
+   "file": "ngc-6826.jpg",
+   "fov": 0.01,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 97,
+   "mean": 0.195
+  },
+  "NGC 5844": {
+   "name": "NGC 5844",
+   "kind": "nebula",
+   "file": "ngc-5844.jpg",
+   "fov": 0.0198,
+   "survey": "decaps",
+   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits",
+   "slot": 98,
+   "mean": 0.0594
+  },
+  "NGC 6842": {
+   "name": "NGC 6842",
+   "kind": "nebula",
+   "file": "ngc-6842.jpg",
+   "fov": 0.02137,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 99,
+   "mean": 0.1395
+  },
+  "NGC 7076": {
+   "name": "NGC 7076",
+   "kind": "nebula",
+   "file": "ngc-7076.jpg",
+   "fov": 0.02093,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 100,
+   "mean": 0.0276
+  },
+  "NGC 6894": {
+   "name": "NGC 6894",
+   "kind": "nebula",
+   "file": "ngc-6894.jpg",
+   "fov": 0.01508,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 101,
+   "mean": 0
+  },
+  "NGC 6804": {
+   "name": "NGC 6804",
+   "kind": "nebula",
+   "file": "ngc-6804.jpg",
+   "fov": 0.01305,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 102,
+   "mean": 0.0226
+  },
+  "NGC 6765": {
+   "name": "NGC 6765",
+   "kind": "nebula",
+   "file": "ngc-6765.jpg",
+   "fov": 0.01508,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 103,
+   "mean": 0.0396
+  },
+  "NGC 2610": {
+   "name": "NGC 2610",
+   "kind": "nebula",
+   "file": "ngc-2610.jpg",
+   "fov": 0.01418,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 104,
+   "mean": 0.0153
+  },
+  "IC 3568": {
+   "name": "IC 3568",
+   "kind": "nebula",
+   "file": "ic-3568.jpg",
+   "fov": 0.01,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 105,
+   "mean": 0.0962
+  },
+  "NGC 7026": {
+   "name": "NGC 7026",
+   "kind": "nebula",
+   "file": "ngc-7026.jpg",
+   "fov": 0.01,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 106,
+   "mean": 0.0381
+  },
+  "IC 289": {
+   "name": "IC 289",
+   "kind": "nebula",
+   "file": "ic-289.jpg",
+   "fov": 0.01305,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 107,
+   "mean": 0.1027
+  },
+  "NGC 6153": {
+   "name": "NGC 6153",
+   "kind": "nebula",
+   "file": "ngc-6153.jpg",
+   "fov": 0.01,
+   "survey": "decaps",
+   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits",
+   "slot": 108,
+   "mean": 0.1574
+  },
+  "NGC 6852": {
+   "name": "NGC 6852",
+   "kind": "nebula",
+   "file": "ngc-6852.jpg",
+   "fov": 0.01057,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 109,
+   "mean": 0.061
+  },
+  "NGC 6742": {
+   "name": "NGC 6742",
+   "kind": "nebula",
+   "file": "ngc-6742.jpg",
+   "fov": 0.01238,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 110,
+   "mean": 0.1729
+  },
+  "NGC 2022": {
+   "name": "NGC 2022",
+   "kind": "nebula",
+   "file": "ngc-2022.jpg",
+   "fov": 0.01,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 111,
+   "mean": 0.2119
+  },
+  "NGC 7354": {
+   "name": "NGC 7354",
+   "kind": "nebula",
+   "file": "ngc-7354.jpg",
+   "fov": 0.01,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 112,
+   "mean": 0.1592
+  },
+  "NGC 2452": {
+   "name": "NGC 2452",
+   "kind": "nebula",
+   "file": "ngc-2452.jpg",
+   "fov": 0.01,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 113,
+   "mean": 0.0884
+  },
+  "NGC 6751": {
+   "name": "NGC 6751",
+   "kind": "nebula",
+   "file": "ngc-6751.jpg",
+   "fov": 0.01,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 114,
+   "mean": 0.178
+  },
+  "IC 1454": {
+   "name": "IC 1454",
+   "kind": "nebula",
+   "file": "ic-1454.jpg",
+   "fov": 0.01057,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 115,
+   "mean": 0.0003
+  },
+  "NGC 6058": {
+   "name": "NGC 6058",
+   "kind": "nebula",
+   "file": "ngc-6058.jpg",
+   "fov": 0.01,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 116,
+   "mean": 0.0982
+  },
+  "IC 4592": {
+   "name": "IC 4592",
+   "kind": "nebula",
+   "file": "ic-4592.jpg",
+   "fov": 1.35,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 117,
+   "mean": 0.0084
+  },
+  "IC 353": {
+   "name": "IC 353",
+   "kind": "nebula",
+   "file": "ic-353.jpg",
+   "fov": 4.09433,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 118,
+   "mean": 0.0006
+  },
+  "IC 360": {
+   "name": "IC 360",
+   "kind": "nebula",
+   "file": "ic-360.jpg",
+   "fov": 4.05,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 119,
+   "mean": 0.0042
+  },
+  "IC 4605": {
+   "name": "IC 4605",
+   "kind": "nebula",
+   "file": "ic-4605.jpg",
+   "fov": 0.675,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 120,
+   "mean": 0.0095
+  },
+  "IC 341": {
+   "name": "IC 341",
+   "kind": "nebula",
+   "file": "ic-341.jpg",
+   "fov": 3.03525,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 121,
+   "mean": 0.0034
+  },
+  "IC 354": {
+   "name": "IC 354",
+   "kind": "nebula",
+   "file": "ic-354.jpg",
+   "fov": 2.89845,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 122,
+   "mean": 0.0024
+  },
+  "IC 1831": {
+   "name": "IC 1831",
+   "kind": "nebula",
+   "file": "ic-1831.jpg",
+   "fov": 2.70518,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 123,
+   "mean": 0
+  },
+  "IC 4628": {
+   "name": "IC 4628",
+   "kind": "nebula",
+   "file": "ic-4628.jpg",
+   "fov": 2.00543,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 124,
+   "mean": 0.0174
+  },
+  "NGC 6727": {
+   "name": "NGC 6727",
+   "kind": "nebula",
+   "file": "ngc-6727.jpg",
+   "fov": 1.8,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 125,
+   "mean": 0.0065
+  },
+  "IC 1287": {
+   "name": "IC 1287",
+   "kind": "nebula",
+   "file": "ic-1287.jpg",
+   "fov": 0.45,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 126,
+   "mean": 0.0123
+  },
+  "IC 447": {
+   "name": "IC 447",
+   "kind": "nebula",
+   "file": "ic-447.jpg",
+   "fov": 0.5625,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 127,
+   "mean": 0.012
+  },
+  "IC 4701": {
+   "name": "IC 4701",
+   "kind": "nebula",
+   "file": "ic-4701.jpg",
+   "fov": 1.35,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 128,
+   "mean": 0.0258
+  },
+  "IC 1284": {
+   "name": "IC 1284",
+   "kind": "nebula",
+   "file": "ic-1284.jpg",
+   "fov": 0.38205,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 129,
+   "mean": 0.0028
+  },
+  "IC 410": {
+   "name": "IC 410",
+   "kind": "nebula",
+   "file": "ic-410.jpg",
+   "fov": 0.9,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 130,
+   "mean": 0
+  },
+  "IC 5068": {
+   "name": "IC 5068",
+   "kind": "nebula",
+   "file": "ic-5068.jpg",
+   "fov": 0.9,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 131,
+   "mean": 0
+  },
+  "NGC 6526": {
+   "name": "NGC 6526",
+   "kind": "nebula",
+   "file": "ngc-6526.jpg",
+   "fov": 0.9,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 132,
+   "mean": 0.0965
+  },
+  "NGC 281": {
+   "name": "NGC 281",
+   "kind": "nebula",
+   "file": "ngc-281.jpg",
+   "fov": 0.7875,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 133,
+   "mean": 0.0521
+  },
+  "NGC 1975": {
+   "name": "NGC 1975",
+   "kind": "nebula",
+   "file": "ngc-1975.jpg",
+   "fov": 0.225,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 134,
+   "mean": 0.0268
+  },
+  "IC 444": {
+   "name": "IC 444",
+   "kind": "nebula",
+   "file": "ic-444.jpg",
+   "fov": 0.18,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 135,
+   "mean": 0.0102
+  },
+  "IC 1340": {
+   "name": "IC 1340",
+   "kind": "nebula",
+   "file": "ic-1340.jpg",
+   "fov": 0.5652,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 136,
+   "mean": 0
+  },
+  "NGC 6729": {
+   "name": "NGC 6729",
+   "kind": "nebula",
+   "file": "ngc-6729.jpg",
+   "fov": 0.5625,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 137,
+   "mean": 0.0125
+  },
+  "IC 1274": {
+   "name": "IC 1274",
+   "kind": "nebula",
+   "file": "ic-1274.jpg",
+   "fov": 0.45,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 138,
+   "mean": 0.041
+  },
+  "IC 2177": {
+   "name": "IC 2177",
+   "kind": "nebula",
+   "file": "ic-2177.jpg",
+   "fov": 0.45,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 139,
+   "mean": 0.042
+  },
+  "IC 2599": {
+   "name": "IC 2599",
+   "kind": "nebula",
+   "file": "ic-2599.jpg",
+   "fov": 0.45,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 140,
+   "mean": 0.0403
+  },
+  "IC 4601": {
+   "name": "IC 4601",
+   "kind": "nebula",
+   "file": "ic-4601.jpg",
+   "fov": 0.45,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 141,
+   "mean": 0.0136
+  },
+  "IC 4603": {
+   "name": "IC 4603",
+   "kind": "nebula",
+   "file": "ic-4603.jpg",
+   "fov": 0.45,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 142,
+   "mean": 0.0118
+  },
+  "NGC 3199": {
+   "name": "NGC 3199",
+   "kind": "nebula",
+   "file": "ngc-3199.jpg",
+   "fov": 0.45,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 143,
+   "mean": 0.0252
+  },
+  "NGC 3579": {
+   "name": "NGC 3579",
+   "kind": "nebula",
+   "file": "ngc-3579.jpg",
+   "fov": 0.45,
+   "survey": "shassa",
+   "credit": "SHASSA H-alpha (Gaustad et al. 2001, Swarthmore College) via CDS hips2fits",
+   "halpha": true,
+   "slot": 144,
+   "mean": 0.0176
+  },
+  "NGC 7822": {
+   "name": "NGC 7822",
+   "kind": "nebula",
+   "file": "ngc-7822.jpg",
+   "fov": 0.45,
+   "survey": "vtss",
+   "credit": "VTSS H-alpha (Dennison et al. 1998, Virginia Tech) via CDS hips2fits",
+   "halpha": true,
+   "slot": 145,
+   "mean": 0.0118
+  },
+  "NGC 2175": {
+   "name": "NGC 2175",
+   "kind": "nebula",
+   "file": "ngc-2175.jpg",
+   "fov": 0.1215,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 146,
+   "mean": 0.0134
+  },
+  "NGC 2071": {
+   "name": "NGC 2071",
+   "kind": "nebula",
+   "file": "ngc-2071.jpg",
+   "fov": 0.1575,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 147,
+   "mean": 0.0329
+  },
+  "NGC 1973": {
+   "name": "NGC 1973",
+   "kind": "nebula",
+   "file": "ngc-1973.jpg",
+   "fov": 0.1125,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 148,
+   "mean": 0.0376
+  },
+  "IC 2872": {
+   "name": "IC 2872",
+   "kind": "nebula",
+   "file": "ic-2872.jpg",
+   "fov": 0.34065,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits",
+   "slot": 149,
+   "mean": 0.039
+  },
+  "IC 359A": {
+   "name": "IC 359A",
+   "kind": "nebula",
+   "file": "ic-359a.jpg",
+   "fov": 0.3375,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 150,
+   "mean": 0.0093
+  },
+  "IC 448": {
+   "name": "IC 448",
+   "kind": "nebula",
+   "file": "ic-448.jpg",
+   "fov": 0.3375,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 151,
+   "mean": 0.0139
+  },
+  "IC 1283": {
+   "name": "IC 1283",
+   "kind": "nebula",
+   "file": "ic-1283.jpg",
+   "fov": 0.3375,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 152,
+   "mean": 0.0177
+  },
+  "IC 1310": {
+   "name": "IC 1310",
+   "kind": "nebula",
+   "file": "ic-1310.jpg",
+   "fov": 0.3375,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 153,
+   "mean": 0.0046
+  },
+  "IC 4685": {
+   "name": "IC 4685",
+   "kind": "nebula",
+   "file": "ic-4685.jpg",
+   "fov": 0.3375,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 154,
+   "mean": 0.0033
+  },
+  "NGC 6559": {
+   "name": "NGC 6559",
+   "kind": "nebula",
+   "file": "ngc-6559.jpg",
+   "fov": 0.3375,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 155,
+   "mean": 0.017
+  },
+  "NGC 3247": {
+   "name": "NGC 3247",
+   "kind": "nebula",
+   "file": "ngc-3247.jpg",
+   "fov": 0.1125,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits",
+   "slot": 156,
+   "mean": 0.0715
+  },
+  "IC 417": {
+   "name": "IC 417",
+   "kind": "nebula",
+   "file": "ic-417.jpg",
+   "fov": 0.2925,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 157,
+   "mean": 0.0147
+  },
+  "IC 1795": {
+   "name": "IC 1795",
+   "kind": "nebula",
+   "file": "ic-1795.jpg",
+   "fov": 0.27,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 158,
+   "mean": 0.0108
+  },
+  "IC 4591": {
+   "name": "IC 4591",
+   "kind": "nebula",
+   "file": "ic-4591.jpg",
+   "fov": 0.27,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 159,
+   "mean": 0.0148
+  },
+  "IC 59": {
+   "name": "IC 59",
+   "kind": "nebula",
+   "file": "ic-59.jpg",
+   "fov": 0.225,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 160,
+   "mean": 0.0227
+  },
+  "IC 426": {
+   "name": "IC 426",
+   "kind": "nebula",
+   "file": "ic-426.jpg",
+   "fov": 0.225,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 161,
+   "mean": 0.0205
+  },
+  "IC 432": {
+   "name": "IC 432",
+   "kind": "nebula",
+   "file": "ic-432.jpg",
+   "fov": 0.225,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 162,
+   "mean": 0.017
+  },
+  "NGC 896": {
+   "name": "NGC 896",
+   "kind": "nebula",
+   "file": "ngc-896.jpg",
+   "fov": 0.225,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 163,
+   "mean": 0.0175
+  },
+  "NGC 2023": {
+   "name": "NGC 2023",
+   "kind": "nebula",
+   "file": "ngc-2023.jpg",
+   "fov": 0.225,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 164,
+   "mean": 0.0328
+  },
+  "NGC 2064": {
+   "name": "NGC 2064",
+   "kind": "nebula",
+   "file": "ngc-2064.jpg",
+   "fov": 0.225,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 165,
+   "mean": 0.0045
+  },
+  "NGC 2359": {
+   "name": "NGC 2359",
+   "kind": "nebula",
+   "file": "ngc-2359.jpg",
+   "fov": 0.225,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 166,
+   "mean": 0.0304
+  },
+  "NGC 6847": {
+   "name": "NGC 6847",
+   "kind": "nebula",
+   "file": "ngc-6847.jpg",
+   "fov": 0.225,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 167,
+   "mean": 0.0071
+  },
+  "NGC 1491": {
+   "name": "NGC 1491",
+   "kind": "nebula",
+   "file": "ngc-1491.jpg",
+   "fov": 0.2025,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 168,
+   "mean": 0.0237
+  },
+  "NGC 6165": {
+   "name": "NGC 6165",
+   "kind": "nebula",
+   "file": "ngc-6165.jpg",
+   "fov": 0.05625,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits",
+   "slot": 169,
+   "mean": 0.0264
+  },
+  "NGC 6334": {
+   "name": "NGC 6334",
+   "kind": "nebula",
+   "file": "ngc-6334.jpg",
+   "fov": 0.189,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits",
+   "slot": 170,
+   "mean": 0.0589
+  },
+  "NGC 1788": {
+   "name": "NGC 1788",
+   "kind": "nebula",
+   "file": "ngc-1788.jpg",
+   "fov": 0.045,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 171,
+   "mean": 0.0147
+  },
+  "IC 431": {
+   "name": "IC 431",
+   "kind": "nebula",
+   "file": "ic-431.jpg",
+   "fov": 0.18,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 172,
+   "mean": 0.0182
+  },
+  "NGC 2067": {
+   "name": "NGC 2067",
+   "kind": "nebula",
+   "file": "ngc-2067.jpg",
+   "fov": 0.18,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 173,
+   "mean": 0.0249
+  },
+  "NGC 7538": {
+   "name": "NGC 7538",
+   "kind": "nebula",
+   "file": "ngc-7538.jpg",
+   "fov": 0.18,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 174,
+   "mean": 0.0319
+  },
+  "IC 5134": {
+   "name": "IC 5134",
+   "kind": "nebula",
+   "file": "ic-5134.jpg",
+   "fov": 0.17078,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 175,
+   "mean": 0.0299
+  },
+  "NGC 1931": {
+   "name": "NGC 1931",
+   "kind": "nebula",
+   "file": "ngc-1931.jpg",
+   "fov": 0.108,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 176,
+   "mean": 0.049
+  },
+  "IC 63": {
+   "name": "IC 63",
+   "kind": "nebula",
+   "file": "ic-63.jpg",
+   "fov": 0.225,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 177,
+   "mean": 0.022
+  },
+  "IC 5076": {
+   "name": "IC 5076",
+   "kind": "nebula",
+   "file": "ic-5076.jpg",
+   "fov": 0.1575,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 178,
+   "mean": 0.0199
+  },
+  "NGC 6979": {
+   "name": "NGC 6979",
+   "kind": "nebula",
+   "file": "ngc-6979.jpg",
+   "fov": 0.1575,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 179,
+   "mean": 0.0201
+  },
+  "NGC 6590": {
+   "name": "NGC 6590",
+   "kind": "nebula",
+   "file": "ngc-6590.jpg",
+   "fov": 0.09,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 180,
+   "mean": 0.0473
+  },
+  "IC 430": {
+   "name": "IC 430",
+   "kind": "nebula",
+   "file": "ic-430.jpg",
+   "fov": 0.2466,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 181,
+   "mean": 0.0003
+  },
+  "NGC 2818A": {
+   "name": "NGC 2818A",
+   "kind": "nebula",
+   "file": "ngc-2818a.jpg",
+   "fov": 0.15525,
+   "survey": "decaps",
+   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits",
+   "slot": 182,
+   "mean": 0.0113
+  },
+  "IC 420": {
+   "name": "IC 420",
+   "kind": "nebula",
+   "file": "ic-420.jpg",
+   "fov": 0.13568,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 183,
+   "mean": 0.0079
+  },
+  "IC 423": {
+   "name": "IC 423",
+   "kind": "nebula",
+   "file": "ic-423.jpg",
+   "fov": 0.135,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 184,
+   "mean": 0.0527
+  },
+  "NGC 2182": {
+   "name": "NGC 2182",
+   "kind": "nebula",
+   "file": "ngc-2182.jpg",
+   "fov": 0.0675,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 185,
+   "mean": 0.0319
+  },
+  "NGC 6589": {
+   "name": "NGC 6589",
+   "kind": "nebula",
+   "file": "ngc-6589.jpg",
+   "fov": 0.09,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 186,
+   "mean": 0.0468
+  },
+  "IC 446": {
+   "name": "IC 446",
+   "kind": "nebula",
+   "file": "ic-446.jpg",
+   "fov": 0.1125,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 187,
+   "mean": 0.0269
+  },
+  "NGC 2626": {
+   "name": "NGC 2626",
+   "kind": "nebula",
+   "file": "ngc-2626.jpg",
+   "fov": 0.1125,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits",
+   "slot": 188,
+   "mean": 0.0281
+  },
+  "NGC 2282": {
+   "name": "NGC 2282",
+   "kind": "nebula",
+   "file": "ngc-2282.jpg",
+   "fov": 0.0675,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 189,
+   "mean": 0.0296
+  },
+  "NGC 2247": {
+   "name": "NGC 2247",
+   "kind": "nebula",
+   "file": "ngc-2247.jpg",
+   "fov": 0.045,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 190,
+   "mean": 0.0445
+  },
+  "NGC 2467": {
+   "name": "NGC 2467",
+   "kind": "nebula",
+   "file": "ngc-2467.jpg",
+   "fov": 0.0945,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 191,
+   "mean": 0.02
+  },
+  "IC 1871": {
+   "name": "IC 1871",
+   "kind": "nebula",
+   "file": "ic-1871.jpg",
+   "fov": 0.09,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 192,
+   "mean": 0.0154
+  },
+  "IC 2087": {
+   "name": "IC 2087",
+   "kind": "nebula",
+   "file": "ic-2087.jpg",
+   "fov": 0.09,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 193,
+   "mean": 0.0474
+  },
+  "IC 2162": {
+   "name": "IC 2162",
+   "kind": "nebula",
+   "file": "ic-2162.jpg",
+   "fov": 0.09,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 194,
+   "mean": 0.1067
+  },
+  "NGC 2316": {
+   "name": "NGC 2316",
+   "kind": "nebula",
+   "file": "ngc-2316.jpg",
+   "fov": 0.09,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 195,
+   "mean": 0.0244
+  },
+  "IC 435": {
+   "name": "IC 435",
+   "kind": "nebula",
+   "file": "ic-435.jpg",
+   "fov": 0.08955,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 196,
+   "mean": 0.0404
+  },
+  "NGC 1999": {
+   "name": "NGC 1999",
+   "kind": "nebula",
+   "file": "ngc-1999.jpg",
+   "fov": 0.045,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 197,
+   "mean": 0.0688
+  },
+  "IC 4706": {
+   "name": "IC 4706",
+   "kind": "nebula",
+   "file": "ic-4706.jpg",
+   "fov": 0.07808,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 198,
+   "mean": 0.0186
+  },
+  "IC 4707": {
+   "name": "IC 4707",
+   "kind": "nebula",
+   "file": "ic-4707.jpg",
+   "fov": 0.07808,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 199,
+   "mean": 0.0284
+  },
+  "NGC 2579": {
+   "name": "NGC 2579",
+   "kind": "nebula",
+   "file": "ngc-2579.jpg",
+   "fov": 0.07425,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits",
+   "slot": 200,
+   "mean": 0.0258
+  },
+  "NGC 3603": {
+   "name": "NGC 3603",
+   "kind": "nebula",
+   "file": "ngc-3603.jpg",
+   "fov": 0.07425,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits",
+   "slot": 201,
+   "mean": 0.0343
+  },
+  "NGC 1624": {
+   "name": "NGC 1624",
+   "kind": "nebula",
+   "file": "ngc-1624.jpg",
+   "fov": 0.0675,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 202,
+   "mean": 0.0331
+  },
+  "IC 2966": {
+   "name": "IC 2966",
+   "kind": "nebula",
+   "file": "ic-2966.jpg",
+   "fov": 0.0675,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits",
+   "slot": 203,
+   "mean": 0.0313
+  },
+  "IC 4684": {
+   "name": "IC 4684",
+   "kind": "nebula",
+   "file": "ic-4684.jpg",
+   "fov": 0.0675,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 204,
+   "mean": 0.0227
+  },
+  "IC 4954": {
+   "name": "IC 4954",
+   "kind": "nebula",
+   "file": "ic-4954.jpg",
+   "fov": 0.0675,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 205,
+   "mean": 0.0272
+  },
+  "NGC 2149": {
+   "name": "NGC 2149",
+   "kind": "nebula",
+   "file": "ngc-2149.jpg",
+   "fov": 0.0675,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 206,
+   "mean": 0.0305
+  },
+  "NGC 2163": {
+   "name": "NGC 2163",
+   "kind": "nebula",
+   "file": "ngc-2163.jpg",
+   "fov": 0.0675,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 207,
+   "mean": 0.038
+  },
+  "NGC 3503": {
+   "name": "NGC 3503",
+   "kind": "nebula",
+   "file": "ngc-3503.jpg",
+   "fov": 0.0675,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits",
+   "slot": 208,
+   "mean": 0.0395
+  },
+  "NGC 3576": {
+   "name": "NGC 3576",
+   "kind": "nebula",
+   "file": "ngc-3576.jpg",
+   "fov": 0.0675,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits",
+   "slot": 209,
+   "mean": 0.0173
+  },
+  "NGC 6813": {
+   "name": "NGC 6813",
+   "kind": "nebula",
+   "file": "ngc-6813.jpg",
+   "fov": 0.0675,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 210,
+   "mean": 0.0136
+  },
+  "NGC 6914": {
+   "name": "NGC 6914",
+   "kind": "nebula",
+   "file": "ngc-6914.jpg",
+   "fov": 0.0675,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 211,
+   "mean": 0.0349
+  },
+  "NGC 2245": {
+   "name": "NGC 2245",
+   "kind": "nebula",
+   "file": "ngc-2245.jpg",
+   "fov": 0.045,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 212,
+   "mean": 0.0377
+  },
+  "IC 424": {
+   "name": "IC 424",
+   "kind": "nebula",
+   "file": "ic-424.jpg",
+   "fov": 0.05625,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 213,
+   "mean": 0.0296
+  },
+  "NGC 7089": {
+   "name": "M2",
+   "kind": "cluster",
+   "file": "ngc-7089.jpg",
+   "fov": 0.21,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 5272": {
+   "name": "M3",
+   "kind": "cluster",
+   "file": "ngc-5272.jpg",
+   "fov": 0.405,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6121": {
+   "name": "M4",
+   "kind": "cluster",
+   "file": "ngc-6121.jpg",
+   "fov": 0.705,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 5904": {
+   "name": "M5",
+   "kind": "cluster",
+   "file": "ngc-5904.jpg",
+   "fov": 0.375,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6405": {
+   "name": "Butterfly Cluster",
+   "kind": "cluster",
+   "file": "ngc-6405.jpg",
+   "fov": 0.39,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits"
+  },
+  "NGC 6475": {
+   "name": "Ptolemy's Cluster",
+   "kind": "cluster",
+   "file": "ngc-6475.jpg",
+   "fov": 0.555,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits"
+  },
+  "NGC 6333": {
+   "name": "M9",
+   "kind": "cluster",
+   "file": "ngc-6333.jpg",
+   "fov": 0.1725,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6254": {
+   "name": "M10",
+   "kind": "cluster",
+   "file": "ngc-6254.jpg",
+   "fov": 0.2325,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6705": {
+   "name": "Amas de l'Ecu de Sobieski",
+   "kind": "cluster",
+   "file": "ngc-6705.jpg",
+   "fov": 0.225,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6218": {
+   "name": "M12",
+   "kind": "cluster",
+   "file": "ngc-6218.jpg",
+   "fov": 0.2775,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6205": {
+   "name": "Hercules Globular Cluster",
+   "kind": "cluster",
+   "file": "ngc-6205.jpg",
+   "fov": 0.4125,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6402": {
+   "name": "M14",
+   "kind": "cluster",
+   "file": "ngc-6402.jpg",
+   "fov": 0.2475,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 7078": {
+   "name": "M15",
+   "kind": "cluster",
+   "file": "ngc-7078.jpg",
+   "fov": 0.2775,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6613": {
+   "name": "M18",
+   "kind": "cluster",
+   "file": "ngc-6613.jpg",
+   "fov": 0.15,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6273": {
+   "name": "M19",
+   "kind": "cluster",
+   "file": "ngc-6273.jpg",
+   "fov": 0.1875,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6531": {
+   "name": "M21",
+   "kind": "cluster",
+   "file": "ngc-6531.jpg",
+   "fov": 0.15,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6656": {
+   "name": "M22",
+   "kind": "cluster",
+   "file": "ngc-6656.jpg",
+   "fov": 0.315,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6494": {
+   "name": "M23",
+   "kind": "cluster",
+   "file": "ngc-6494.jpg",
+   "fov": 0.42,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "IC 4715": {
+   "name": "Small Sgr Star Cloud",
+   "kind": "cluster",
+   "file": "ic-4715.jpg",
+   "fov": 3,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "IC 4725": {
+   "name": "M25",
+   "kind": "cluster",
+   "file": "ic-4725.jpg",
+   "fov": 0.3525,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6694": {
+   "name": "M26",
+   "kind": "cluster",
+   "file": "ngc-6694.jpg",
+   "fov": 0.15,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6626": {
+   "name": "M28",
+   "kind": "cluster",
+   "file": "ngc-6626.jpg",
+   "fov": 0.1275,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6913": {
+   "name": "M29",
+   "kind": "cluster",
+   "file": "ngc-6913.jpg",
+   "fov": 0.09,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 7099": {
+   "name": "M30",
+   "kind": "cluster",
+   "file": "ngc-7099.jpg",
+   "fov": 0.225,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 1039": {
+   "name": "M34",
+   "kind": "cluster",
+   "file": "ngc-1039.jpg",
+   "fov": 0.5625,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2168": {
+   "name": "M35",
+   "kind": "cluster",
+   "file": "ngc-2168.jpg",
+   "fov": 0.6,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 1960": {
+   "name": "M36",
+   "kind": "cluster",
+   "file": "ngc-1960.jpg",
+   "fov": 0.18,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2099": {
+   "name": "M37",
+   "kind": "cluster",
+   "file": "ngc-2099.jpg",
+   "fov": 0.285,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 1912": {
+   "name": "M38",
+   "kind": "cluster",
+   "file": "ngc-1912.jpg",
+   "fov": 0.24,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 7092": {
+   "name": "M39",
+   "kind": "cluster",
+   "file": "ngc-7092.jpg",
+   "fov": 0.4875,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2287": {
+   "name": "M41",
+   "kind": "cluster",
+   "file": "ngc-2287.jpg",
+   "fov": 0.3,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2632": {
+   "name": "Beehive",
+   "kind": "cluster",
+   "file": "ngc-2632.jpg",
+   "fov": 2.715,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "Melotte 22": {
+   "name": "Pleiades",
+   "kind": "cluster",
+   "file": "melotte-22.jpg",
+   "fov": 3.75,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2437": {
+   "name": "M46",
+   "kind": "cluster",
+   "file": "ngc-2437.jpg",
+   "fov": 0.525,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2422": {
+   "name": "M47",
+   "kind": "cluster",
+   "file": "ngc-2422.jpg",
+   "fov": 0.495,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2548": {
+   "name": "M48",
+   "kind": "cluster",
+   "file": "ngc-2548.jpg",
+   "fov": 0.705,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2323": {
+   "name": "M50",
+   "kind": "cluster",
+   "file": "ngc-2323.jpg",
+   "fov": 0.3525,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 7654": {
+   "name": "M52",
+   "kind": "cluster",
+   "file": "ngc-7654.jpg",
+   "fov": 0.2475,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 5024": {
+   "name": "M53",
+   "kind": "cluster",
+   "file": "ngc-5024.jpg",
+   "fov": 0.225,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6779": {
+   "name": "M56",
+   "kind": "cluster",
+   "file": "ngc-6779.jpg",
+   "fov": 0.145,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6266": {
+   "name": "M62",
+   "kind": "cluster",
+   "file": "ngc-6266.jpg",
+   "fov": 0.195,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits"
+  },
+  "NGC 2682": {
+   "name": "M67",
+   "kind": "cluster",
+   "file": "ngc-2682.jpg",
+   "fov": 0.825,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4590": {
+   "name": "M68",
+   "kind": "cluster",
+   "file": "ngc-4590.jpg",
+   "fov": 0.165,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6637": {
+   "name": "M69",
+   "kind": "cluster",
+   "file": "ngc-6637.jpg",
+   "fov": 0.1425,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits"
+  },
+  "NGC 6838": {
+   "name": "M71",
+   "kind": "cluster",
+   "file": "ngc-6838.jpg",
+   "fov": 0.1725,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6981": {
+   "name": "M72",
+   "kind": "cluster",
+   "file": "ngc-6981.jpg",
+   "fov": 0.1125,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6864": {
+   "name": "M75",
+   "kind": "cluster",
+   "file": "ngc-6864.jpg",
+   "fov": 0.09,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 1904": {
+   "name": "M79",
+   "kind": "cluster",
+   "file": "ngc-1904.jpg",
+   "fov": 0.18,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6093": {
+   "name": "M80",
+   "kind": "cluster",
+   "file": "ngc-6093.jpg",
+   "fov": 0.1425,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6341": {
+   "name": "M92",
+   "kind": "cluster",
+   "file": "ngc-6341.jpg",
+   "fov": 0.36,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2447": {
+   "name": "M93",
+   "kind": "cluster",
+   "file": "ngc-2447.jpg",
+   "fov": 0.375,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 581": {
+   "name": "M103",
+   "kind": "cluster",
+   "file": "ngc-581.jpg",
+   "fov": 0.1125,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6171": {
+   "name": "M107",
+   "kind": "cluster",
+   "file": "ngc-6171.jpg",
+   "fov": 0.195,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "IC 2391": {
+   "name": "omi Vel Cluster",
+   "kind": "cluster",
+   "file": "ic-2391.jpg",
+   "fov": 0.7275,
+   "survey": "decaps",
+   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits"
+  },
+  "NGC 6231": {
+   "name": "NGC 6231",
+   "kind": "cluster",
+   "file": "ngc-6231.jpg",
+   "fov": 0.345,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits"
+  },
+  "NGC 3532": {
+   "name": "Wishing Well Cluster",
+   "kind": "cluster",
+   "file": "ngc-3532.jpg",
+   "fov": 0.3,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits"
+  },
+  "Cl399": {
+   "name": "Brocchi's Cluster",
+   "kind": "cluster",
+   "file": "cl399.jpg",
+   "fov": 1.75,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 869": {
+   "name": "h Persei Cluster",
+   "kind": "cluster",
+   "file": "ngc-869.jpg",
+   "fov": 0.36,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 884": {
+   "name": "chi Persei Cluster",
+   "kind": "cluster",
+   "file": "ngc-884.jpg",
+   "fov": 0.2625,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2232": {
+   "name": "NGC 2232",
+   "kind": "cluster",
+   "file": "ngc-2232.jpg",
+   "fov": 0.2475,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "IC 4665": {
+   "name": "IC 4665",
+   "kind": "cluster",
+   "file": "ic-4665.jpg",
+   "fov": 0.615,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 3114": {
+   "name": "NGC 3114",
+   "kind": "cluster",
+   "file": "ngc-3114.jpg",
+   "fov": 0.3075,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits"
+  },
+  "IC 4756": {
+   "name": "IC 4756",
+   "kind": "cluster",
+   "file": "ic-4756.jpg",
+   "fov": 0.6,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6633": {
+   "name": "NGC 6633",
+   "kind": "cluster",
+   "file": "ngc-6633.jpg",
+   "fov": 0.3,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6025": {
+   "name": "NGC 6025",
+   "kind": "cluster",
+   "file": "ngc-6025.jpg",
+   "fov": 0.285,
+   "survey": "decaps",
+   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits"
+  },
+  "NGC 6871": {
+   "name": "NGC 6871",
+   "kind": "cluster",
+   "file": "ngc-6871.jpg",
+   "fov": 0.2325,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2281": {
+   "name": "NGC 2281",
+   "kind": "cluster",
+   "file": "ngc-2281.jpg",
+   "fov": 0.27,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6087": {
+   "name": "S Nor Cluster",
+   "kind": "cluster",
+   "file": "ngc-6087.jpg",
+   "fov": 0.255,
+   "survey": "decaps",
+   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits"
+  },
+  "NGC 6281": {
+   "name": "NGC 6281",
+   "kind": "cluster",
+   "file": "ngc-6281.jpg",
+   "fov": 0.255,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits"
+  },
+  "NGC 5662": {
+   "name": "NGC 5662",
+   "kind": "cluster",
+   "file": "ngc-5662.jpg",
+   "fov": 0.2025,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits"
+  },
+  "NGC 6067": {
+   "name": "NGC 6067",
+   "kind": "cluster",
+   "file": "ngc-6067.jpg",
+   "fov": 0.2025,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits"
+  },
+  "NGC 752": {
+   "name": "NGC 752",
+   "kind": "cluster",
+   "file": "ngc-752.jpg",
+   "fov": 0.975,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2477": {
+   "name": "NGC 2477",
+   "kind": "cluster",
+   "file": "ngc-2477.jpg",
+   "fov": 0.465,
+   "survey": "decaps",
+   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits"
+  },
+  "NGC 6124": {
+   "name": "NGC 6124",
+   "kind": "cluster",
+   "file": "ngc-6124.jpg",
+   "fov": 0.3375,
+   "survey": "decaps",
+   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits"
+  },
+  "NGC 2301": {
+   "name": "Great Bird Cluster",
+   "kind": "cluster",
+   "file": "ngc-2301.jpg",
+   "fov": 0.255,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 5316": {
+   "name": "NGC 5316",
+   "kind": "cluster",
+   "file": "ngc-5316.jpg",
+   "fov": 0.2475,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits"
+  },
+  "NGC 1746": {
+   "name": "NGC 1746",
+   "kind": "cluster",
+   "file": "ngc-1746.jpg",
+   "fov": 0.45,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2669": {
+   "name": "NGC 2669",
+   "kind": "cluster",
+   "file": "ngc-2669.jpg",
+   "fov": 0.21,
+   "survey": "decaps",
+   "credit": "DECaPS2 (NOIRLab) via CDS hips2fits"
+  },
+  "NGC 2546": {
+   "name": "NGC 2546",
+   "kind": "cluster",
+   "file": "ngc-2546.jpg",
+   "fov": 0.4125,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits"
+  },
+  "NGC 6940": {
+   "name": "NGC 6940",
+   "kind": "cluster",
+   "file": "ngc-6940.jpg",
+   "fov": 0.27,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 1528": {
+   "name": "NGC 1528",
+   "kind": "cluster",
+   "file": "ngc-1528.jpg",
+   "fov": 0.24,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 1647": {
+   "name": "NGC 1647",
+   "kind": "cluster",
+   "file": "ngc-1647.jpg",
+   "fov": 0.675,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 1662": {
+   "name": "NGC 1662",
+   "kind": "cluster",
+   "file": "ngc-1662.jpg",
+   "fov": 0.345,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 7243": {
+   "name": "NGC 7243",
+   "kind": "cluster",
+   "file": "ngc-7243.jpg",
+   "fov": 0.375,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "Andromeda Galaxy": {
+   "name": "Andromeda Galaxy",
+   "kind": "galaxy",
+   "file": "andromeda-galaxy.jpg",
+   "fov": 3.85298,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "Triangulum Galaxy": {
+   "name": "Triangulum Galaxy",
+   "kind": "galaxy",
+   "file": "triangulum-galaxy.jpg",
+   "fov": 1.34528,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "Bode's Galaxy": {
+   "name": "Bode's Galaxy",
+   "kind": "galaxy",
+   "file": "bode-s-galaxy.jpg",
+   "fov": 0.46865,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "IC 342": {
+   "name": "IC 342",
+   "kind": "galaxy",
+   "file": "ic-342.jpg",
+   "fov": 0.42835,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M32": {
+   "name": "M32",
+   "kind": "galaxy",
+   "file": "m32.jpg",
+   "fov": 0.1677,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 205": {
+   "name": "NGC 205",
+   "kind": "galaxy",
+   "file": "ngc-205.jpg",
+   "fov": 0.35143,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M94": {
+   "name": "M94",
+   "kind": "galaxy",
+   "file": "m94.jpg",
+   "fov": 0.1677,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M49": {
+   "name": "M49",
+   "kind": "galaxy",
+   "file": "m49.jpg",
+   "fov": 0.22122,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "Cigar Galaxy": {
+   "name": "Cigar Galaxy",
+   "kind": "galaxy",
+   "file": "cigar-galaxy.jpg",
+   "fov": 0.23812,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "Whirlpool Galaxy": {
+   "name": "Whirlpool Galaxy",
+   "kind": "galaxy",
+   "file": "whirlpool-galaxy.jpg",
+   "fov": 0.29705,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2403": {
+   "name": "NGC 2403",
+   "kind": "galaxy",
+   "file": "ngc-2403.jpg",
+   "fov": 0.43225,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "Black Eye Galaxy": {
+   "name": "Black Eye Galaxy",
+   "kind": "galaxy",
+   "file": "black-eye-galaxy.jpg",
+   "fov": 0.22793,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "Sombrero Galaxy": {
+   "name": "Sombrero Galaxy",
+   "kind": "galaxy",
+   "file": "sombrero-galaxy.jpg",
+   "fov": 0.18308,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "Sunflower Galaxy": {
+   "name": "Sunflower Galaxy",
+   "kind": "galaxy",
+   "file": "sunflower-galaxy.jpg",
+   "fov": 0.25632,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M60": {
+   "name": "M60",
+   "kind": "galaxy",
+   "file": "m60.jpg",
+   "fov": 0.1469,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M86": {
+   "name": "M86",
+   "kind": "galaxy",
+   "file": "m86.jpg",
+   "fov": 0.24982,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2903": {
+   "name": "NGC 2903",
+   "kind": "galaxy",
+   "file": "ngc-2903.jpg",
+   "fov": 0.2587,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M66": {
+   "name": "M66",
+   "kind": "galaxy",
+   "file": "m66.jpg",
+   "fov": 0.22273,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "Virgo Galaxy": {
+   "name": "Virgo Galaxy",
+   "kind": "galaxy",
+   "file": "virgo-galaxy.jpg",
+   "fov": 0.15405,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "Fireworks Galaxy": {
+   "name": "Fireworks Galaxy",
+   "kind": "galaxy",
+   "file": "fireworks-galaxy.jpg",
+   "fov": 0.247,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M85": {
+   "name": "M85",
+   "kind": "galaxy",
+   "file": "m85.jpg",
+   "fov": 0.15058,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "Spindle Galaxy": {
+   "name": "Spindle Galaxy",
+   "kind": "galaxy",
+   "file": "spindle-galaxy.jpg",
+   "fov": 0.15383,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 3521": {
+   "name": "NGC 3521",
+   "kind": "galaxy",
+   "file": "ngc-3521.jpg",
+   "fov": 0.18027,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 185": {
+   "name": "NGC 185",
+   "kind": "galaxy",
+   "file": "ngc-185.jpg",
+   "fov": 0.28037,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "IC 127": {
+   "name": "IC 127",
+   "kind": "galaxy",
+   "file": "ic-127.jpg",
+   "fov": 0.04,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "IC 1613": {
+   "name": "IC 1613",
+   "kind": "galaxy",
+   "file": "ic-1613.jpg",
+   "fov": 0.39693,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M96": {
+   "name": "M96",
+   "kind": "galaxy",
+   "file": "m96.jpg",
+   "fov": 0.17897,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 247": {
+   "name": "NGC 247",
+   "kind": "galaxy",
+   "file": "ngc-247.jpg",
+   "fov": 0.4264,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "Whale Galaxy": {
+   "name": "Whale Galaxy",
+   "kind": "galaxy",
+   "file": "whale-galaxy.jpg",
+   "fov": 0.31308,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M105": {
+   "name": "M105",
+   "kind": "galaxy",
+   "file": "m105.jpg",
+   "fov": 0.10595,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M106": {
+   "name": "M106",
+   "kind": "galaxy",
+   "file": "m106.jpg",
+   "fov": 0.3679,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M77": {
+   "name": "M77",
+   "kind": "galaxy",
+   "file": "m77.jpg",
+   "fov": 0.13238,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M74": {
+   "name": "M74",
+   "kind": "galaxy",
+   "file": "m74.jpg",
+   "fov": 0.21428,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M65": {
+   "name": "M65",
+   "kind": "galaxy",
+   "file": "m65.jpg",
+   "fov": 0.16553,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4697": {
+   "name": "NGC 4697",
+   "kind": "galaxy",
+   "file": "ngc-4697.jpg",
+   "fov": 0.1547,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4725": {
+   "name": "NGC 4725",
+   "kind": "galaxy",
+   "file": "ngc-4725.jpg",
+   "fov": 0.21038,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 7331": {
+   "name": "NGC 7331",
+   "kind": "galaxy",
+   "file": "ngc-7331.jpg",
+   "fov": 0.20085,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4365": {
+   "name": "NGC 4365",
+   "kind": "galaxy",
+   "file": "ngc-4365.jpg",
+   "fov": 0.11093,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 3628": {
+   "name": "NGC 3628",
+   "kind": "galaxy",
+   "file": "ngc-3628.jpg",
+   "fov": 0.2392,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 1023": {
+   "name": "NGC 1023",
+   "kind": "galaxy",
+   "file": "ngc-1023.jpg",
+   "fov": 0.16033,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M100": {
+   "name": "M100",
+   "kind": "galaxy",
+   "file": "m100.jpg",
+   "fov": 0.13217,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "IC 10": {
+   "name": "IC 10",
+   "kind": "galaxy",
+   "file": "ic-10.jpg",
+   "fov": 0.14647,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4699": {
+   "name": "NGC 4699",
+   "kind": "galaxy",
+   "file": "ngc-4699.jpg",
+   "fov": 0.08645,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M90": {
+   "name": "M90",
+   "kind": "galaxy",
+   "file": "m90.jpg",
+   "fov": 0.1976,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 1398": {
+   "name": "NGC 1398",
+   "kind": "galaxy",
+   "file": "ngc-1398.jpg",
+   "fov": 0.15058,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M59": {
+   "name": "M59",
+   "kind": "galaxy",
+   "file": "m59.jpg",
+   "fov": 0.09858,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 5195": {
+   "name": "NGC 5195",
+   "kind": "galaxy",
+   "file": "ngc-5195.jpg",
+   "fov": 0.11917,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4526": {
+   "name": "NGC 4526",
+   "kind": "galaxy",
+   "file": "ngc-4526.jpg",
+   "fov": 0.20887,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 3923": {
+   "name": "NGC 3923",
+   "kind": "galaxy",
+   "file": "ngc-3923.jpg",
+   "fov": 0.14928,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4449": {
+   "name": "NGC 4449",
+   "kind": "galaxy",
+   "file": "ngc-4449.jpg",
+   "fov": 0.10097,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 1407": {
+   "name": "NGC 1407",
+   "kind": "galaxy",
+   "file": "ngc-1407.jpg",
+   "fov": 0.12415,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 1395": {
+   "name": "NGC 1395",
+   "kind": "galaxy",
+   "file": "ngc-1395.jpg",
+   "fov": 0.10205,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4753": {
+   "name": "NGC 4753",
+   "kind": "galaxy",
+   "file": "ngc-4753.jpg",
+   "fov": 0.14062,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2683": {
+   "name": "NGC 2683",
+   "kind": "galaxy",
+   "file": "ngc-2683.jpg",
+   "fov": 0.2054,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 3585": {
+   "name": "NGC 3585",
+   "kind": "galaxy",
+   "file": "ngc-3585.jpg",
+   "fov": 0.14322,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4125": {
+   "name": "NGC 4125",
+   "kind": "galaxy",
+   "file": "ngc-4125.jpg",
+   "fov": 0.12718,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "Cocoon Galaxy": {
+   "name": "Cocoon Galaxy",
+   "kind": "galaxy",
+   "file": "cocoon-galaxy.jpg",
+   "fov": 0.14538,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 147": {
+   "name": "NGC 147",
+   "kind": "galaxy",
+   "file": "ngc-147.jpg",
+   "fov": 0.20367,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M95": {
+   "name": "M95",
+   "kind": "galaxy",
+   "file": "m95.jpg",
+   "fov": 0.15665,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4214": {
+   "name": "NGC 4214",
+   "kind": "galaxy",
+   "file": "ngc-4214.jpg",
+   "fov": 0.14712,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4236": {
+   "name": "NGC 4236",
+   "kind": "galaxy",
+   "file": "ngc-4236.jpg",
+   "fov": 0.50917,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M84": {
+   "name": "M84",
+   "kind": "galaxy",
+   "file": "m84.jpg",
+   "fov": 0.16055,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4494": {
+   "name": "NGC 4494",
+   "kind": "galaxy",
+   "file": "ngc-4494.jpg",
+   "fov": 0.09425,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "Coma Pinwheel": {
+   "name": "Coma Pinwheel",
+   "kind": "galaxy",
+   "file": "coma-pinwheel.jpg",
+   "fov": 0.1092,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 3184": {
+   "name": "NGC 3184",
+   "kind": "galaxy",
+   "file": "ngc-3184.jpg",
+   "fov": 0.16033,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2768": {
+   "name": "NGC 2768",
+   "kind": "galaxy",
+   "file": "ngc-2768.jpg",
+   "fov": 0.1222,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M109": {
+   "name": "M109",
+   "kind": "galaxy",
+   "file": "m109.jpg",
+   "fov": 0.17485,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 5866": {
+   "name": "NGC 5866",
+   "kind": "galaxy",
+   "file": "ngc-5866.jpg",
+   "fov": 0.13672,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4535": {
+   "name": "NGC 4535",
+   "kind": "galaxy",
+   "file": "ngc-4535.jpg",
+   "fov": 0.17658,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4559": {
+   "name": "NGC 4559",
+   "kind": "galaxy",
+   "file": "ngc-4559.jpg",
+   "fov": 0.22902,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4216": {
+   "name": "NGC 4216",
+   "kind": "galaxy",
+   "file": "ngc-4216.jpg",
+   "fov": 0.16943,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 3384": {
+   "name": "NGC 3384",
+   "kind": "galaxy",
+   "file": "ngc-3384.jpg",
+   "fov": 0.11353,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 5248": {
+   "name": "NGC 5248",
+   "kind": "galaxy",
+   "file": "ngc-5248.jpg",
+   "fov": 0.08818,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 3344": {
+   "name": "NGC 3344",
+   "kind": "galaxy",
+   "file": "ngc-3344.jpg",
+   "fov": 0.14517,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4636": {
+   "name": "NGC 4636",
+   "kind": "galaxy",
+   "file": "ngc-4636.jpg",
+   "fov": 0.13758,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 3607": {
+   "name": "NGC 3607",
+   "kind": "galaxy",
+   "file": "ngc-3607.jpg",
+   "fov": 0.09945,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "Leo I": {
+   "name": "Leo I",
+   "kind": "galaxy",
+   "file": "leo-i.jpg",
+   "fov": 0.25458,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 891": {
+   "name": "NGC 891",
+   "kind": "galaxy",
+   "file": "ngc-891.jpg",
+   "fov": 0.28232,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 7507": {
+   "name": "NGC 7507",
+   "kind": "galaxy",
+   "file": "ngc-7507.jpg",
+   "fov": 0.07215,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M108": {
+   "name": "M108",
+   "kind": "galaxy",
+   "file": "m108.jpg",
+   "fov": 0.08623,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "Barnard's Galaxy": {
+   "name": "Barnard's Galaxy",
+   "kind": "galaxy",
+   "file": "barnard-s-galaxy.jpg",
+   "fov": 0.37657,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 5068": {
+   "name": "NGC 5068",
+   "kind": "galaxy",
+   "file": "ngc-5068.jpg",
+   "fov": 0.16207,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M89": {
+   "name": "M89",
+   "kind": "galaxy",
+   "file": "m89.jpg",
+   "fov": 0.17615,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4429": {
+   "name": "NGC 4429",
+   "kind": "galaxy",
+   "file": "ngc-4429.jpg",
+   "fov": 0.11483,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 3675": {
+   "name": "NGC 3675",
+   "kind": "galaxy",
+   "file": "ngc-3675.jpg",
+   "fov": 0.12783,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4473": {
+   "name": "NGC 4473",
+   "kind": "galaxy",
+   "file": "ngc-4473.jpg",
+   "fov": 0.09252,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2784": {
+   "name": "NGC 2784",
+   "kind": "galaxy",
+   "file": "ngc-2784.jpg",
+   "fov": 0.10443,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 3953": {
+   "name": "NGC 3953",
+   "kind": "galaxy",
+   "file": "ngc-3953.jpg",
+   "fov": 0.13303,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 1232": {
+   "name": "NGC 1232",
+   "kind": "galaxy",
+   "file": "ngc-1232.jpg",
+   "fov": 0.14712,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 6503": {
+   "name": "NGC 6503",
+   "kind": "galaxy",
+   "file": "ngc-6503.jpg",
+   "fov": 0.1287,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 925": {
+   "name": "NGC 925",
+   "kind": "galaxy",
+   "file": "ngc-925.jpg",
+   "fov": 0.23227,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 5322": {
+   "name": "NGC 5322",
+   "kind": "galaxy",
+   "file": "ngc-5322.jpg",
+   "fov": 0.12177,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 720": {
+   "name": "NGC 720",
+   "kind": "galaxy",
+   "file": "ngc-720.jpg",
+   "fov": 0.09728,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2976": {
+   "name": "NGC 2976",
+   "kind": "galaxy",
+   "file": "ngc-2976.jpg",
+   "fov": 0.12502,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4762": {
+   "name": "NGC 4762",
+   "kind": "galaxy",
+   "file": "ngc-4762.jpg",
+   "fov": 0.17897,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4293": {
+   "name": "NGC 4293",
+   "kind": "galaxy",
+   "file": "ngc-4293.jpg",
+   "fov": 0.1352,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2841": {
+   "name": "NGC 2841",
+   "kind": "galaxy",
+   "file": "ngc-2841.jpg",
+   "fov": 0.1495,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4244": {
+   "name": "NGC 4244",
+   "kind": "galaxy",
+   "file": "ngc-4244.jpg",
+   "fov": 0.35143,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4414": {
+   "name": "NGC 4414",
+   "kind": "galaxy",
+   "file": "ngc-4414.jpg",
+   "fov": 0.04225,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 5363": {
+   "name": "NGC 5363",
+   "kind": "galaxy",
+   "file": "ngc-5363.jpg",
+   "fov": 0.09035,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 936": {
+   "name": "NGC 936",
+   "kind": "galaxy",
+   "file": "ngc-936.jpg",
+   "fov": 0.0962,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 3489": {
+   "name": "NGC 3489",
+   "kind": "galaxy",
+   "file": "ngc-3489.jpg",
+   "fov": 0.07453,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "IC 356": {
+   "name": "IC 356",
+   "kind": "galaxy",
+   "file": "ic-356.jpg",
+   "fov": 0.0871,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M61": {
+   "name": "M61",
+   "kind": "galaxy",
+   "file": "m61.jpg",
+   "fov": 0.14928,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4459": {
+   "name": "NGC 4459",
+   "kind": "galaxy",
+   "file": "ngc-4459.jpg",
+   "fov": 0.09035,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 488": {
+   "name": "NGC 488",
+   "kind": "galaxy",
+   "file": "ngc-488.jpg",
+   "fov": 0.10942,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4605": {
+   "name": "NGC 4605",
+   "kind": "galaxy",
+   "file": "ngc-4605.jpg",
+   "fov": 0.12718,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 3377": {
+   "name": "NGC 3377",
+   "kind": "galaxy",
+   "file": "ngc-3377.jpg",
+   "fov": 0.08385,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4395": {
+   "name": "NGC 4395",
+   "kind": "galaxy",
+   "file": "ngc-4395.jpg",
+   "fov": 0.09035,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M58": {
+   "name": "M58",
+   "kind": "galaxy",
+   "file": "m58.jpg",
+   "fov": 0.10855,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 772": {
+   "name": "NGC 772",
+   "kind": "galaxy",
+   "file": "ngc-772.jpg",
+   "fov": 0.09902,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 5061": {
+   "name": "NGC 5061",
+   "kind": "galaxy",
+   "file": "ngc-5061.jpg",
+   "fov": 0.08125,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 908": {
+   "name": "NGC 908",
+   "kind": "galaxy",
+   "file": "ngc-908.jpg",
+   "fov": 0.13303,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "M88": {
+   "name": "M88",
+   "kind": "galaxy",
+   "file": "m88.jpg",
+   "fov": 0.18742,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 613": {
+   "name": "NGC 613",
+   "kind": "galaxy",
+   "file": "ngc-613.jpg",
+   "fov": 0.11873,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 524": {
+   "name": "NGC 524",
+   "kind": "galaxy",
+   "file": "ngc-524.jpg",
+   "fov": 0.07302,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 584": {
+   "name": "NGC 584",
+   "kind": "galaxy",
+   "file": "ngc-584.jpg",
+   "fov": 0.0819,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 1332": {
+   "name": "NGC 1332",
+   "kind": "galaxy",
+   "file": "ngc-1332.jpg",
+   "fov": 0.11505,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 3938": {
+   "name": "NGC 3938",
+   "kind": "galaxy",
+   "file": "ngc-3938.jpg",
+   "fov": 0.07692,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 5907": {
+   "name": "NGC 5907",
+   "kind": "galaxy",
+   "file": "ngc-5907.jpg",
+   "fov": 0.24483,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 3941": {
+   "name": "NGC 3941",
+   "kind": "galaxy",
+   "file": "ngc-3941.jpg",
+   "fov": 0.07605,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2613": {
+   "name": "NGC 2613",
+   "kind": "galaxy",
+   "file": "ngc-2613.jpg",
+   "fov": 0.1651,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 3198": {
+   "name": "NGC 3198",
+   "kind": "galaxy",
+   "file": "ngc-3198.jpg",
+   "fov": 0.13997,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2655": {
+   "name": "NGC 2655",
+   "kind": "galaxy",
+   "file": "ngc-2655.jpg",
+   "fov": 0.08515,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "Sextans Dwarf Spheroidal": {
+   "name": "Sextans Dwarf Spheroidal",
+   "kind": "galaxy",
+   "file": "sextans-dwarf-spheroidal.jpg",
+   "fov": 0.65433,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 3640": {
+   "name": "NGC 3640",
+   "kind": "galaxy",
+   "file": "ngc-3640.jpg",
+   "fov": 0.09382,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 5247": {
+   "name": "NGC 5247",
+   "kind": "galaxy",
+   "file": "ngc-5247.jpg",
+   "fov": 0.11527,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4274": {
+   "name": "NGC 4274",
+   "kind": "galaxy",
+   "file": "ngc-4274.jpg",
+   "fov": 0.07865,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 3631": {
+   "name": "NGC 3631",
+   "kind": "galaxy",
+   "file": "ngc-3631.jpg",
+   "fov": 0.0806,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 45": {
+   "name": "NGC 45",
+   "kind": "galaxy",
+   "file": "ngc-45.jpg",
+   "fov": 0.1339,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 5101": {
+   "name": "NGC 5101",
+   "kind": "galaxy",
+   "file": "ngc-5101.jpg",
+   "fov": 0.12783,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4596": {
+   "name": "NGC 4596",
+   "kind": "galaxy",
+   "file": "ngc-4596.jpg",
+   "fov": 0.08515,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4656 NED01": {
+   "name": "NGC 4656 NED01",
+   "kind": "galaxy",
+   "file": "ngc-4656-ned01.jpg",
+   "fov": 0.13997,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4517": {
+   "name": "NGC 4517",
+   "kind": "galaxy",
+   "file": "ngc-4517.jpg",
+   "fov": 0.19543,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4754": {
+   "name": "NGC 4754",
+   "kind": "galaxy",
+   "file": "ngc-4754.jpg",
+   "fov": 0.09013,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4536": {
+   "name": "NGC 4536",
+   "kind": "galaxy",
+   "file": "ngc-4536.jpg",
+   "fov": 0.1534,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 5084": {
+   "name": "NGC 5084",
+   "kind": "galaxy",
+   "file": "ngc-5084.jpg",
+   "fov": 0.21515,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 4654": {
+   "name": "NGC 4654",
+   "kind": "galaxy",
+   "file": "ngc-4654.jpg",
+   "fov": 0.10227,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 3726": {
+   "name": "NGC 3726",
+   "kind": "galaxy",
+   "file": "ngc-3726.jpg",
+   "fov": 0.11418,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits"
+  },
+  "NGC 2242": {
+   "name": "NGC 2242",
+   "kind": "nebula",
+   "file": "ngc-2242.jpg",
+   "fov": 0.01013,
+   "survey": "ps1",
+   "credit": "Pan-STARRS1 DR1 (STScI/MAST) via CDS hips2fits",
+   "slot": 214,
+   "mean": 0.0978
+  },
+  "IC 4637": {
+   "name": "IC 4637",
+   "kind": "nebula",
+   "file": "ic-4637.jpg",
+   "fov": 0.01,
+   "survey": "vphas",
+   "credit": "VPHAS+ DR4 (ESO, CC BY 4.0) via CDS hips2fits",
+   "slot": 215,
+   "mean": 0.0674
+  }
+ }
+}

@@ -1,19 +1,5 @@
 import type { Page } from '@playwright/test';
-import { expect, test as shared } from './fixtures.ts';
-
-/**
- * Each deep-space test gets its own browser: on software GL the cosmological
- * scenes leave the GPU process busy for minutes after the page closes, which
- * would stall the next test's context in a shared browser.
- */
-const test = shared.extend({
-  context: async ({ playwright, launchOptions, baseURL, viewport, timezoneId }, use) => {
-    const browser = await playwright.chromium.launch(launchOptions);
-    const context = await browser.newContext({ baseURL, viewport, timezoneId });
-    await use(context);
-    await browser.close();
-  },
-});
+import { LOW_QUALITY_SETTINGS, expect, isolatedTest as test } from './fixtures.ts';
 
 test.use({ timezoneId: 'Pacific/Auckland' });
 
@@ -22,10 +8,7 @@ const crumb = (page: Page, name: string) =>
   page.getByRole('navigation', { name: 'Cosmic address' }).getByRole('button', { name });
 
 test.beforeEach(async ({ page }) => {
-  // Low preset keeps the ray-marched volumes affordable on software GL (CI without a GPU).
-  await page.addInitScript(() =>
-    localStorage.setItem('simuverse.settings.v1', JSON.stringify({ state: { quality: 'low', showPerf: true }, version: 2 })),
-  );
+  await page.addInitScript((s) => localStorage.setItem('simuverse.settings.v1', s), LOW_QUALITY_SETTINGS);
   await page.goto('/');
   await expect(crumb(page, 'Sky · Auckland')).toHaveAttribute('aria-current', 'location');
 });
@@ -61,5 +44,5 @@ test('selects Andromeda from its label and travels there', async ({ page }) => {
   await expect(panel.getByRole('heading', { name: 'Andromeda Galaxy' })).toBeVisible();
   await expect(panel.getByText('McConnachie 2012 (Local Group)')).toBeVisible();
   await panel.getByRole('button', { name: 'Go there' }).click();
-  await expect(page.getByText(/to Andromeda Galaxy/)).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByText(/^to Andromeda Galaxy/)).toBeVisible({ timeout: 20_000 });
 });

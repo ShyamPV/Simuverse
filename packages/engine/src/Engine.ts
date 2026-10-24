@@ -10,13 +10,15 @@
  */
 
 import {
-  AU, C_KM_PER_DAY, DEG, Ephemeris, type GeodeticLocation, LY, PC, type Satellite, type SolarBodyId, type Target,
-  type Tle, type Vec3, type AstroTime, SOLAR_SYSTEM, apparentBody, apparentFixed, apparentFromVector,
-  apparentMagnitude, bodyPhotometry, createSatellite, mulMat3Vec, observerState, satelliteItrs,
+  ALL_BODIES, AU, C_KM_PER_DAY, DEG, EQUATORIAL_TO_ECLIPTIC, Ephemeris, type GeodeticLocation, KPC, LY, MPC, PC,
+  type Satellite, type SolarBodyId, type Target, type Tle, type Vec3, type AstroTime, apparentBody, apparentFixed,
+  apparentFromVector, apparentMagnitude, apparentMoon, bodyPhotometry, createSatellite, findBody, isFittedMoon,
+  moonPhotometry, mulMat3Vec, observerState, satelliteItrs, sphericalToCartesian, ECLIPTIC_TO_EQUATORIAL,
+  astroTimeFromUnixMs, cartesianToSpherical, describeSpectralType, starPhysics,
 } from '@simuverse/astro';
 import {
-  type Constellations, EphemerisLoader, type StarNameEntry, type TleResult, constellationAt, loadConstellations,
-  loadStarCatalog, loadStarNames, loadTles, starDisplayName,
+  type CatalogEntry, type Constellations, EphemerisLoader, type SearchEntry, type SearchHit, SearchIndex, type StarNameEntry,
+  type TleResult, constellationAt, loadConstellations, loadStarCatalog, loadStarNames, loadTles, starDisplayName,
 } from '@simuverse/data';
 import {
   ACESFilmicToneMapping, DepthTexture, FloatType, HalfFloatType, PerspectiveCamera, Quaternion, Scene, Vector2,
@@ -28,13 +30,14 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import type { CameraRig } from './CameraRig.ts';
 import { DeepSpace, type DeepQuality, type DeepSpaceStats } from './DeepSpace.ts';
+import { FlyCameraRig } from './FlyCameraRig.ts';
 import { FrameGraph } from './frames.ts';
 import { type LabelItem, LabelLayer } from './LabelLayer.ts';
 import { AtmosphereLayer } from './layers/AtmosphereLayer.ts';
 import { ConstellationLayer } from './layers/ConstellationLayer.ts';
 import { GroundLayer } from './layers/GroundLayer.ts';
 import { SatelliteLayer } from './layers/SatelliteLayer.ts';
-import { SolarSystemLayer } from './layers/SolarSystemLayer.ts';
+import { SolarSystemLayer, TEXTURES } from './layers/SolarSystemLayer.ts';
 import { StarLayer } from './layers/StarLayer.ts';
 import type { RenderContext, SkyContext, ViewMode } from './layers/types.ts';
 import { OrbitCameraRig, type OrbitTarget } from './OrbitCameraRig.ts';
@@ -43,6 +46,8 @@ import { SkyCameraRig } from './SkyCameraRig.ts';
 import { SkyEvents, type SkyEventsResponse } from './SkyEvents.ts';
 import { limitingMagnitude } from './skyBrightness.ts';
 import { SUN_FRAME_ID, SolarSystemModel } from './SolarSystemModel.ts';
+import { SmallBodies } from './SmallBodies.ts';
+import { StarSystems } from './StarSystems.ts';
 import { TimeController } from './TimeController.ts';
 
 export type QualityPreset = 'low' | 'medium' | 'high' | 'ultra';
@@ -76,6 +81,52 @@ const FOCUS_NAMES: Record<string, string> = {
 export type ZoomLevel =
   | 'sky' | 'planet' | 'solar-system' | 'milky-way' | 'local-group' | 'virgo' | 'laniakea' | 'universe';
 
+/** Universe-view navigation: orbit a target, or fly freely. */
+export type NavMode = 'orbit' | 'fly';
+
+const ZOOM_LEVELS: readonly ZoomLevel[] = ['sky', 'planet', 'solar-system', 'milky-way', 'local-group', 'virgo', 'laniakea', 'universe'];
+const LADDER_TARGET: Partial<Record<ZoomLevel, string>> = {
+  'milky-way': 'galaxy', 'local-group': 'local-group', virgo: 'virgo', laniakea: 'laniakea', universe: 'universe',
+};
+
+/** Long Greek-letter names for Bayer designations ("Alpha Centauri"). */
+const GREEK_LONG: Record<string, string> = {
+  Alp: 'Alpha', Bet: 'Beta', Gam: 'Gamma', Del: 'Delta', Eps: 'Epsilon', Zet: 'Zeta', Eta: 'Eta', The: 'Theta',
+  Iot: 'Iota', Kap: 'Kappa', Lam: 'Lambda', Mu: 'Mu', Nu: 'Nu', Xi: 'Xi', Omi: 'Omicron', Pi: 'Pi', Rho: 'Rho',
+  Sig: 'Sigma', Tau: 'Tau', Ups: 'Upsilon', Phi: 'Phi', Chi: 'Chi', Psi: 'Psi', Ome: 'Omega',
+};
+
+/** Places to jump to by name (scale levels). */
+const REGIONS: { level: ZoomLevel; name: string; aliases: string[]; detail: string }[] = [
+  { level: 'solar-system', name: 'Solar System', aliases: [], detail: 'The Sun and its planets' },
+  { level: 'milky-way', name: 'Milky Way', aliases: ['Our Galaxy', 'The Galaxy', 'Galactic Centre', 'Galactic Center'], detail: 'Our galaxy' },
+  { level: 'local-group', name: 'Local Group', aliases: [], detail: 'Our group of galaxies' },
+  { level: 'virgo', name: 'Virgo Supercluster', aliases: ['Virgo Cluster', 'Local Supercluster'], detail: 'Galaxy cluster' },
+  { level: 'laniakea', name: 'Laniakea Supercluster', aliases: ['Laniakea', 'Great Attractor'], detail: 'Our supercluster' },
+  { level: 'universe', name: 'Observable Universe', aliases: ['Cosmic microwave background', 'CMB', 'Cosmic web'], detail: 'Everything we can see' },
+];
+
+/** A shareable description of the view (resolved through stable references, not engine keys). */
+export interface ViewState {
+  mode: 'sky' | 'orbit' | 'fly';
+  /** Orbit centre / fly reference object: a stable reference (see Engine.refFor). */
+  target?: string;
+  /** Orbit: direction from the target (ecliptic az/el, radians) and distance (m). Sky: view az/alt (radians). */
+  az?: number;
+  el?: number;
+  dist?: number;
+  /** Sky: field of view, degrees. */
+  fov?: number;
+  /** Fly: camera offset from the target (m, ecliptic) and orientation quaternion. */
+  pos?: Vec3;
+  quat?: [number, number, number, number];
+  selection?: string;
+  /** Simulated time (UTC ms); absent when following the real clock. */
+  timeMs?: number;
+  rate?: number;
+  paused?: boolean;
+}
+
 export interface ObserverLocation {
   name: string;
   latDeg: number;
@@ -101,7 +152,9 @@ export const DEFAULT_SKY_OPTIONS: SkyOptions = {
   figures: true, names: true, bounds: false, ground: true, atmosphere: true, satellites: true, darkSkyLimit: 6.5,
 };
 
-export type SelectionKind = 'star' | 'planet' | 'moon' | 'dwarf-planet' | 'satellite' | 'galaxy' | 'nebula' | 'cluster';
+export type SelectionKind =
+  | 'star' | 'planet' | 'moon' | 'dwarf-planet' | 'satellite' | 'galaxy' | 'nebula' | 'cluster' | 'exoplanet'
+  | 'small-body' | 'black-hole' | 'neutron-star';
 
 export interface SelectionInfo {
   /** 'body:<id>', 'star:<index>', 'sat:<norad>', 'gal:<i>', 'dso:<i>' or 'tyc:<id>'. */
@@ -170,6 +223,11 @@ export interface EngineStats {
   deep: DeepSpaceStats;
   /** Magnitudes added to point-source photometry by auto-exposure (0 near the Sun). */
   exposureMag: number;
+  nav: NavMode;
+  /** Warp in progress: destination, progress 0–1 and seconds remaining. */
+  warp: { name: string; progress: number; remaining: number } | null;
+  /** Fly-mode speed multiplier. */
+  flyFactor: number;
 }
 
 export interface EngineOptions {
@@ -204,10 +262,24 @@ export class Engine {
   readonly solar: SolarSystemModel;
   readonly orbitRig: OrbitCameraRig;
   readonly skyRig: SkyCameraRig;
+  readonly flyRig: FlyCameraRig;
   readonly depthMode: DepthMode;
   private readonly events: SkyEvents;
 
   private mode: ViewMode;
+  private nav: NavMode = 'orbit';
+  private readonly systems: StarSystems;
+  readonly smallBodies: SmallBodies;
+  private searchCache: { index: SearchIndex; version: string } | null = null;
+  private catalogCache: { entries: CatalogEntry[]; version: string } | null = null;
+  /** While true the 3D view isn't drawn (e.g. a full-page panel covers it); time and stats keep running. */
+  private suspended = false;
+  /** Destination of the warp in progress (for the HUD). */
+  private warpName = '';
+  /** Fly mode: nearest object key and smoothed log of the distance to it. */
+  private flyNearest = 'sun';
+  private flyRefLog = Math.log(1e7);
+  private lastHiddenRefresh = 0;
   private observer: ObserverLocation;
   private geodetic: GeodeticLocation;
   private skyOptions: SkyOptions;
@@ -300,6 +372,18 @@ export class Engine {
     this.scene.add(this.solarLayer.object, this.ground.object, this.atmosphere.object);
     this.deep = new DeepSpace(this.scene, this.frames, this.frames.require(SUN_FRAME_ID), new URL(opts.dataBaseUrl, location.href).href);
     this.deep.setQuality(QUALITY[this.quality]);
+    this.flyRig = new FlyCameraRig(earth.frame, opts.reducedMotion);
+    this.smallBodies = new SmallBodies(this.scene, this.frames, this.frames.require(SUN_FRAME_ID), new URL(opts.dataBaseUrl, location.href).href);
+    this.systems = new StarSystems(this.scene, this.frames, this.frames.require(SUN_FRAME_ID), new URL(opts.dataBaseUrl, location.href).href, {
+      hyg: () => this.starLayer?.stars ?? null,
+      hygName: (i) => {
+        const n = this.starNames.get(i);
+        return n ? starDisplayName(n) : undefined;
+      },
+      tyc: (id) => this.deep.tycStar(id),
+      hideHyg: (i) => this.starLayer?.hideStar(i),
+      hideTyc: (id) => this.deep.hideTyc(id),
+    });
 
     this.labels = new LabelLayer(opts.overlay, (key) => this.activateLabel(key));
 
@@ -337,7 +421,12 @@ export class Engine {
   }
 
   private get rig(): CameraRig {
-    return this.mode === 'sky' ? this.skyRig : this.orbitRig;
+    return this.mode === 'sky' ? this.skyRig : this.nav === 'fly' ? this.flyRig : this.orbitRig;
+  }
+
+  /** The Universe-view rig (orbit or fly), whichever is active. */
+  private get spaceRig(): CameraRig {
+    return this.nav === 'fly' ? this.flyRig : this.orbitRig;
   }
 
   // ---------------------------------------------------------------- public API
@@ -384,23 +473,408 @@ export class Engine {
   }
 
   /**
-   * Focus a solar-system body ('jupiter') or a deep object ('gal:12', 'dso:4').
-   * In Universe mode the camera travels to it; in Sky mode it is selected and
-   * the view turns to it.
+   * Go to anything: a solar-system body ('jupiter' or 'body:jupiter'), a star
+   * ('star:', 'tyc:'), an exoplanet system or planet ('exo:', 'exop:'), a deep
+   * object ('gal:', 'dso:'), a scale level ('region:milky-way'), a satellite
+   * or a constellation ('sat:', 'con:', Sky view only). In Universe mode the
+   * camera warps there; in Sky mode it is selected and the view turns to it.
    */
   focus(id: string): void {
-    const deep = id.includes(':');
-    if (deep ? !this.deep.target(id) && this.mode === 'universe' : !this.solar.get(id)) return;
-    // Earth can't be 'seen' by an observer standing on it; focusing it just clears the selection.
-    this.selection = id === 'earth' ? null : deep ? id : `body:${id}`;
-    if (this.mode === 'sky') {
-      this.centerOnSelection();
-    } else {
-      const target = this.targetFor(id)!;
-      const viewDistance = deep ? this.deep.viewDistance(id) : target.radius * (id === 'sun' || id === 'saturn' ? 6 : 3.2);
-      this.orbitRig.focus(target, viewDistance);
+    if (id.startsWith('body:')) id = id.slice(5);
+    if (id.startsWith('region:')) {
+      const level = id.slice(7) as ZoomLevel;
+      if (ZOOM_LEVELS.includes(level)) this.zoomToLevel(level);
+      return;
     }
+    if (id.startsWith('sat:') || id.startsWith('con:')) {
+      if (this.mode !== 'sky') this.enterSky();
+      if (id.startsWith('sat:')) {
+        this.selection = id;
+        this.centerOnSelection();
+      } else this.lookAtConstellation(id.slice(4));
+      this.emitStats(this.ctx.time);
+      return;
+    }
+    const isBody = !!this.solar.get(id);
+    const target = this.targetFor(id);
+    // In Sky view anything with a direction can be selected; travel needs a target.
+    if (!target && (this.mode === 'universe' || isBody)) return;
+    // Earth can't be 'seen' by an observer standing on it; focusing it just clears the selection.
+    this.selection = id === 'earth' ? null : isBody ? `body:${id}` : id;
+    if (this.mode === 'sky') this.centerOnSelection();
+    else this.travelTo(id, target!);
     this.emitStats(this.ctx.time);
+  }
+
+  /** Travels to an object in Universe view, leaving Sky view first if needed. */
+  travel(key: string): void {
+    if (this.mode === 'sky' && !key.startsWith('sat:') && !key.startsWith('con:')) this.liftOff();
+    this.focus(key);
+  }
+
+  /** Shows an object in the observer's sky (Sky view, turned towards it and selected). */
+  showInSky(key: string): void {
+    this.enterSky();
+    this.focus(key);
+  }
+
+  /** Warps the orbit camera to a target and arrives at a good viewpoint. */
+  private travelTo(id: string, target: OrbitTarget): void {
+    if (this.nav === 'fly') this.setNavMode('orbit', false);
+    this.orbitRig.warpTo(target, this.viewDistanceFor(id, target), this.arrivalFor(id));
+    this.warpName = this.focusName(id);
+  }
+
+  private viewDistanceFor(id: string, target: OrbitTarget): number {
+    if (this.solar.get(id)) return target.radius * (id === 'sun' || id === 'saturn' ? 6 : isFittedMoon(id) ? 4 : 3.2);
+    if (this.systems.isStarKey(id) || id.startsWith('exop:')) return this.systems.viewDistance(id);
+    if (id.startsWith('sb:')) return this.smallBodies.viewDistance(id);
+    return this.deep.viewDistance(id);
+  }
+
+  /** Arrival viewpoint (unit vector from the target), or null to keep the approach direction. */
+  private arrivalFor(id: string): Vec3 | null {
+    const frame = this.solar.get(id)?.frame ?? (id.startsWith('sb:') ? this.smallBodies.frameOf(id) : undefined);
+    if (frame) {
+      if (id === 'sun') return null;
+      // Three-quarter lit: 45° round from the Sun direction, a little above the ecliptic.
+      const s = this.frames.difference(frame, [0, 0, 0], this.frames.require(SUN_FRAME_ID), [0, 0, 0]);
+      const l = Math.hypot(s[0], s[1], s[2]) || 1;
+      const c = Math.cos(45 * DEG), n = Math.sin(45 * DEG);
+      return [(s[0] * c - s[1] * n) / l, (s[0] * n + s[1] * c) / l, s[2] / l + 0.35];
+    }
+    if (this.systems.isStarKey(id) || id.startsWith('exop:')) return this.systems.arrivalDirection(id, this.ctx.time.jdTdb);
+    return this.deep.arrivalDirection(id);
+  }
+
+  /** Turns Sky view to a constellation's label point. */
+  private lookAtConstellation(id: string): void {
+    const c = this.constellationData?.[id];
+    if (!c) return;
+    const dir = mulMat3Vec(EQUATORIAL_TO_ECLIPTIC, sphericalToCartesian(c.label[0] * DEG, c.label[1] * DEG));
+    this.skyRig.place(this.solar.earth);
+    const { az, alt } = this.skyRig.horizontalOf(dir);
+    this.skyRig.lookAt(az, alt);
+  }
+
+  get navMode(): NavMode {
+    return this.nav;
+  }
+
+  /**
+   * Switches Universe-view navigation. Entering fly mode keeps the current
+   * pose; leaving it orbits the selection (if it can be travelled to) or the
+   * nearest object, from exactly where the camera is.
+   */
+  setNavMode(m: NavMode, emit = true): void {
+    if (m === this.nav) return;
+    if (m === 'fly') {
+      if (this.mode === 'sky') {
+        // Finish the lift-off at once: start flying from orbit, not from the ground.
+        this.liftOff();
+        const earth = this.targetFor('earth')!;
+        this.orbitRig.place(earth, this.orbitRig.azimuth, this.orbitRig.elevation, earth.radius * 3.2);
+      }
+      this.orbitRig.cancelWarp();
+      this.flyRig.takeOver(this.orbitRig.anchor, this.orbitRig.offset, this.orbitRig.quaternion);
+      this.flyRefLog = Math.log(Math.max(this.orbitRig.altitude, 1));
+      this.flyRig.reference = this.orbitRig.altitude;
+      this.nav = 'fly';
+    } else {
+      this.flyRig.releaseKeys();
+      const sel = this.selection?.startsWith('body:') ? this.selection.slice(5) : this.selection;
+      const id = sel && this.targetFor(sel) ? sel : this.flyNearest;
+      const target = this.targetFor(id) ?? this.targetFor('sun')!;
+      const d = this.frames.difference(target.frame, [0, 0, 0], this.flyRig.anchor, this.flyRig.offset);
+      this.orbitRig.takeOver(target, this.flyRig.anchor, [...this.flyRig.offset], this.flyRig.quaternion, Math.hypot(d[0], d[1], d[2]), 'exact');
+      this.nav = 'orbit';
+    }
+    if (emit) this.emitStats(this.ctx.time);
+  }
+
+  // ---------------------------------------------------------------- search & sharing
+
+  /** Searches every catalogue by name or designation. */
+  search(query: string, limit = 30): SearchHit[] {
+    return this.searchIndex().search(query, limit);
+  }
+
+  /** Goes somewhere interesting, chosen at random; returns the key. */
+  surprise(): string | null {
+    const current = this.mode === 'universe' ? this.orbitRig.target.id : '';
+    const pool = this.searchIndex().entries((e) =>
+      e.key !== current && e.key !== `body:${current}` && e.key !== 'body:earth' && (
+        (e.kind === 'galaxy' && e.rank < 50) || ((e.kind === 'nebula' || e.kind === 'cluster') && e.rank < 16)
+        || (e.kind === 'system' && e.rank < 48) || (e.kind === 'exoplanet' && e.rank < 50) || e.kind === 'moon'
+        || e.kind === 'body' || (e.kind === 'star' && e.rank < 30)),
+    );
+    if (!pool.length) return null;
+    const pick = pool[Math.floor(Math.random() * pool.length)]!;
+    if (this.mode === 'sky') this.liftOff();
+    this.focus(pick.key);
+    return pick.key;
+  }
+
+  /** A reference to an object that survives data rebuilds (catalogue designation or name), for URLs. */
+  refFor(key: string): string {
+    if (key.startsWith('body:')) key = key.slice(5);
+    if (this.solar.get(key) || FOCUS_NAMES[key] || key === 'sun') return key;
+    return this.searchIndex().byKey(key)?.ref ?? key;
+  }
+
+  /** Resolves a reference from refFor() back to an engine key, or null if it isn't known (yet). */
+  resolveRef(ref: string): string | null {
+    if (this.solar.get(ref) || FOCUS_NAMES[ref]) return ref;
+    if (/^(gal|dso|star|tyc|exo|exop|sb|exotic):/.test(ref)) return this.targetFor(ref) ? ref : null;
+    if (/^(sat|con|region):/.test(ref)) return ref;
+    const e = this.searchIndex().resolve(ref);
+    return e ? (e.key.startsWith('body:') ? e.key.slice(5) : e.key) : null;
+  }
+
+  getViewState(): ViewState {
+    const t = this.time;
+    const live = !t.paused && t.rate === 1 && Math.abs(t.nowMs() - Date.now()) < 60_000;
+    const time = live ? {} : { timeMs: Math.round(t.nowMs()), rate: t.rate, paused: t.paused };
+    const selection = this.selection ? this.refFor(this.selection) : undefined;
+    if (this.mode === 'sky') {
+      return { mode: 'sky', az: this.skyRig.az, el: this.skyRig.alt, fov: this.skyRig.fovDeg, selection, ...time };
+    }
+    if (this.nav === 'fly') {
+      const target = this.targetFor(this.flyNearest) ?? this.targetFor('sun')!;
+      const pos = this.frames.difference(target.frame, [0, 0, 0], this.flyRig.anchor, this.flyRig.offset);
+      const q = this.flyRig.quaternion;
+      return { mode: 'fly', target: this.refFor(target.id), pos, quat: [q.x, q.y, q.z, q.w], selection, ...time };
+    }
+    const r = this.orbitRig;
+    return { mode: 'orbit', target: this.refFor(r.target.id), az: r.azimuth, el: r.elevation, dist: r.distance, selection, ...time };
+  }
+
+  /**
+   * Restores a view. Returns false if a referenced object isn't loaded yet
+   * (catalogues stream in), so callers can retry.
+   */
+  applyViewState(v: ViewState): boolean {
+    let targetKey: string | null = null;
+    if (v.mode !== 'sky') {
+      targetKey = v.target ? this.resolveRef(v.target) : 'sun';
+      if (!targetKey) return false;
+    }
+    const sel = v.selection ? this.resolveRef(v.selection) : null;
+    if (v.selection && !sel) return false;
+    if (v.timeMs !== undefined && Number.isFinite(v.timeMs)) this.time.setTimeMs(v.timeMs);
+    if (v.rate !== undefined && Number.isFinite(v.rate)) this.time.setRate(v.rate);
+    if (v.paused !== undefined) this.time.setPaused(v.paused);
+    this.selection = sel ? (this.solar.get(sel) ? `body:${sel}` : sel) : null;
+    if (v.mode === 'sky') {
+      this.enterSky();
+      this.skyRig.lookAt(v.az ?? 0, v.el ?? 0.4, true);
+      if (v.fov) this.skyRig.setFov(v.fov);
+    } else {
+      if (this.mode === 'sky') this.liftOff();
+      const target = this.targetFor(targetKey!)!;
+      if (v.mode === 'fly' && v.pos && v.quat) {
+        this.setNavMode('fly', false);
+        this.flyRig.takeOver(target.frame, v.pos, this.flyRig.quaternion.set(...v.quat).normalize());
+        this.flyNearest = target.id;
+      } else {
+        this.setNavMode('orbit', false);
+        this.orbitRig.place(target, v.az ?? 0, v.el ?? 0.3, v.dist ?? target.radius * 3.2 + 1e7);
+      }
+    }
+    this.emitStats(this.time.now());
+    return true;
+  }
+
+  private catalogVersion(): string {
+    return [
+      this.deep.catalogVersion, this.systems.systems.length, this.starNames.size,
+      this.satelliteLayer?.satellites.length ?? 0, this.constellationData ? 1 : 0, this.smallBodies.bodies.length,
+    ].join(':');
+  }
+
+  setSuspended(v: boolean): void {
+    this.suspended = v;
+    if (v) this.labels.render([]);
+  }
+
+  /**
+   * Every object in the Explore catalogue: bodies and moons, small bodies,
+   * named stars, exoplanets, nebulae, clusters, galaxies, black holes and
+   * neutron stars. Rebuilt when catalogues finish loading.
+   */
+  catalog(): CatalogEntry[] {
+    const version = this.catalogVersion();
+    if (this.catalogCache?.version === version) return this.catalogCache.entries;
+    const t = this.time.now();
+    const obs = observerState(this.ephemeris, t, this.geodetic);
+    const dataBase = new URL(this.opts.dataBaseUrl, location.href).href;
+    const textureBase = new URL(this.opts.textureBaseUrl, location.href).href;
+    const out: CatalogEntry[] = [];
+    const rankOf: Record<string, number> = { sun: 0, moon: 1, earth: 1, jupiter: 1, saturn: 1, mars: 1, venus: 2, mercury: 2, uranus: 2, neptune: 2, pluto: 4 };
+    for (const b of ALL_BODIES) {
+      const moon = isFittedMoon(b.id);
+      const place = b.id === 'earth' ? null : moon ? apparentMoon(this.ephemeris, obs, b.id) : apparentBody(this.ephemeris, obs, b.id as SolarBodyId);
+      const mag = b.id === 'earth' ? undefined : moon ? moonPhotometry(this.ephemeris, obs, b.id).magnitude : bodyPhotometry(this.ephemeris, obs, b.id as SolarBodyId).magnitude;
+      const tex = TEXTURES[b.id];
+      const parent = b.parent ? findBody(b.parent)?.name : undefined;
+      out.push({
+        key: `body:${b.id}`, ref: b.id, name: b.name, aliases: [], category: 'solar-system',
+        type: b.kind === 'moon' ? `Moon of ${parent}` : b.kind === 'dwarf-planet' ? 'Dwarf planet' : b.kind === 'star' ? 'Our star (G2V main-sequence)' : 'Planet',
+        distanceM: place ? place.distanceKm * 1000 : undefined, radiusM: b.radius, massKg: b.mass, magnitude: mag,
+        raDeg: place ? place.raJ2000 / DEG : undefined, decDeg: place ? place.decJ2000 / DEG : undefined,
+        luminositySun: b.id === 'sun' ? 1 : undefined, temperatureK: b.id === 'sun' ? 5772 : undefined,
+        image: tex ? { url: textureBase + tex.map, credit: 'Solar System Scope (CC BY 4.0), based on NASA imagery', round: true } : undefined,
+        rank: rankOf[b.id] ?? (b.radius > 1e6 ? 5 : 9), approximate: moon ? false : !this.ephemeris.isPrecise(t.jdTdb),
+      });
+    }
+    const stars = this.starLayer?.stars;
+    if (stars) {
+      for (const n of this.starNames.values()) {
+        const display = starDisplayName(n);
+        if (!display) continue;
+        const i = n.i;
+        const pc: Vec3 = [stars.positions[i * 3]!, stars.positions[i * 3 + 1]!, stars.positions[i * 3 + 2]!];
+        const d = Math.hypot(...pc);
+        const placeholder = (stars.flags[i]! & 1) === 1;
+        const ph = starPhysics(stars.absMag[i]!, stars.bv[i]!);
+        const [ra, dec] = cartesianToSpherical(mulMat3Vec(ECLIPTIC_TO_EQUATORIAL, pc));
+        const system = this.systems.systemForHyg(i);
+        const aliases: string[] = [];
+        const bayer = starDisplayName({ ...n, name: undefined });
+        if (bayer && bayer !== display) aliases.push(bayer);
+        if (n.hip) aliases.push(`HIP ${n.hip}`);
+        const mag = apparentMagnitude(stars.absMag[i]!, d);
+        out.push({
+          key: `star:${i}`, ref: n.hip ? `HIP ${n.hip}` : display, name: display, aliases, category: 'star',
+          type: describeSpectralType(n.spect, ph.teff) + (system ? ` · ${system.planets.length} known planet${system.planets.length === 1 ? '' : 's'}` : ''),
+          distanceM: placeholder ? undefined : d * PC, radiusM: placeholder ? undefined : ph.radiusSun * 695_700e3,
+          luminositySun: placeholder ? undefined : ph.lum, temperatureK: ph.teff, magnitude: mag,
+          raDeg: ra / DEG, decDeg: dec / DEG, constellation: n.con, rank: Math.min(100, 8 + mag * 6), approximate: placeholder,
+          extra: n.spect ? [['Spectral type', n.spect]] : undefined,
+        });
+      }
+    }
+    out.push(...this.systems.catalogEntries((i) => {
+      const n = this.starNames.get(i);
+      return !!n && !!starDisplayName(n);
+    }));
+    out.push(...this.smallBodies.catalogEntries(this.ephemeris, obs));
+    out.push(...this.deep.catalogEntries(new URL('images/', dataBase).href));
+    for (const e of out) {
+      const c = e.constellation ? this.constellationData?.[e.constellation] : undefined;
+      if (c) e.constellation = c.name;
+    }
+    this.catalogCache = { entries: out, version };
+    return out;
+  }
+
+  /**
+   * Tonight's dark window (Sun below −12°, the next one if it is daytime) and,
+   * for each object, the highest it gets during it and when.
+   */
+  visibilityTonight(keys: string[]): { start: number; end: number; objects: Map<string, { maxAltDeg: number; atMs: number }> } | null {
+    const nowMs = this.time.nowMs();
+    const step = 10 * 60_000;
+    const sunAlt = (ms: number) => {
+      const o = observerState(this.ephemeris, astroTimeFromUnixMs(ms), this.geodetic);
+      return { o, alt: apparentBody(this.ephemeris, o, 'sun').altRefracted / DEG };
+    };
+    let start = NaN, end = NaN;
+    for (let ms = nowMs - 6 * 3600e3; ms < nowMs + 30 * 3600e3; ms += step) {
+      const dark = sunAlt(ms).alt < -12;
+      if (dark && Number.isNaN(start)) start = ms;
+      if (!dark && !Number.isNaN(start)) {
+        if (ms > nowMs) { end = ms; break; }
+        start = NaN;
+      }
+    }
+    if (Number.isNaN(start) || Number.isNaN(end)) return null; // polar summer: no dark sky
+    start = Math.max(start, nowMs);
+    const samples: { ms: number; o: ReturnType<typeof observerState> }[] = [];
+    const n = 24;
+    for (let k = 0; k <= n; k++) {
+      const ms = start + ((end - start) * k) / n;
+      samples.push({ ms, o: observerState(this.ephemeris, astroTimeFromUnixMs(ms), this.geodetic) });
+    }
+    const objects = new Map<string, { maxAltDeg: number; atMs: number }>();
+    for (const key of keys) {
+      const fixed = this.infoFor(key, this.time.now());
+      if (!fixed) continue;
+      const body = key.startsWith('body:') ? key.slice(5) : null;
+      const sb = key.startsWith('sb:') ? Number(key.slice(3)) : null;
+      let best = { maxAltDeg: -90, atMs: start };
+      for (const smp of samples) {
+        const p = body
+          ? (isFittedMoon(body) ? apparentMoon(this.ephemeris, smp.o, body) : apparentBody(this.ephemeris, smp.o, body as SolarBodyId))
+          : sb !== null ? this.smallBodies.apparent(this.ephemeris, smp.o, sb)
+          : fixed.target?.kind === 'fixed' ? apparentFixed(smp.o, fixed.target.positionKm) : null;
+        if (!p) break;
+        const alt = p.altRefracted / DEG;
+        if (alt > best.maxAltDeg) best = { maxAltDeg: alt, atMs: smp.ms };
+      }
+      if (best.maxAltDeg > -90) objects.set(key, best);
+    }
+    return { start, end, objects };
+  }
+
+  private searchIndex(): SearchIndex {
+    const version = [
+      this.deep.catalogVersion, this.systems.systems.length, this.starNames.size,
+      this.satelliteLayer?.satellites.length ?? 0, this.constellationData ? 1 : 0, this.smallBodies.bodies.length,
+    ].join(':');
+    if (this.searchCache?.version === version) return this.searchCache.index;
+    const index = new SearchIndex();
+    index.add(this.coreSearchEntries());
+    index.add(this.deep.searchEntries());
+    index.add(this.systems.searchEntries());
+    index.add(this.smallBodies.searchEntries());
+    this.searchCache = { index, version };
+    return index;
+  }
+
+  /** Bodies, scale levels, named stars, satellites and constellations. */
+  private coreSearchEntries(): SearchEntry[] {
+    const out: SearchEntry[] = [];
+    const rankOf: Record<string, number> = { sun: 0, earth: 1, moon: 2, jupiter: 2, saturn: 2, mars: 2, venus: 3, mercury: 3, uranus: 3, neptune: 3, pluto: 5 };
+    for (const b of ALL_BODIES) {
+      const parent = b.parent ? findBody(b.parent)?.name : undefined;
+      const detail = b.kind === 'moon' ? `Moon of ${parent}` : b.kind === 'dwarf-planet' ? 'Dwarf planet' : b.kind === 'star' ? 'Our star' : 'Planet';
+      out.push({ key: `body:${b.id}`, ref: b.id, name: b.name, kind: b.kind === 'moon' ? 'moon' : 'body', rank: rankOf[b.id] ?? (b.radius > 1e6 ? 6 : 10), detail });
+    }
+    for (const r of REGIONS) out.push({ key: `region:${r.level}`, ref: `region:${r.level}`, name: r.name, aliases: r.aliases, kind: 'region', rank: 1, detail: r.detail });
+    const stars = this.starLayer?.stars;
+    for (const n of this.starNames.values()) {
+      const display = starDisplayName(n);
+      if (!display) continue;
+      const aliases: string[] = [];
+      const con = n.con ? this.constellationData?.[n.con] : undefined;
+      if (n.bayer && n.con) {
+        const bayer = starDisplayName({ ...n, name: undefined });
+        if (bayer && bayer !== display) aliases.push(bayer);
+        const [letter, sup] = n.bayer.split('-');
+        if (con && GREEK_LONG[letter!]) aliases.push(`${GREEK_LONG[letter!]}${sup ?? ''} ${con.genitive}`);
+      }
+      if (n.flam && n.con) aliases.push(`${n.flam} ${n.con}`, ...(con ? [`${n.flam} ${con.genitive}`] : []));
+      if (n.hip) aliases.push(`HIP ${n.hip}`);
+      let rank = 40;
+      if (stars) {
+        const p = stars.positions, i = n.i;
+        const mag = apparentMagnitude(stars.absMag[i]!, Math.hypot(p[i * 3]!, p[i * 3 + 1]!, p[i * 3 + 2]!));
+        rank = Math.min(100, 8 + mag * 6);
+      }
+      out.push({ key: `star:${n.i}`, ref: n.hip ? `HIP ${n.hip}` : display, name: display, aliases, kind: 'star', rank, detail: n.spect ? `Star · ${n.spect}` : 'Star' });
+    }
+    for (const s of this.satelliteLayer?.satellites ?? []) {
+      const short = s.name.replace(/ \(.*\)$/, '');
+      const aliases = [s.name, `NORAD ${s.noradId}`];
+      if (s.noradId === 25544) aliases.push('ISS', 'International Space Station');
+      if (s.noradId === 20580) aliases.push('Hubble', 'Hubble Space Telescope');
+      out.push({ key: `sat:${s.noradId}`, ref: `NORAD ${s.noradId}`, name: short, aliases, kind: 'satellite', rank: LABELLED_SATELLITES.has(s.noradId) ? 8 : 50, detail: 'Satellite · Sky view' });
+    }
+    for (const [id, c] of Object.entries(this.constellationData ?? {})) {
+      out.push({ key: `con:${id}`, ref: c.name, name: c.name, aliases: [c.genitive, id], kind: 'constellation', rank: 10 + c.rank * 4, detail: 'Constellation · Sky view' });
+    }
+    return out;
   }
 
   select(key: string | null): void {
@@ -414,7 +888,7 @@ export class Engine {
     if (!sel) return;
     if (this.mode === 'universe') {
       if (sel.startsWith('body:')) this.focus(sel.slice(5));
-      else if (sel.startsWith('gal:') || sel.startsWith('dso:')) this.focus(sel);
+      else if (this.targetFor(sel)) this.focus(sel);
       return;
     }
     const dir = this.selectionDirection(sel);
@@ -430,21 +904,23 @@ export class Engine {
       return;
     }
     if (this.mode === 'sky') this.liftOff();
+    if (this.nav === 'fly') this.setNavMode('orbit', false);
     if (level === 'planet') {
       this.focus('earth');
       return;
     }
     if (level === 'solar-system') {
-      if (this.orbitRig.target.id !== 'sun') this.focus('sun');
-      this.orbitRig.zoomToDistance(70 * AU);
+      const sun = this.targetFor('sun')!;
+      this.orbitRig.warpTo(sun, 70 * AU, null);
+      this.warpName = 'Solar System';
+      this.emitStats(this.ctx.time);
       return;
     }
-    const id = { 'milky-way': 'galaxy', 'local-group': 'local-group', virgo: 'virgo', laniakea: 'laniakea', universe: 'universe' }[level];
+    const id = LADDER_TARGET[level]!;
     const target = this.deep.target(id);
     if (!target) return;
-    this.orbitRig.takeOver(target, this.orbitRig.anchor, [...this.orbitRig.offset], this.orbitRig.quaternion, this.deep.viewDistance(id), 'exact');
-    const dir = this.deep.preferredViewDirection(id);
-    if (dir) this.orbitRig.viewFrom(dir);
+    this.orbitRig.warpTo(target, this.deep.viewDistance(id), this.deep.preferredViewDirection(id));
+    this.warpName = FOCUS_NAMES[id] ?? id;
     this.emitStats(this.ctx.time);
   }
 
@@ -466,6 +942,7 @@ export class Engine {
   setReducedMotion(v: boolean): void {
     this.orbitRig.setReducedMotion(v);
     this.skyRig.setReducedMotion(v);
+    this.flyRig.setReducedMotion(v);
   }
 
   setLabelsVisible(v: boolean): void {
@@ -474,6 +951,8 @@ export class Engine {
 
   setOrbitsVisible(v: boolean): void {
     this.solarLayer.setOrbitsVisible(v);
+    this.systems.layer.showOrbits = v;
+    this.smallBodies.showOrbits = v;
   }
 
   /** Rise/set/transit, twilight, Moon phase and satellite passes, computed off the main thread. */
@@ -508,6 +987,8 @@ export class Engine {
     this.atmosphere.dispose();
     this.ground.dispose();
     this.deep.dispose();
+    this.systems.dispose();
+    this.smallBodies.dispose();
     this.composer.dispose();
     this.renderer.dispose();
   }
@@ -515,8 +996,12 @@ export class Engine {
   // ---------------------------------------------------------------- setup
 
   private targetFor(id: string): OrbitTarget | undefined {
+    if (id.startsWith('body:')) id = id.slice(5);
     const b = this.solar.get(id);
-    return b ? { id, frame: b.frame, radius: b.info.radius } : this.deep.target(id);
+    if (b) return { id, frame: b.frame, radius: b.info.radius };
+    if (this.systems.isStarKey(id) || id.startsWith('exop:')) return this.systems.target(id);
+    if (id.startsWith('sb:')) return this.smallBodies.target(id);
+    return this.deep.target(id);
   }
 
   /** Starts the orbit camera between the Sun direction and the terminator, so it opens on daylight. */
@@ -536,6 +1021,7 @@ export class Engine {
   /** Leaves Sky view upward, continuing from the observer's exact viewpoint. */
   private liftOff(): void {
     if (this.mode !== 'sky') return;
+    this.nav = 'orbit';
     const earth = this.targetFor('earth')!;
     this.orbitRig.takeOver(earth, this.skyRig.anchor, [...this.skyRig.offset], this.skyRig.quaternion, earth.radius * 3.2, 'exact');
     this.setMode('universe');
@@ -658,6 +1144,10 @@ export class Engine {
         // Grab-the-sky: the point under the cursor follows it at any zoom.
         const radPerPx = (this.skyRig.fovDeg * DEG) / this.height;
         this.skyRig.panBy(-dx * radPerPx, dy * radPerPx);
+      } else if (this.nav === 'fly') {
+        // Same grab feel in flight: the scene follows the cursor.
+        const radPerPx = (this.flyRig.fovDeg * DEG) / this.height;
+        this.flyRig.look(dx * radPerPx, dy * radPerPx);
       } else this.orbitRig.rotateBy(-dx * 0.005, dy * 0.005);
     };
     const onUp = (e: PointerEvent) => {
@@ -672,20 +1162,33 @@ export class Engine {
       const amount = e.deltaY * scale * 0.0015;
       this.zoomingOut = amount > 0;
       if (this.mode === 'sky') this.skyRig.zoomBy(amount * 0.8);
+      else if (this.nav === 'fly') this.flyRig.scaleSpeed(-Math.sign(amount));
       else this.orbitRig.zoomBy(amount);
     };
+    const flying = () => this.mode === 'universe' && this.nav === 'fly';
+    const onKeyUp = (e: KeyboardEvent) => {
+      this.flyRig.key(e.code, false);
+    };
+    const onBlur = () => this.flyRig.releaseKeys();
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null;
       if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      if (flying() && !e.ctrlKey && !e.metaKey && !e.altKey && this.flyRig.key(e.code, true)) {
+        e.preventDefault();
+        return;
+      }
+      if (flying() && e.key === 'Shift') this.flyRig.key(e.code, true);
       const step = e.shiftKey ? 0.2 : 0.06;
       const sky = this.mode === 'sky';
       const turn = (dAz: number, dEl: number) => {
         if (sky) this.skyRig.panBy(dAz * this.skyRig.fovDeg * DEG * 0.5, dEl * this.skyRig.fovDeg * DEG * 0.5);
+        else if (flying()) this.flyRig.look(dAz * 0.5, dEl * 0.5);
         else this.orbitRig.rotateBy(dAz, dEl);
       };
       const zoom = (a: number) => {
         this.zoomingOut = a > 0;
         if (sky) this.skyRig.zoomBy(a);
+        else if (flying()) this.flyRig.scaleSpeed(-Math.sign(a));
         else this.orbitRig.zoomBy(a);
       };
       switch (e.key) {
@@ -707,7 +1210,11 @@ export class Engine {
     canvas.addEventListener('dblclick', onDouble);
     canvas.addEventListener('wheel', onWheel, { passive: false });
     window.addEventListener('keydown', onKey);
+    window.addEventListener('keyup', onKeyUp);
+    window.addEventListener('blur', onBlur);
     return () => {
+      window.removeEventListener('keyup', onKeyUp);
+      window.removeEventListener('blur', onBlur);
       canvas.removeEventListener('pointerdown', onDown);
       canvas.removeEventListener('pointermove', onMove);
       canvas.removeEventListener('pointerup', onUp);
@@ -719,7 +1226,7 @@ export class Engine {
   }
 
   private activateLabel(key: string): void {
-    if (key.startsWith('body:') && this.mode === 'universe') this.focus(key.slice(5));
+    if ((key.startsWith('body:') || key.startsWith('exop:') || key.startsWith('sb:')) && this.mode === 'universe') this.focus(key);
     else if (key.startsWith('con:') || key.startsWith('card:')) return;
     else this.select(key);
   }
@@ -745,6 +1252,10 @@ export class Engine {
       if (v.shown && !this.belowHorizon(v.rel)) consider(`body:${v.id}`, v.rel, Math.max(v.radiusPx, 12));
     }
     for (const v of this.satelliteLayer?.views ?? []) if (v.visible) consider(`sat:${v.id}`, v.rel, 10);
+    if (this.mode === 'universe') this.systems.pick(consider);
+    this.smallBodies.pick((key, rel, reach, bias) => {
+      if (!this.belowHorizon(rel)) consider(key, rel, reach, bias);
+    }, this.magLimit);
     if (!best) {
       this.deep.pick((key, rel, reach, bias) => {
         if (!this.belowHorizon(rel)) consider(key, rel, reach, bias);
@@ -775,8 +1286,9 @@ export class Engine {
       this.select(null);
       return;
     }
-    if (picked.key.startsWith('body:') && this.mode === 'universe') {
-      const id = picked.key.slice(5);
+    const travelOnClick = picked.key.startsWith('body:') || picked.key.startsWith('exop:') || picked.key.startsWith('sb:');
+    if (travelOnClick && this.mode === 'universe' && this.nav === 'orbit') {
+      const id = picked.key.startsWith('body:') ? picked.key.slice(5) : picked.key;
       if (id !== this.orbitRig.target.id) this.focus(id);
       else this.select(picked.key);
     } else this.select(picked.key);
@@ -825,14 +1337,16 @@ export class Engine {
     this.prevOffset[1] = this.rig.offset[1];
     this.prevOffset[2] = this.rig.offset[2];
     this.rig.update(dt);
-    if (this.mode === 'universe') {
+    if (this.mode === 'universe' && this.nav === 'fly') this.updateFlight(dt);
+    else if (this.mode === 'universe' && !this.orbitRig.warping) {
       // Scale ladder: hand the orbit centre outward (Sun → Galaxy → Local Group → universe) and back.
       const id = this.orbitRig.target.id;
       const next = ladderStep(id, this.orbitRig.distance, this.zoomingOut, !!this.solar.get(id));
       const target = next ? this.targetFor(next) : undefined;
       if (target) this.orbitRig.retarget(target);
     }
-    if (this.mode === 'universe' && prevAnchor === this.rig.anchor && dt > 0) {
+    if (this.mode === 'universe' && this.nav === 'fly') this.speed = this.flyRig.speed;
+    else if (this.mode === 'universe' && prevAnchor === this.rig.anchor && dt > 0) {
       const o = this.rig.offset;
       const inst = Math.hypot(o[0] - this.prevOffset[0], o[1] - this.prevOffset[1], o[2] - this.prevOffset[2]) / dt;
       this.speed += (inst - this.speed) * Math.min(1, dt * 8);
@@ -859,29 +1373,38 @@ export class Engine {
     const sunRel = ctx.toCamera(this.frames.require(SUN_FRAME_ID), [0, 0, 0], this.scratch);
     const exposure = this.skyCtx
       ? { pointMag: 0, extendedGain: 1, fogMpc: 1e9 }
-      : { ...exposureFor(Math.hypot(sunRel[0], sunRel[1], sunRel[2])), fogMpc: sceneFogMpc(this.orbitRig.focusDistance) };
+      : { ...exposureFor(Math.hypot(sunRel[0], sunRel[1], sunRel[2])), fogMpc: sceneFogMpc(this.spaceRig.focusDistance) };
     ctx.exposure = exposure;
     this.applyPhotometry(
       STAR_MAG_REF + exposure.pointMag,
       (this.skyCtx ? this.skyCtx.limitMag : SPACE_MAG_LIMIT) + exposure.pointMag,
     );
     // Galaxies: naked-eye photometry on the ground, scale-referenced in space.
-    const galRef = this.skyCtx ? STAR_MAG_REF : galaxyMagRef(this.orbitRig.focusDistance, STAR_MAG_REF);
+    const galRef = this.skyCtx ? STAR_MAG_REF : galaxyMagRef(this.spaceRig.focusDistance, STAR_MAG_REF);
     this.deep.setGalaxyPhotometry(galRef, this.skyCtx ? this.skyCtx.limitMag : galRef + 2.5);
     this.solarLayer.update(ctx);
+    this.smallBodies.update(ctx, this.mode === 'universe' && this.nav === 'orbit' ? this.orbitRig.target.id : this.selection);
     this.starLayer?.update(ctx);
     if (this.starLayer) this.deep.attachStarTemplate(this.starLayer);
     // Faint deep-sky light disappears into a bright sky.
     const skyVisibility = this.skyCtx ? smoothstep(2, 5.5, this.skyCtx.limitMag) : 1;
     this.deep.update(ctx, skyVisibility);
+    this.systems.update(ctx, this.cameraPc(), this.mode === 'universe' && this.nav === 'orbit' ? this.orbitRig.target.id : null);
+    if (now - this.lastHiddenRefresh > 2000) {
+      // Star tiles stream in and out; keep the close-up star's catalogue point hidden.
+      this.lastHiddenRefresh = now;
+      this.systems.refreshHidden();
+    }
     this.constellationLayer?.update(ctx);
     this.satelliteLayer?.update(ctx);
     this.ground.update(ctx);
     this.atmosphere.update(ctx);
     this.atmosphere.renderLut(this.renderer);
-    this.deep.renderVolumes(this.renderer, this.camera);
-    this.composer.render(dt);
-    this.labels.render(this.collectLabels());
+    if (!this.suspended) {
+      this.deep.renderVolumes(this.renderer, this.camera);
+      this.composer.render(dt);
+      this.labels.render(this.collectLabels());
+    }
 
     this.trackPerformance(now);
     if (now - this.lastStatsEmit > 200) {
@@ -920,6 +1443,58 @@ export class Engine {
     this.solarLayer.setPhotometry(magRef, limit);
     this.satelliteLayer?.setPhotometry(magRef, limit);
     this.deep.setStarPhotometry(limit);
+    this.systems.layer.setPhotometry(magRef, limit);
+    this.smallBodies.setPhotometry(magRef, limit);
+  }
+
+  /**
+   * Fly mode, every frame: measure the distance to the nearest object (solar
+   * bodies, stars, galaxies) to scale speed, and re-anchor the camera to the
+   * body whose sphere of influence it is in (else the Sun) so precision and
+   * co-moving motion follow it.
+   */
+  private updateFlight(dt: number): void {
+    const sunFrame = this.frames.require(SUN_FRAME_ID);
+    let nearest = Infinity, nearestId = 'sun';
+    let anchor = sunFrame, anchorSoi = Infinity;
+    const origin: Vec3 = [0, 0, 0];
+    for (const b of this.solar.bodies.values()) {
+      const rel = this.frames.difference(this.flyRig.anchor, this.flyRig.offset, b.frame, origin, this.scratch);
+      const d = Math.hypot(rel[0], rel[1], rel[2]);
+      // Mean of equatorial and polar radii: the equatorial radius alone puts mid-latitude ground "inside" Earth.
+      const surface = Math.max(d - (b.info.radius + b.info.polarRadius) / 2, 10);
+      if (surface < nearest) {
+        nearest = surface;
+        nearestId = b.info.id;
+      }
+      if (b.info.id === 'sun' || isFittedMoon(b.info.id)) continue;
+      // Sphere of influence: a (m/M)^(2/5) about the parent.
+      const parent = this.solar.get(b.info.parent!)!;
+      const a = Math.hypot(...this.frames.difference(parent.frame, origin, b.frame, origin));
+      const soi = a * (b.info.mass / parent.info.mass) ** 0.4;
+      if (d < soi && soi < anchorSoi) {
+        anchor = b.frame;
+        anchorSoi = soi;
+      }
+    }
+    const camPc = this.cameraPc();
+    const star = this.systems.nearestDistancePc * PC;
+    if (star < nearest && this.systems.nearestStarKey) {
+      nearest = star;
+      nearestId = this.systems.nearestStarKey;
+    }
+    const galaxy = this.deep.nearestGalaxyDistance(camPc);
+    if (galaxy < nearest) {
+      nearest = galaxy;
+      const fromSun = Math.hypot(...camPc) * PC;
+      nearestId = fromSun < 30 * KPC ? 'galaxy' : fromSun < 2.5 * MPC ? 'local-group' : 'universe';
+    }
+    this.flyNearest = nearestId;
+    // Smooth in log space, but react at once when something gets closer (no flying through it).
+    const l = Math.log(Math.max(nearest, 1));
+    this.flyRefLog = l < this.flyRefLog ? l : this.flyRefLog + (l - this.flyRefLog) * Math.min(1, dt * 3);
+    this.flyRig.reference = Math.exp(this.flyRefLog);
+    this.flyRig.reanchor(anchor, this.frames);
   }
 
   private collectLabels(): LabelItem[] {
@@ -974,7 +1549,9 @@ export class Engine {
       const rel: Vec3 = [0, 0, 0];
       let count = 0;
       const labelMag = Math.min(STAR_LABEL_MAG, this.magLimit - 0.5);
+      const closeUp = sky ? undefined : this.systems.activeHyg;
       for (const n of this.starLabelNames) {
+        if (n.i === closeUp) continue;
         rel[0] = pos[n.i * 3]! - cam[0];
         rel[1] = pos[n.i * 3 + 1]! - cam[1];
         rel[2] = pos[n.i * 3 + 2]! - cam[2];
@@ -990,6 +1567,10 @@ export class Engine {
       }
     }
 
+    if (!sky) items.push(...this.systems.labels((rel) => this.project(rel), free, placed));
+    items.push(...this.smallBodies.labels(
+      (rel) => this.project(rel), free, placed, this.magLimit, sky ? this.selection : this.orbitRig.target.id, (rel) => this.belowHorizon(rel),
+    ));
     items.push(...this.deep.labels(
       (rel) => this.project(rel), free, placed, this.ctx.pixelsPerRadian, this.magLimit, (rel) => this.belowHorizon(rel),
     ));
@@ -1043,6 +1624,8 @@ export class Engine {
       const cam = this.cameraPc();
       return [p[i * 3]! - cam[0], p[i * 3 + 1]! - cam[1], p[i * 3 + 2]! - cam[2]];
     }
+    if (key.startsWith('exo')) return this.systems.selectionRel(key, this.cameraPc(), [0, 0, 0]);
+    if (key.startsWith('sb:')) return this.smallBodies.views.find((v) => v.key === key)?.rel ?? null;
     return this.deep.selectionRel(key, this.cameraPc(), [0, 0, 0]);
   }
 
@@ -1055,8 +1638,15 @@ export class Engine {
 
   /** Full topocentric description of the selection, as seen from the observer location. */
   private selectionInfo(t: AstroTime): SelectionInfo | null {
-    const key = this.selection;
-    if (!key) return null;
+    return this.selection ? this.infoFor(this.selection, t) : null;
+  }
+
+  /** Full topocentric description of any object (not just the selection), as seen from the observer. */
+  describe(key: string): SelectionInfo | null {
+    return this.infoFor(key.includes(':') || !this.solar.get(key) ? key : `body:${key}`, this.time.now());
+  }
+
+  private infoFor(key: string, t: AstroTime): SelectionInfo | null {
     const obs = this.skyCtx?.observer ?? observerState(this.ephemeris, t, this.geodetic);
     const precise = this.ephemeris.isPrecise(t.jdTdb);
     const conName = (raJ: number, decJ: number) => {
@@ -1066,19 +1656,52 @@ export class Engine {
     };
 
     if (key.startsWith('body:')) {
-      const id = key.slice(5) as SolarBodyId;
-      const info = SOLAR_SYSTEM.find((b) => b.id === id);
+      const id = key.slice(5);
+      const info = findBody(id);
       if (!info) return null;
       if (id === 'earth') return null;
-      const p = apparentBody(this.ephemeris, obs, id);
-      const ph = bodyPhotometry(this.ephemeris, obs, id);
+      const moon = isFittedMoon(id);
+      const p = moon ? apparentMoon(this.ephemeris, obs, id) : apparentBody(this.ephemeris, obs, id as SolarBodyId);
+      const ph = moon ? moonPhotometry(this.ephemeris, obs, id) : bodyPhotometry(this.ephemeris, obs, id as SolarBodyId);
       const details: [string, string][] = [];
+      if (moon) details.push(['Moon of', findBody(info.parent!)!.name], ['Diameter', `${Math.round((info.radius * 2) / 1000).toLocaleString('en-US')} km`]);
       if (id !== 'sun') details.push(['Illuminated', `${(ph.illuminated * 100).toFixed(0)}%`]);
       return {
         key, kind: info.kind === 'star' ? 'star' : (info.kind as SelectionKind), name: info.name, details, travelable: true,
         constellation: conName(p.raJ2000, p.decJ2000),
         raJ2000: p.raJ2000, decJ2000: p.decJ2000, ra: p.ra, dec: p.dec, alt: p.altRefracted, az: p.horizontal.az,
-        distance: p.distanceKm * 1000, magnitude: ph.magnitude, approximate: !precise, target: { kind: 'body', id },
+        distance: p.distanceKm * 1000, magnitude: ph.magnitude, approximate: !precise,
+        // A moon rises and sets with its planet (to within seconds).
+        target: { kind: 'body', id: (moon ? info.parent! : id) as SolarBodyId },
+      };
+    }
+
+    if (key.startsWith('sb:')) {
+      const d = this.smallBodies.describe(key, this.ephemeris, obs);
+      if (!d) return null;
+      const p = d.place;
+      const view = this.smallBodies.views.find((v) => v.key === key);
+      const km = p.distanceKm;
+      return {
+        key, kind: d.body.kind === 'dwarf-planet' ? 'dwarf-planet' : 'small-body', name: d.name, subtitle: d.subtitle,
+        details: d.details, travelable: true, constellation: conName(p.raJ2000, p.decJ2000),
+        raJ2000: p.raJ2000, decJ2000: p.decJ2000, ra: p.ra, dec: p.dec, alt: p.altRefracted, az: p.horizontal.az,
+        distance: d.distanceM, magnitude: this.mode === 'sky' ? view?.magnitude : undefined, approximate: d.approximate,
+        // Rise and set: treat it as fixed for the night at its current position (it moves slowly).
+        target: { kind: 'fixed', positionKm: [p.direction[0] * km + obs.position[0], p.direction[1] * km + obs.position[1], p.direction[2] * km + obs.position[2]] },
+      };
+    }
+
+    if (key.startsWith('exo')) {
+      const d = this.systems.describe(key, t.jdTdb);
+      if (!d) return null;
+      const p = apparentFixed(obs, d.positionKm);
+      return {
+        key, kind: d.kind, name: d.name, subtitle: d.subtitle, details: d.details, travelable: true,
+        constellation: conName(p.raJ2000, p.decJ2000),
+        raJ2000: p.raJ2000, decJ2000: p.decJ2000, ra: p.ra, dec: p.dec, alt: p.altRefracted, az: p.horizontal.az,
+        distance: d.distanceM, magnitude: d.magnitude, approximate: d.approximate,
+        target: { kind: 'fixed', positionKm: d.positionKm },
       };
     }
 
@@ -1096,8 +1719,11 @@ export class Engine {
       if (entry?.hip) details.push(['Catalogue', `HIP ${entry.hip}`]);
       const bayer = entry && starDisplayName({ ...entry, name: undefined });
       if (entry?.name && bayer) details.push(['Designation', bayer]);
+      const system = this.systems.systemForHyg(i);
+      if (system) details.push(...this.systems.systemDetails(system));
       return {
-        key, kind: 'star', name: (entry && starDisplayName(entry)) ?? `HYG star #${i}`, details, travelable: false,
+        key, kind: 'star', name: (entry && starDisplayName(entry)) ?? `HYG star #${i}`, details, travelable: !unknownDistance,
+        subtitle: system ? (system.planets.length > 1 ? 'Planetary system' : 'Star with a planet') : undefined,
         constellation: conName(p.raJ2000, p.decJ2000),
         raJ2000: p.raJ2000, decJ2000: p.decJ2000, ra: p.ra, dec: p.dec, alt: p.altRefracted, az: p.horizontal.az,
         distance: unknownDistance ? undefined : distPc * PC,
@@ -1137,7 +1763,7 @@ export class Engine {
       const p = apparentFixed(obs, deep.positionKm);
       return {
         key, kind: deep.kind === 'star' ? 'star' : deep.kind, name: deep.name, subtitle: deep.subtitle,
-        details: deep.details, travelable: deep.kind !== 'star' && deep.distanceM !== undefined,
+        details: deep.details, travelable: deep.distanceM !== undefined,
         constellation: conName(p.raJ2000, p.decJ2000),
         raJ2000: p.raJ2000, decJ2000: p.decJ2000, ra: p.ra, dec: p.dec, alt: p.altRefracted, az: p.horizontal.az,
         distance: deep.distanceM, magnitude: deep.magnitude, approximate: deep.approximate,
@@ -1149,9 +1775,18 @@ export class Engine {
 
   /** Display name of the current orbit centre. */
   private focusName(id: string): string {
+    if (id.startsWith('body:')) id = id.slice(5);
     const body = this.solar.get(id);
     if (body) return body.info.name;
-    return FOCUS_NAMES[id] ?? this.deep.describe(id)?.name ?? id;
+    const named = FOCUS_NAMES[id];
+    if (named) return named;
+    if (id.startsWith('star:')) {
+      const n = this.starNames.get(Number(id.slice(5)));
+      return (n && starDisplayName(n)) ?? `HYG star #${id.slice(5)}`;
+    }
+    if (id.startsWith('exo')) return this.systems.describe(id, this.ctx.time.jdTdb)?.name ?? id;
+    if (id.startsWith('sb:')) return this.smallBodies.bodies[Number(id.slice(3))]?.name ?? id;
+    return this.deep.describe(id)?.name ?? id;
   }
 
   private trackPerformance(now: number): void {
@@ -1168,9 +1803,11 @@ export class Engine {
   private emitStats(t: AstroTime): void {
     if (this.statsListeners.size === 0) return;
     const sunRel = this.ctx.toCamera(this.frames.require(SUN_FRAME_ID), [0, 0, 0], this.scratch);
-    const focusId = this.mode === 'sky' ? 'earth' : this.orbitRig.target.id;
-    const focusFrame = this.mode === 'sky' ? this.solar.get('earth')!.frame : this.orbitRig.target.frame;
-    const distance = this.mode === 'sky' ? this.skyRig.altitude : this.orbitRig.distance;
+    const fly = this.mode === 'universe' && this.nav === 'fly';
+    const focusId = this.mode === 'sky' ? 'earth' : fly ? this.flyNearest : this.orbitRig.target.id;
+    const focusFrame = this.mode === 'sky' ? this.solar.get('earth')!.frame : fly ? this.flyRig.anchor : this.orbitRig.target.frame;
+    const distance = this.mode === 'sky' ? this.skyRig.altitude : fly ? this.flyRig.reference : this.orbitRig.distance;
+    const warp = this.mode === 'universe' && !fly ? this.orbitRig.warpState : null;
     const origin: Vec3 = [0, 0, 0];
     const lengthTo = (id: string) => {
       const d = this.frames.difference(focusFrame, origin, this.solar.get(id)!.frame, origin);
@@ -1203,6 +1840,9 @@ export class Engine {
       satellites: this.tleInfo,
       deep: this.deep.stats,
       exposureMag: this.ctx.exposure.pointMag,
+      nav: this.mode === 'universe' ? this.nav : 'orbit',
+      warp: warp ? { name: this.warpName, ...warp } : null,
+      flyFactor: this.flyRig.factor,
     };
     for (const cb of this.statsListeners) cb(stats);
   }

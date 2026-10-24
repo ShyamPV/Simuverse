@@ -2,7 +2,7 @@
 
 A realistic, explorable 3D universe in the browser, from your own sky out to the cosmic web.
 
-> **Status: milestone 3 of 6.** The app opens on the real sky over your location: DE440 ephemerides, apparent positions to about an arcsecond, an atmosphere and horizon, constellations, satellites, and rise/set times. Keep zooming out and you leave Earth, cross the solar system, pass through 2.4 million Gaia/Tycho stars and nearby nebulae, see the Milky Way from outside, then the Local Group, the Virgo Cluster, Laniakea and the observable universe. See [Roadmap](#roadmap).
+> **Status: milestone 5 of 6.** The app opens on the real sky over your location: DE440 ephemerides, apparent positions to about an arcsecond, an atmosphere and horizon, constellations, satellites, and rise/set times. Zoom out through the solar system, 2.4 million Gaia/Tycho stars, nebulae, the Milky Way, the Local Group and the cosmic web. Or search for anything (**Ctrl/⌘ K**) and warp there: planets and 21 major moons, any catalogue star, 4,800 exoplanet systems, nebulae, clusters and galaxies. You can also fly freely, and share a link to exactly what you see. The **Explore** tab is a catalogue of about 23,000 objects, including comets, asteroids, black holes and pulsars, with facts and "where to find it" for tonight. See [Roadmap](#roadmap).
 
 ## Quick start
 
@@ -29,6 +29,10 @@ pnpm data:stars-octree  # AT-HYG v4.0 (2.4 M stars, ~200 MB download) → data/s
 pnpm data:galaxies      # 2MRS + Cosmicflows-4 + McConnachie + OpenNGC (VizieR) → galaxies.bin
 pnpm data:deepsky       # OpenNGC nebulae and clusters, Harris and Cantat-Gaudin distances → deepsky.json
 pnpm data:milkyway      # NASA SVS Deep Star Maps 2020 (8K EXR, ~140 MB) → 4K Milky Way panorama
+pnpm data:moons         # JPL Horizons vectors (1950–2050) → fitted mean elements for 21 moons (packages/astro)
+pnpm data:exoplanets    # NASA Exoplanet Archive (pscomppars) → exoplanets.json
+pnpm data:smallbodies   # JPL Small-Body Database → smallbodies.json (dwarf planets, asteroids, comets, interstellar objects)
+pnpm data:images        # CDS hips2fits survey cutouts → data/images/ (nebula, cluster and galaxy images)
 ```
 
 ## Controls
@@ -42,6 +46,11 @@ pnpm data:milkyway      # NASA SVS Deep Star Maps 2020 (8K EXR, ~140 MB) → 4K 
 | `K` `B` `G` `A` | Constellation lines, boundaries, ground, atmosphere | |
 | `Space`, `[` `]`, `N` | Pause, slower/reverse, faster, jump to now | |
 | Breadcrumbs / left panel | | Jump to any scale: Milky Way, Local Group, Virgo, Laniakea, Observable Universe |
+| `Ctrl`/`⌘` `K` or `/` | Search; `Enter` shows it in the sky, `Shift`+`Enter` goes there | Search; `Enter` goes there, `Shift`+`Enter` shows it in your sky |
+| `R` | Surprise me: warp somewhere interesting | |
+| `F` | | Free flight on/off: `W` `A` `S` `D` move, `Q` `E` down/up, `Shift` boost, drag to look, scroll sets speed |
+| Link button / address bar | The URL always describes the current view; the link button copies it | |
+| Explore (left panel) | Catalogue: lists, search, facts, "Go there", "Show in my sky", favourites | |
 | `L` `O` `I` `P` `C` `Esc` `?` | Labels, orbits, info panel, perf overlay, screenshot, clear selection, help | |
 
 ## Layout
@@ -49,12 +58,48 @@ pnpm data:milkyway      # NASA SVS Deep Star Maps 2020 (8K EXR, ~140 MB) → 4K 
 ```
 apps/web          React UI (Vite, Tailwind v4, Zustand)
 packages/astro    Pure, tested astronomy: time scales, frames, DE440 Chebyshev evaluation, Earth
-                  orientation, apparent places, rise/set, magnitudes, SGP4 wrapper
-packages/engine   Three.js renderer: frame graph, camera rigs, layers, shaders, sky-events worker
+                  orientation, apparent places, rise/set, magnitudes, SGP4 wrapper, fitted moon orbits,
+                  stellar physics, exoplanet orbits and habitable zones
+packages/engine   Three.js renderer: frame graph, camera rigs (sky, orbit with warp, free flight), layers,
+                  shaders, star systems, search and view state, sky-events worker
 packages/data     Loaders: star catalogue and octree tiles, galaxies, deep-sky objects, procedural cosmic web
-                  (tile workers), ephemeris chunks, constellations, places, TLEs (Dexie cache)
+                  (tile workers), exoplanets, small bodies, black holes and pulsars, object images, catalogue facts,
+                  name search, ephemeris chunks, constellations, places, TLEs (Dexie cache, favourites, visits)
 tools/            Node scripts that build the data files from their public sources
 ```
+
+## Explore (milestone 5)
+
+- **The catalogue.** One list of about 23,000 entries: the Sun, planets, moons and 38 small bodies; 3,400 named stars; 6,400 exoplanets and their hosts; nebulae, clusters and supernova remnants; named galaxies; and 16 black holes and neutron stars. It is searchable with the same index as the command palette, filterable by category, sortable by notability, name, distance, brightness or size, and drawn as a virtualised list.
+- **Each entry** shows an image, type, distance (with light-travel time), size, mass or luminosity, temperature, discovery, constellation and **where to find it**:
+  - RA/Dec and where it is in your sky right now;
+  - when it is highest tonight (searched across the astronomical night at your location);
+  - the best season, and whether you need eyes, binoculars, or a small or large telescope (from magnitude, a magnitude stricter for extended objects);
+  - today's rise, transit and set.
+- **Facts.** About 140 well-known objects have curated facts, each with its source. The rest get 2–5 facts generated from their catalogue values (light-travel time, size compared with the Solar System, what the light left during, and so on).
+- **Lists.** Highlights with a featured object of the day, Visible tonight, Closest of each kind, Most extreme (record holders), Favourites and Visited. Favourites and travel history are kept in IndexedDB. **Go there** warps to the object; **Show in my sky** turns Sky view to it; links open the same object for anyone.
+- **Small bodies.** Ceres, Pluto's neighbours (Eris, Haumea, Makemake, Sedna …), notable asteroids, periodic and great comets, and 1I/ʻOumuamua and 2I/Borisov use JPL Small-Body Database elements, propagated as elliptic or hyperbolic two-body orbits. Brightness comes from the H–G system for asteroids and total magnitude M1/K1 for comets. They are labelled, selectable, and visitable in both views.
+- **Black holes and neutron stars** (Sgr A*, M87*, Cygnus X-1, Gaia BH1/BH3, the Crab and Vela pulsars, magnetars …) are placed at their measured distances. Each shows its Schwarzschild radius or spin period with the measurement's source.
+- **Nebulae look like themselves.** 439 nebulae, clusters and galaxies use their own survey images, not one generic texture:
+  - The images come from cutouts from Pan-STARRS1, VPHAS+ (with H-alpha) and DECaPS2, and, for nebulae larger than 25′, the SHASSA and VTSS H-alpha surveys.
+  - A build script removes the stars (the catalogue draws those), satellite streaks and saturation bleeds, and sets the black level from the edge of each field.
+  - The images are drawn on the sky at the correct orientation and scale, and as billboards in 3D.
+  - Up close, nebulae with a measured distance become ray-marched volumes extruded from their image: a lens-shaped cloud for HII regions, a shell for planetary nebulae and supernova remnants. Seen face-on, their summed glow matches the photograph.
+- **Non-3D pages** have a light animated starfield, and the 3D view pauses while Explore covers it.
+
+## Travel and sharing (milestone 4)
+
+- **Search.** One index covers the Sun, planets, Pluto and moons; 3,400 named stars, findable by proper name, Bayer or Flamsteed designation ("Alpha Centauri", "α Cen", "61 Cygni") or HIP number; 4,800 exoplanet hosts and 6,400 planets; Messier/NGC/IC objects; 7,800 named galaxies; satellites; constellations; and the scale levels. Matching ignores case, accents and spacing, so "m31", "M 31" and "ngc224" all find Andromeda.
+- **Warp.** The camera turns to the target, then eases log(distance) along a timed curve. Speed builds up, peaks mid-way (millions of times the speed of light between galaxies; the HUD reads in *c*) and settles. The duration (1.4–7 s) grows with the orders of magnitude crossed, counting the scale you leave from. Over the last part the camera swings round to an arrival viewpoint:
+  - planets and moons three-quarter lit;
+  - galaxies 35° off face-on, tilted towards our side;
+  - nebulae from the Earth side, as in photographs;
+  - exoplanet systems 55° above the orbital plane.
+- **Arriving at a star.** Any catalogue star can be visited. Close up it is drawn as a disc: temperature from B−V (Ballesteros 2012), radius from luminosity and a bolometric correction (Flower 1996 as corrected by Torres 2010), limb darkening and procedural granulation, with an exposure that adapts as the disc fills the view. Its catalogue point steps aside.
+- **Exoplanet systems.** Each system has its planets on their real orbits, the conservative habitable zone (Kopparapu et al. 2014) and orbit lines. Planet sizes come from measured radii, or from mass via the Chen & Kipping (2017) relation. Planet looks are procedural, chosen from size and equilibrium temperature. Exoplanet hosts that are also HYG stars are snapped onto the HYG position, so the point, label and system coincide.
+- **Moons.** 21 major moons, from Phobos to Charon, use mean orbital elements fitted to JPL Horizons over 1950–2050. The fit is a Keplerian ellipse in the planet's equatorial plane, with precessing node and apse and long-period librations; it recovers Mimas's ±43.5°, 70.8-year Mimas–Tethys resonance. Typical error is 0.01–0.2° along the orbit, about 0.7° for Phobos and Deimos. Moons are tidally locked, have procedural surfaces, and appear in Sky view at their apparent places with their own magnitudes.
+- **Free flight.** WASD/QE flight, with speed proportional to the distance to the nearest object (solar-system bodies, stars, galaxies). The same keys therefore cross a few kilometres next to a moon and a megaparsec between galaxies, and one frame's step can never pass through the nearest surface. The camera re-anchors to whichever body's sphere of influence it is in, so precision and co-moving motion follow you.
+- **Shareable links.** The address bar always holds the current view: camera, target, selection, simulated time and rate, and observer location. Objects are referenced by designation or name ("NGC 1952", "TRAPPIST-1 e", "HIP 32349"), not internal indexes, so links survive data rebuilds. Opening a link waits for the referenced catalogues to stream in.
 
 ## How the scale problem is handled
 
@@ -74,7 +119,7 @@ The scene spans about 27 orders of magnitude, from metres to gigaparsecs. No sin
   - From inside it you see the NASA SVS *Deep Star Maps 2020* panorama, built from Gaia DR2.
   - From outside you see a ray-marched volume: an exponential disc, a bar and bulge, four logarithmic spiral arms with dust lanes and HII regions. It is rendered at half resolution and composited into the scene.
   - The panorama fades between 300 and 2,000 pc as the volume fades in.
-- **Nebulae and clusters.** OpenNGC objects are placed at their real distances where one is known: Harris for globulars, Cantat-Gaudin parallaxes for open clusters, and a curated table for the major nebulae. Nebulae are textured billboards, and the three nearest become ray-marched volumes when you approach them. Objects with no distance are shown only as seen from the Solar System.
+- **Nebulae and clusters.** OpenNGC objects are placed at their real distances where one is known: Harris for globulars, Cantat-Gaudin parallaxes for open clusters, and a curated table for the major nebulae. Nebulae are drawn from their survey images (see Explore, milestone 5), and the nearest become ray-marched volumes as you approach them. Objects with no distance are shown only as seen from the Solar System.
 - **Galaxies.** 43,623 galaxies come from the 2MASS Redshift Survey. Distances come from McConnachie (Local Group), then Cosmicflows-4, then cz/H₀ (H₀ = 74.6). Sizes come from the K-band isophote, axis ratios and position angles from the catalogues. Nearby galaxies are drawn as 3D-oriented impostors with a morphology-dependent shader, and distant ones as points.
 - **The cosmic web (procedural).** Beyond the surveyed volume (fading in from 230 to 330 Mpc), an implicit octree generates filaments, clusters and voids with a Schechter luminosity function. It is deterministic, generated in workers, and streams by distance out to the observable-universe horizon (14.25 Gpc comoving). There, a stylised CMB shell marks the edge.
 
@@ -116,9 +161,15 @@ The scene spans about 27 orders of magnitude, from metres to gigaparsecs. No sin
 | Milky Way panorama | [NASA/GSFC SVS Deep Star Maps 2020](https://svs.gsfc.nasa.gov/4851); Gaia DR2: ESA/Gaia/DPAC | NASA media guidelines, credit required |
 | Galaxies (43,623) | [2MRS](https://vizier.cds.unistra.fr/viz-bin/VizieR?-source=J/ApJS/199/26) (Huchra et al. 2012), [Cosmicflows-4](https://vizier.cds.unistra.fr/viz-bin/VizieR?-source=J/ApJ/944/94) (Tully et al. 2023), [McConnachie 2012](https://vizier.cds.unistra.fr/viz-bin/VizieR?-source=J/AJ/144/4) | VizieR: free use with citation |
 | Nebulae, clusters, galaxy names | [OpenNGC](https://github.com/mattiaverga/OpenNGC), M. Verga | CC BY-SA 4.0 |
+| Exoplanets (6,423 in 4,819 systems) | [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu/), Planetary Systems Composite Parameters | Public; acknowledgement requested (see attributions) |
+| Major moons (21) | JPL Horizons satellite ephemerides, re-fitted by us as mean elements | Public domain |
+| Nebula, cluster and galaxy images (439) | [Pan-STARRS1 DR1](https://outerspace.stsci.edu/display/PANSTARRS/) (338), [VPHAS+ DR4](https://www.eso.org/qi/) (31), [DECaPS2](http://decaps.skymaps.info/) (13), [SHASSA](https://amundsen.swarthmore.edu/) (32) and [VTSS](https://www.phys.vt.edu/~halpha/) (25) H-alpha, cut out with [CDS hips2fits](https://alasky.cds.unistra.fr/hips-image-services/hips2fits) | PS1: free with acknowledgement; VPHAS+: CC BY 4.0; DECaPS2: public, acknowledgement requested; SHASSA, VTSS: free with citation |
+| Comets, asteroids, dwarf planets | [JPL Small-Body Database](https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html) | Public domain |
+| Planetary nebula distances | [Chornay & Walton 2021](https://vizier.cds.unistra.fr/viz-bin/VizieR?-source=J/A+A/656/A110) (Gaia EDR3) | VizieR: free use with citation |
+| Black holes, neutron stars, facts | Published measurements, each cited in the app (EHT, GRAVITY, ATNF Pulsar Catalogue, Gaia …) | Facts; text is ours |
 | Cluster distances | [Harris 2010](https://vizier.cds.unistra.fr/viz-bin/VizieR?-source=VII/202) (globulars), [Cantat-Gaudin et al. 2020](https://vizier.cds.unistra.fr/viz-bin/VizieR?-source=J/A+A/640/A1) (open clusters) | VizieR: free use with citation |
 
-Procedural content (cosmic web beyond ~300 Mpc, nebula shapes, the Milky Way seen from outside) is generated, not observed, and is labelled "approximate" in the app.
+Procedural content (cosmic web beyond ~300 Mpc, nebula depth, the Milky Way seen from outside) is generated, not observed, and is labelled "approximate" in the app.
 
 The machine-readable list is [apps/web/public/data/attributions.json](apps/web/public/data/attributions.json), and the Settings panel shows it in the app.
 
@@ -139,10 +190,21 @@ The machine-readable list is [apps/web/public/data/attributions.json](apps/web/p
   - Proper motion. Stars sit at their J2000-epoch positions, which is off by up to about 4.5′ for the fastest-moving star (Barnard's) in 2026. Precession is handled correctly through Earth's orientation.
 - **Deep space approximations.**
   - Galaxy distances from redshift alone smear clusters along the line of sight ("fingers of God"), which is clearly visible in Virgo and Coma. Cosmicflows-4 distances correct this only for the galaxies it covers.
-  - Nebula shapes and the Milky Way seen from outside are procedural models matched to the real objects' sizes and orientations, not reconstructions. The CMB shell is stylised, not the Planck map.
+  - Nebula volumes are extruded from their images, so they are right face-on but their depth is a guess. Nebulae without an image (about 90 southern objects outside the surveys' coverage, and the smallest catalogue entries) fall back to procedural shapes. The Milky Way seen from outside is a procedural model matched to the real galaxy's structure. The CMB shell is stylised, not the Planck map.
+  - Nebula images are survey photographs in red and green bands (or H-alpha alone, shown in a red palette), not true colour. Up close, nebulae are drawn as bright as a long-exposure photograph, because to the eye an extended nebula is about as faint up close as from Earth.
   - The cosmic web beyond 2MRS is statistical. Its structures are plausible but not the real ones.
   - Stars have no individual extinction. The Galactic dust is only in the volumetric model.
+- **Travel approximations.**
+  - Exoplanet orbit orientations on the sky (longitude of the node) are not catalogued. They are seeded per system, so multi-planet systems stay coplanar. Where there is no transit or conjunction time, the planets' positions along their orbits are seeded too. Such planets are labelled "approximate".
+  - Planet and moon surfaces beyond the textured planets are procedural. Moons without textures are tidally locked to their planets, including Nereid, which in reality isn't.
+  - Other stars are drawn at their catalogue positions with no light-travel delay; exoplanet phases follow the same convention.
+  - Free flight avoids solar-system bodies and stars. Galaxies are treated as points for speed control, so you can fly through them (as you could, in reality).
+  - Opening a shared link sets your observer location to the link's.
 - **Software rendering.** Without a GPU (SwiftShader), the deep-space scenes run at a few frames per second. Use the Low quality preset.
+- **Explore.**
+  - Generated facts can only be as good as the catalogue values behind them. A few archive values are wrong; for example, one exoplanet mass of 12,600 Earth masses for a planet 1.2 times Earth's radius is discarded.
+  - Small bodies are 38 hand-picked objects with two-body orbits (no planetary perturbations), good to a fraction of a degree within a few years of their epochs.
+  - Equipment advice is a simple magnitude rule; real visibility depends on surface brightness and your sky.
 - **CelesTrak rate limits.** CelesTrak returns 403 after repeated downloads from one address. The app falls back to its cache and then to the bundled snapshot, and the tests never contact it.
 - **Bundle size.** The JS bundle is not yet code-split. That is planned for milestone 6.
 
@@ -151,6 +213,6 @@ The machine-readable list is [apps/web/public/data/attributions.json](apps/web/p
 1. ✅ Scaffold, floating-origin renderer, starfield, solar system
 2. ✅ DE440 ephemerides, Sky view, atmosphere, constellations, satellites (SGP4), rise/set and passes
 3. ✅ Zoom-out: Gaia tiles, nebulae, Milky Way, Local Group, cosmic web
-4. Free flight, warp-to, command palette, shareable URLs
-5. Explore/catalogue tab with facts and "where to find it"
+4. ✅ Free flight, warp-to, command palette, shareable URLs, moons, star systems and exoplanets
+5. ✅ Explore/catalogue tab with facts and "where to find it"; image-based nebulae; comets, asteroids, black holes and pulsars
 6. Polish, performance, PWA/offline, themes, full documentation

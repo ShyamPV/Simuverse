@@ -42,6 +42,9 @@ interface AppState extends Settings {
   section: NavSection;
   helpOpen: boolean;
   infoOpen: boolean;
+  paletteOpen: boolean;
+  /** Short status message (e.g. "Link copied"), cleared after a few seconds. */
+  toast: string | null;
   set: (patch: Partial<AppState>) => void;
   setSky: (patch: Partial<SkyOptions>) => void;
   setDeep: (patch: Partial<DeepOptions>) => void;
@@ -72,6 +75,8 @@ export const useApp = create<AppState>()(
       section: 'sky',
       helpOpen: false,
       infoOpen: true,
+      paletteOpen: false,
+      toast: null,
       quality: 'high',
       showLabels: true,
       showOrbits: true,

@@ -16,3 +16,7 @@ export * from './magnitudes.ts';
 export * from './riseset.ts';
 export * from './satellites.ts';
 export * from './galactic.ts';
+export * from './moons.ts';
+export * from './stellar.ts';
+export * from './exoplanets.ts';
+export * from './smallBodies.ts';

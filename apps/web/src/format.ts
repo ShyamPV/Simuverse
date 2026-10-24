@@ -54,3 +54,22 @@ export function visibilityClass(mag: number): string {
   if (mag <= 9.5) return 'Binoculars';
   return 'Telescope';
 }
+
+const SUPERSCRIPT = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+
+/** "1.989 × 10³⁰ kg". */
+export function formatSci(x: number, unit: string): string {
+  const [m, e] = x.toExponential(3).split('e');
+  const exp = Number(e).toString().replace(/-/g, '⁻').replace(/[0-9]/g, (d) => SUPERSCRIPT[Number(d)]!);
+  return `${m} × 10${exp} ${unit}`;
+}
+
+/** Light-travel time for a distance in metres ("8.3 light-minutes", "2,540,000 light-years"). */
+export function lightTime(m: number): string {
+  const s = m / 299_792_458;
+  if (s < 60) return `${s.toFixed(2)} light-seconds`;
+  if (s < 3600) return `${(s / 60).toFixed(1)} light-minutes`;
+  if (s < 86400) return `${(s / 3600).toFixed(1)} light-hours`;
+  const ly = s / 31_557_600;
+  return `${ly.toLocaleString('en-US', { maximumSignificantDigits: ly < 100 ? 3 : 4 })} light-years`;
+}

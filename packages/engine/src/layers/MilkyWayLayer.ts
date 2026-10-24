@@ -77,6 +77,23 @@ void main() {
 }
 `;
 
+/**
+ * From inside the model box, a small sphere around the camera supplies the ray
+ * directions instead of the box itself: the box's 44-kpc faces would cross the
+ * camera plane, and near-plane clipping turns them into vertices so far off
+ * screen that the GPU drops them (the top and bottom faces vanished, leaving a
+ * strip). vLocal is a point one kiloparsec from the camera along the ray.
+ */
+const insideVertex = /* glsl */ `
+uniform vec3 uCam;
+uniform mat3 uFromWorld;   // camera-relative ecliptic → galactocentric axes
+varying vec3 vLocal;
+void main() {
+  vLocal = uCam + uFromWorld * normalize(position);
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+`;
+
 const volumeFragment = /* glsl */ `
 uniform vec3 uCam;         // camera in galactocentric kpc
 uniform vec3 uHalf;        // box half extents, kpc
@@ -105,21 +122,27 @@ float arms(vec2 p, float phase) {
   return (major + minor) * smoothstep(2.5, 4.5, R) * smoothstep(17.0, 12.0, R);
 }
 
+uniform float uWeight;
 void main() {
   vec3 ro = uCam;
   vec3 rd = normalize(vLocal - uCam);
   vec2 t = boxHit(ro, rd);
   float t0 = max(t.x, 0.0), t1 = t.y;
   if (t1 <= t0) discard;
-  float ds = (t1 - t0) / float(uSteps);
-  float tcur = t0 + ds * ign(gl_FragCoord.xy);
+  // Steps grow quadratically with distance: a few parsecs near the camera (the disc is only
+  // ~300 pc thick, its dust ~90 pc) and kiloparsecs far away. Uniform steps of ~600 pc from
+  // inside the disc undersample it into hard-edged bands.
+  float span = t1 - t0;
+  float jitter = ign(gl_FragCoord.xy);
+  float n = float(uSteps);
   vec3 L = vec3(0.0);
   float T = 1.0;
   float cb = cos(BAR_ANGLE), sb = sin(BAR_ANGLE);
   for (int i = 0; i < 160; i++) {
     if (i >= uSteps || T < 0.01) break;
-    vec3 p = ro + rd * tcur;
-    tcur += ds;
+    float u = (float(i) + jitter) / n;
+    float ds = span * (2.0 * u + 1.0 / n) / n;
+    vec3 p = ro + rd * (t0 + span * u * u);
     float R = length(p.xy);
     float az = abs(p.z);
     // Bar + bulge (rotated so the near end points towards l > 0).
@@ -145,7 +168,8 @@ void main() {
     L += T * emit * (kappa > 1e-4 ? (1.0 - st) / kappa : ds);
     T *= st;
   }
-  gl_FragColor = vec4(L * uGain, T);
+  // Cross-fade with the photograph covers the dust too, not just the glow.
+  gl_FragColor = vec4(L * uGain, mix(1.0, T, uWeight));
 }
 `;
 
@@ -155,6 +179,8 @@ export class MilkyWayLayer implements Layer {
   private readonly backgroundMaterial: ShaderMaterial;
   private readonly volume: Mesh;
   private readonly volumeMaterial: ShaderMaterial;
+  private readonly inside: Mesh;
+  private readonly insideMaterial: ShaderMaterial;
   private readonly gcOffsetPc: Vec3;
   private readonly toEcliptic = galactocentricToEcliptic();
   private readonly fromEcliptic = transpose(galactocentricToEcliptic());
@@ -206,6 +232,7 @@ export class MilkyWayLayer implements Layer {
       uniforms: {
         uCam: { value: new Vector3() },
         uHalf: { value: new Vector3(MODEL_RADIUS_KPC, MODEL_RADIUS_KPC, MODEL_HALF_HEIGHT_KPC) },
+        uWeight: { value: 0 },
         uGain: { value: 0 },
         uSteps: { value: this.steps },
       },
@@ -221,11 +248,24 @@ export class MilkyWayLayer implements Layer {
     this.volume.renderOrder = 30;
     this.volume.matrixAutoUpdate = false;
 
+    // Shares the box material's uniforms, so both stay in sync.
+    this.insideMaterial = new ShaderMaterial({
+      vertexShader: insideVertex,
+      fragmentShader: volumeFragment,
+      uniforms: { ...this.volumeMaterial.uniforms, uFromWorld: { value: new Matrix3().set(...this.fromEcliptic) } },
+      side: BackSide,
+      ...VOLUME_BLENDING,
+    });
+    this.inside = new Mesh(new SphereGeometry(1, 32, 16), this.insideMaterial);
+    this.inside.frustumCulled = false;
+    this.inside.renderOrder = 30;
+    this.inside.visible = false;
+
     // Sun → Galactic Centre, pc, ecliptic.
     const { sunPc } = galactocentricFrame();
     this.gcOffsetPc = mulMat3Vec(this.toEcliptic, [-sunPc[0], -sunPc[1], -sunPc[2]]);
     this.object.add(this.background);
-    volumes.scene.add(this.volume);
+    volumes.scene.add(this.volume, this.inside);
   }
 
   /** Decoding parameters of the background image (from milkyway.json). */
@@ -259,16 +299,24 @@ export class MilkyWayLayer implements Layer {
 
     // Volumetric model: fades in as the photograph fades out.
     const model = smoothstep(400, 2500, camFromSunPc);
-    this.volume.visible = this.enabled && model > 0.002;
-    if (!this.volume.visible) return;
+    const on = this.enabled && model > 0.002;
+    this.volume.visible = this.inside.visible = false;
+    if (!on) return;
     // Camera in galactocentric kpc: camera − GC = −(toCamera(sun) + gcOffset).
     const camRelGcPc: Vec3 = [
       -(s[0] / PC + this.gcOffsetPc[0]), -(s[1] / PC + this.gcOffsetPc[1]), -(s[2] / PC + this.gcOffsetPc[2]),
     ];
     const camGc = mulMat3Vec(this.fromEcliptic, camRelGcPc);
+    const inBox = Math.abs(camGc[0]) < MODEL_RADIUS_KPC * 1000 && Math.abs(camGc[1]) < MODEL_RADIUS_KPC * 1000
+      && Math.abs(camGc[2]) < MODEL_HALF_HEIGHT_KPC * 1000;
+    this.volume.visible = !inBox;
+    this.inside.visible = inBox;
+    // Well beyond the near plane, but tiny next to the box: never clipped into extreme coordinates.
+    this.inside.scale.setScalar(Math.max(ctx.camera.near * 1000, 1));
     const v = this.volumeMaterial.uniforms;
     (v.uCam!.value as Vector3).set(camGc[0] / 1000, camGc[1] / 1000, camGc[2] / 1000);
     v.uGain!.value = 0.02 * model * ctx.exposure.extendedGain;
+    v.uWeight!.value = model;
     v.uSteps!.value = this.steps;
     // Model matrix: galactocentric kpc → camera-relative metres.
     const m = this.toEcliptic;
@@ -288,6 +336,8 @@ export class MilkyWayLayer implements Layer {
     this.backgroundMaterial.dispose();
     this.volume.geometry.dispose();
     this.volumeMaterial.dispose();
+    this.inside.geometry.dispose();
+    this.insideMaterial.dispose();
     this.texture?.dispose();
   }
 }

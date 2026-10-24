@@ -1,7 +1,7 @@
 // Shared helpers for the data tools: cached downloads, VizieR TSV parsing,
 // sexagesimal parsing and fast positional cross-matching.
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -16,9 +16,18 @@ export async function download(url, file) {
   const dest = resolve(rawDir, file);
   if (!existsSync(dest)) {
     console.log(`Downloading ${url}`);
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`${res.status} ${url}`);
-    writeFileSync(dest, Buffer.from(await res.arrayBuffer()));
+    for (let attempt = 0; ; attempt++) {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`${res.status} ${url}`);
+        writeFileSync(dest, Buffer.from(await res.arrayBuffer()));
+        break;
+      } catch (err) {
+        if (attempt >= 4) throw err;
+        console.warn(`  retrying (${err.message})`);
+        await new Promise((r) => setTimeout(r, 4000 * (attempt + 1)));
+      }
+    }
   }
   return dest;
 }
@@ -33,6 +42,11 @@ export async function vizier(source, file, columns = null) {
   else params.set('-out.all', '');
   const path = await download(`https://vizier.cds.unistra.fr/viz-bin/asu-tsv?${params}`, file);
   const lines = readFileSync(path, 'utf8').split('\n').filter((l) => l && !l.startsWith('#'));
+  if (lines.length < 3) {
+    // VizieR answers errors (bad table name, overload) with a comment-only page: don't keep it.
+    unlinkSync(path);
+    throw new Error(`VizieR returned no rows for ${source}`);
+  }
   const header = lines[0].split('\t').map((h) => h.trim());
   // Line 1 = units, line 2 = dashes.
   return lines.slice(3).map((l) => {

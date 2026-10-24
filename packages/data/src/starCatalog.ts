@@ -27,6 +27,8 @@ export interface StarBuffers {
   absMag: Float32Array;
   /** Linear RGB chromaticity per star (max channel = 1). */
   colors: Float32Array;
+  /** B−V colour index per star. */
+  bv: Float32Array;
   /** Bit flags per star (bit 0: placeholder distance). */
   flags: Uint8Array;
 }
@@ -43,6 +45,7 @@ export function decodeStarCatalog(buffer: ArrayBuffer): StarBuffers {
   const positions = new Float32Array(count * 3);
   const absMag = new Float32Array(count);
   const colors = new Float32Array(count * 3);
+  const bv = new Float32Array(count);
   const flags = new Uint8Array(count);
   const m = EQUATORIAL_TO_ECLIPTIC;
   // B−V is quantised to 0.01 for the colour lookup; the blackbody integral is slow-ish.
@@ -55,6 +58,7 @@ export function decodeStarCatalog(buffer: ArrayBuffer): StarBuffers {
     positions[i * 3 + 1] = m[3] * x + m[4] * y + m[5] * z;
     positions[i * 3 + 2] = m[6] * x + m[7] * y + m[8] * z;
     absMag[i] = src[o + 3]!;
+    bv[i] = src[o + 4]!;
     const bvKey = Math.round(src[o + 4]! * 100);
     let rgb = colorCache.get(bvKey);
     if (!rgb) {
@@ -64,7 +68,7 @@ export function decodeStarCatalog(buffer: ArrayBuffer): StarBuffers {
     colors.set(rgb, i * 3);
     flags[i] = src[o + 5]!;
   }
-  return { count, positions, absMag, colors, flags };
+  return { count, positions, absMag, colors, bv, flags };
 }
 
 const GREEK: Record<string, string> = {

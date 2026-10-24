@@ -9,7 +9,7 @@ import { Toggle } from './Toggle.tsx';
 const SECTIONS: { id: NavSection; label: string; Icon: typeof IconUniverse; pending?: number }[] = [
   { id: 'universe', label: 'Universe', Icon: IconUniverse },
   { id: 'sky', label: 'Sky', Icon: IconSky },
-  { id: 'explore', label: 'Explore', Icon: IconExplore, pending: 5 },
+  { id: 'explore', label: 'Explore', Icon: IconExplore },
   { id: 'settings', label: 'Settings', Icon: IconSettings },
 ];
 
@@ -52,7 +52,7 @@ export function LeftNav() {
           </button>
         ))}
       </nav>
-      {navOpen && (
+      {navOpen && section !== 'explore' && (
         <section id="nav-panel" aria-label={section} className="glass pointer-events-auto flex w-64 flex-col overflow-hidden rounded-xl">
           <div className="flex items-center justify-between border-b border-[var(--panel-border)] px-4 py-3">
             <h2 className="font-display text-sm font-semibold tracking-wide">

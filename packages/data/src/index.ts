@@ -38,6 +38,12 @@ export * from './galaxies.ts';
 export * from './cosmicWeb.ts';
 export * from './deepsky.ts';
 export * from './tileLoader.ts';
+export * from './exoplanets.ts';
+export * from './search.ts';
+export * from './facts.ts';
+export * from './catalog.ts';
+export * from './exotica.ts';
+export * from './smallBodies.ts';
 
 export async function loadGalaxyCatalog(baseUrl: string): Promise<{ catalog: GalaxyCatalog; names: GalaxyName[] }> {
   const [bin, names] = await Promise.all([

@@ -6,12 +6,13 @@
  */
 
 import {
-  DEG, EQUATORIAL_TO_ECLIPTIC, GALACTIC_TO_EQUATORIAL, KPC, MPC, PC, type ObserverState, type Vec3, apparentFixed,
-  apparentMagnitude, mulMat3Vec, sphericalToCartesian,
+  DEG, ECLIPTIC_TO_EQUATORIAL, EQUATORIAL_TO_ECLIPTIC, GALACTIC_TO_EQUATORIAL, KPC, MPC, PC, type ObserverState, type Vec3,
+  apparentFixed, apparentMagnitude, cartesianToSpherical, mulMat3Vec, sphericalToCartesian,
 } from '@simuverse/astro';
 import {
   type Constellations, DEEP_SKY_TYPE_LABEL, type DeepSkyObject, GALAXY_FLAG, type GalaxyCatalog, type GalaxyName,
-  type OctreeIndex, TileLoader, constellationAt, loadDeepSky, loadGalaxyCatalog, loadStarOctreeIndex, morphologyLabel,
+  type OctreeIndex, type SearchEntry, TileLoader, constellationAt, loadDeepSky, loadGalaxyCatalog, loadStarOctreeIndex,
+  type CatalogEntry, EXOTICA, type ImageIndex, loadImageIndex, morphologyLabel,
 } from '@simuverse/data';
 import type { PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 import type { Frame, FrameGraph } from './frames.ts';
@@ -34,7 +35,23 @@ const DSO_LABEL_MAX = 16;
 /** Deep-sky objects fainter than this (from the camera) are only labelled when resolved. */
 const DSO_LABEL_MAG = 11;
 
-export type DeepSelectionKind = 'galaxy' | 'nebula' | 'cluster' | 'star';
+export type DeepSelectionKind = 'galaxy' | 'nebula' | 'cluster' | 'star' | 'black-hole' | 'neutron-star';
+
+const G = 6.674e-11, C = 299_792_458, M_SUN = 1.98847e30;
+/** Schwarzschild radius of a mass in solar masses, metres. */
+const schwarzschild = (massSun: number) => (2 * G * massSun * M_SUN) / C ** 2;
+
+/** Supernova remnants from the curated list, as deep-sky objects (drawn and labelled like the rest). */
+function exoticRemnants(): DeepSkyObject[] {
+  return EXOTICA.filter((e) => e.kind === 'snr').map((e) => ({
+    id: e.name, name: e.name, aliases: e.aliases, type: 'SNR' as const, ra: e.raDeg, dec: e.decDeg,
+    majAx: e.sizeArcmin ?? 5, minAx: null, pa: null, mag: null, con: '', distPc: e.distPc, distSrc: e.source,
+    approx: e.approx,
+  }));
+}
+
+/** Black holes and neutron stars (not drawn; reachable, selectable and searchable). */
+const COMPACT = EXOTICA.filter((e) => e.kind !== 'snr');
 
 export interface DeepSelection {
   kind: DeepSelectionKind;
@@ -81,6 +98,13 @@ export class DeepSpace {
   private pendingOctree = false;
   private disposed = false;
   private starBudget = 1_500_000;
+  /** Gaia/Tycho stars seen so far, so a selection or target survives its tile being evicted. */
+  private readonly tycCache = new Map<number, { pc: Vec3; absMag: number; bv: number }>();
+  private nearestGalaxy = { at: -Infinity, distanceM: Infinity };
+  /** Survey images of deep-sky objects and galaxies (for rendering and the catalogue). */
+  images: ImageIndex | null = null;
+  /** Bumped when a catalogue arrives, so search indexes know to rebuild. */
+  catalogVersion = 0;
   showGalaxies = true;
   showDeepSky = true;
   showMilkyWay = true;
@@ -109,11 +133,13 @@ export class DeepSpace {
     loadGalaxyCatalog(dataBaseUrl)
       .then(({ catalog, names }) => this.onGalaxies(catalog, names))
       .catch((err) => console.error('Galaxy catalogue failed to load', err));
-    loadDeepSky(dataBaseUrl)
-      .then((objects) => {
+    Promise.all([loadDeepSky(dataBaseUrl), loadImageIndex(dataBaseUrl)])
+      .then(([objects, images]) => {
         if (this.disposed) return;
-        this.deepSky = new DeepSkyLayer(objects, sunFrame, this.volumes);
+        this.images = images;
+        this.deepSky = new DeepSkyLayer([...objects, ...exoticRemnants()], sunFrame, this.volumes, images, new URL('images/', dataBaseUrl).href);
         scene.add(this.deepSky.object);
+        this.catalogVersion++;
       })
       .catch((err) => console.error('Deep-sky catalogue failed to load', err));
     loadStarOctreeIndex(dataBaseUrl)
@@ -137,6 +163,7 @@ export class DeepSpace {
     if (this.disposed) return;
     this.galaxyNames = new Map(names.map((n) => [n.i, n]));
     this.namedGalaxies = names;
+    this.catalogVersion++;
     const nameOf = (i: number) => this.galaxyNames.get(i)?.name ?? '';
     // The Magellanic Clouds are already in the background photograph of the sky.
     this.galaxies = new GalaxyLayer(catalog, this.sunFrame, (i) => /Magellanic/.test(nameOf(i)));
@@ -171,6 +198,13 @@ export class DeepSpace {
   target(id: string): OrbitTarget | undefined {
     const known = this.targets.get(id);
     if (known) return known;
+    if (id.startsWith('exotic:')) {
+      const e = COMPACT.find((x) => x.id === id.slice(7));
+      if (!e) return undefined;
+      const p = this.compactPositionPc(e);
+      const r = e.kind === 'black-hole' ? schwarzschild(e.massSun ?? 10) : 12e3;
+      return this.addFixedTarget(id, [p[0] * PC, p[1] * PC, p[2] * PC], r);
+    }
     if (id.startsWith('gal:') && this.galaxies) {
       const i = Number(id.slice(4));
       const c = this.galaxies.catalog;
@@ -188,6 +222,11 @@ export class DeepSpace {
 
   /** A sensible viewing distance for a target. */
   viewDistance(id: string): number {
+    if (id.startsWith('exotic:')) {
+      const e = COMPACT.find((x) => x.id === id.slice(7));
+      // Nothing to see at the horizon itself: stop at a viewpoint over the surroundings.
+      return e?.kind === 'black-hole' && (e.massSun ?? 0) > 1e5 ? 3 * PC : 1000 * 1.495978707e11;
+    }
     if (id === 'galaxy') return 70 * KPC;
     if (id === 'local-group') return 4 * MPC;
     if (id === 'virgo') return 60 * MPC;
@@ -196,6 +235,171 @@ export class DeepSpace {
     if (id.startsWith('gal:') && this.galaxies) return Math.max(this.galaxies.catalog.radiusKpc[Number(id.slice(4))]! * KPC * 5, 20 * KPC);
     if (id.startsWith('dso:') && this.deepSky) return Math.max(this.deepSky.radiusPc[Number(id.slice(4))]! * PC * 6, 2 * PC);
     return 10 * KPC;
+  }
+
+  /** A Gaia/Tycho star by AT-HYG id: Sun-relative position (pc), absolute magnitude and B−V. */
+  tycStar(id: number): { pc: Vec3; absMag: number; bv: number } | null {
+    const hit = this.octree?.findStar(id);
+    if (hit) {
+      const p = hit.tile.positions;
+      const rec = {
+        pc: [hit.centerPc[0] + p[hit.i * 3]!, hit.centerPc[1] + p[hit.i * 3 + 1]!, hit.centerPc[2] + p[hit.i * 3 + 2]!] as Vec3,
+        absMag: hit.tile.absMag[hit.i]!, bv: hit.tile.bv[hit.i]!,
+      };
+      this.tycCache.set(id, rec);
+      return rec;
+    }
+    return this.tycCache.get(id) ?? null;
+  }
+
+  hideTyc(id: number | null): void {
+    this.octree?.hideStar(id);
+  }
+
+  /** Distance from the camera to the nearest catalogue galaxy's edge, metres (refreshed twice a second). */
+  nearestGalaxyDistance(camPc: Readonly<Vec3>): number {
+    const now = performance.now();
+    const g = this.galaxies;
+    if (!g || now - this.nearestGalaxy.at < 500) return this.nearestGalaxy.distanceM;
+    const c = g.catalog;
+    const cx = camPc[0] / 1e6, cy = camPc[1] / 1e6, cz = camPc[2] / 1e6;
+    let best = Infinity;
+    for (let i = 0; i < c.count; i++) {
+      const d = Math.hypot(c.positions[i * 3]! - cx, c.positions[i * 3 + 1]! - cy, c.positions[i * 3 + 2]! - cz) * MPC
+        - c.radiusKpc[i]! * KPC * 0.5;
+      if (d < best) best = d;
+    }
+    this.nearestGalaxy = { at: now, distanceM: Math.max(best, KPC) };
+    return this.nearestGalaxy.distanceM;
+  }
+
+  /** Viewpoint (unit vector from the target) to arrive at, or null to keep the approach direction. */
+  arrivalDirection(key: string): Vec3 | null {
+    if (key.startsWith('gal:') && this.galaxies) {
+      // 35° off face-on, tilted towards our side: the galaxy as it looks from home, but in 3D.
+      const i = Number(key.slice(4));
+      const c = this.galaxies.catalog;
+      const a: Vec3 = [c.major[i * 3]!, c.major[i * 3 + 1]!, c.major[i * 3 + 2]!];
+      const b: Vec3 = [c.minor[i * 3]!, c.minor[i * 3 + 1]!, c.minor[i * 3 + 2]!];
+      let n: Vec3 = [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+      const nl = Math.hypot(...n);
+      if (nl < 1e-9) return null;
+      const p: Vec3 = [c.positions[i * 3]!, c.positions[i * 3 + 1]!, c.positions[i * 3 + 2]!];
+      const pl = Math.hypot(...p);
+      const toward: Vec3 = [-p[0] / pl, -p[1] / pl, -p[2] / pl];
+      n = [n[0] / nl, n[1] / nl, n[2] / nl];
+      if (n[0] * toward[0] + n[1] * toward[1] + n[2] * toward[2] < 0) n = [-n[0], -n[1], -n[2]];
+      const k = Math.cos(35 * DEG), q = Math.sin(35 * DEG);
+      return [n[0] * k + toward[0] * q, n[1] * k + toward[1] * q, n[2] * k + toward[2] * q];
+    }
+    if (key.startsWith('dso:') && this.deepSky) {
+      // From the Earth side: the view the photographs show.
+      const p = this.deepSky.positionsPc[Number(key.slice(4))];
+      if (!p) return null;
+      const l = Math.hypot(...p);
+      return [-p[0] / l, -p[1] / l, -p[2] / l];
+    }
+    return this.preferredViewDirection(key);
+  }
+
+  /** Searchable named galaxies and deep-sky objects. */
+  searchEntries(): SearchEntry[] {
+    const out: SearchEntry[] = COMPACT.map((e) => ({
+      key: `exotic:${e.id}`, ref: e.name, name: e.name, aliases: e.aliases,
+      kind: e.kind === 'black-hole' ? ('black-hole' as const) : ('neutron-star' as const),
+      rank: e.id === 'sgr-a-star' || e.id === 'm87-star' ? 3 : 15, detail: e.subtype,
+    }));
+    const g = this.galaxies;
+    if (g) {
+      const c = g.catalog;
+      for (const n of this.namedGalaxies) {
+        const i = n.i;
+        const distMpc = Math.hypot(c.positions[i * 3]!, c.positions[i * 3 + 1]!, c.positions[i * 3 + 2]!);
+        const dist = distMpc < 1 ? `${(distMpc * 1000).toFixed(0)} kpc` : `${distMpc.toFixed(distMpc < 10 ? 1 : 0)} Mpc`;
+        out.push({
+          key: `gal:${i}`, ref: n.name, name: n.name, aliases: n.aliases, kind: 'galaxy',
+          rank: Math.min(100, 5 + c.appMagV[i]! * 4), detail: `${morphologyLabel(c.tType[i]!)} · ${dist}`,
+        });
+      }
+    }
+    const ds = this.deepSky;
+    if (ds) {
+      ds.objects.forEach((o, i) => {
+        if (!o.messier && !o.aliases.length && o.name === o.id && (o.mag ?? 99) > 10) return;
+        const aliases = [...o.aliases, o.id];
+        if (o.messier) aliases.push(`M${o.messier}`, `Messier ${o.messier}`);
+        const dist = o.distPc ? ` · ${Math.round(o.distPc * 3.26156).toLocaleString('en-US')} ly` : '';
+        out.push({
+          key: `dso:${i}`, ref: o.id, name: o.name, aliases, kind: /Cl|Ass/.test(o.type) ? 'cluster' : 'nebula',
+          rank: o.messier ? 4 + (o.mag ?? 8) : 30 + (o.mag ?? 12) * 2, detail: `${DEEP_SKY_TYPE_LABEL[o.type]}${dist}`,
+        });
+      });
+    }
+    return out;
+  }
+
+  /** Survey photo of an object for the catalogue, by designation or name. */
+  imageFor(ref: string, imageBase: string): CatalogEntry['image'] {
+    const im = this.images?.objects[ref];
+    return im ? { url: `${imageBase}photo/${im.file}`, credit: im.credit, fov: im.fov, halpha: im.halpha } : undefined;
+  }
+
+  /** Catalogue entries for nebulae, clusters, galaxies, black holes and neutron stars. */
+  catalogEntries(imageBase: string): CatalogEntry[] {
+    const out: CatalogEntry[] = [];
+    const ds = this.deepSky;
+    if (ds) {
+      ds.objects.forEach((o, i) => {
+        const image = this.imageFor(o.id, imageBase);
+        if (!o.messier && !o.aliases.length && o.name === o.id && (o.mag ?? 99) > 10 && !image) return;
+        const cluster = /Cl|Ass/.test(o.type) && o.type !== 'Cl+N';
+        const r = o.distPc && o.majAx ? ((o.majAx / 2) * (DEG / 60)) * o.distPc * PC : undefined;
+        out.push({
+          key: `dso:${i}`, ref: o.id, name: o.name, aliases: [...o.aliases, o.id], category: cluster ? 'cluster' : 'nebula',
+          type: DEEP_SKY_TYPE_LABEL[o.type], distanceM: o.distPc ? o.distPc * PC : undefined, radiusM: r,
+          magnitude: o.mag ?? undefined, sizeArcmin: o.majAx ?? undefined, raDeg: o.ra, decDeg: o.dec, constellation: o.con || undefined,
+          image, rank: o.messier ? 4 + (o.mag ?? 8) : 30 + (o.mag ?? 12) * 2, approximate: !o.distPc || !!o.approx,
+          extra: o.distSrc ? [['Distance from', o.distSrc]] : undefined,
+        });
+      });
+    }
+    const g = this.galaxies;
+    if (g) {
+      const c = g.catalog;
+      for (const n of this.namedGalaxies) {
+        const i = n.i;
+        const p: Vec3 = [c.positions[i * 3]!, c.positions[i * 3 + 1]!, c.positions[i * 3 + 2]!];
+        const dMpc = Math.hypot(...p);
+        const [ra, dec] = cartesianToSpherical(mulMat3Vec(ECLIPTIC_TO_EQUATORIAL, p));
+        const radius = c.radiusKpc[i]! * KPC;
+        const flags = c.flags[i]!;
+        const extra: [string, string][] = [];
+        if (Number.isFinite(c.czKmS[i]!)) extra.push(['Recession velocity', `${Math.round(c.czKmS[i]!).toLocaleString('en-US')} km/s`]);
+        out.push({
+          key: `gal:${i}`, ref: n.name, name: n.name, aliases: n.aliases, category: 'galaxy',
+          type: n.hubble ? `${morphologyLabel(c.tType[i]!)} (${n.hubble})` : morphologyLabel(c.tType[i]!),
+          distanceM: dMpc * MPC, radiusM: radius, magnitude: c.appMagV[i]!,
+          luminositySun: 10 ** (-0.4 * (c.absMagV[i]! - 4.83)), sizeArcmin: ((2 * radius) / (dMpc * MPC)) * (180 / Math.PI) * 60,
+          raDeg: ra / DEG, decDeg: dec / DEG, image: this.imageFor(n.name, imageBase),
+          rank: Math.min(100, 5 + c.appMagV[i]! * 4), approximate: !!(flags & GALAXY_FLAG.REDSHIFT_DISTANCE), extra,
+        });
+      }
+    }
+    const G = 6.674e-11, Cc = 299_792_458, MS = 1.98847e30;
+    for (const e of COMPACT) {
+      out.push({
+        key: `exotic:${e.id}`, ref: e.name, name: e.name, aliases: e.aliases, category: e.kind === 'black-hole' ? 'black-hole' : 'neutron-star',
+        type: e.subtype, distanceM: e.distPc * PC, raDeg: e.raDeg, decDeg: e.decDeg,
+        massKg: e.massSun ? e.massSun * MS : undefined,
+        radiusM: e.kind === 'black-hole' && e.massSun ? (2 * G * e.massSun * MS) / Cc ** 2 : 12e3,
+        discovered: e.discovered, rank: e.id === 'sgr-a-star' || e.id === 'm87-star' ? 3 : 15, approximate: !!e.approx,
+        extra: [
+          ...(e.periodMs ? [['Spin period', e.periodMs < 1000 ? `${e.periodMs} ms` : `${(e.periodMs / 1000).toPrecision(4)} s`] as [string, string]] : []),
+          ['Data', e.source],
+        ],
+      });
+    }
+    return out;
   }
 
   /** World direction from which to view a ladder target (above the Galactic plane for the Galaxy). */
@@ -385,7 +589,19 @@ export class DeepSpace {
   }
 
   /** Camera-relative vector (metres) to a deep selection. */
+  private compactPositionPc(e: (typeof EXOTICA)[number]): Vec3 {
+    const d = mulMat3Vec(EQUATORIAL_TO_ECLIPTIC, sphericalToCartesian(e.raDeg * DEG, e.decDeg * DEG));
+    return [d[0] * e.distPc, d[1] * e.distPc, d[2] * e.distPc];
+  }
+
   selectionRel(key: string, camPc: Readonly<Vec3>, out: Vec3): Vec3 | null {
+    if (key.startsWith('exotic:')) {
+      const e = COMPACT.find((x) => x.id === key.slice(7));
+      if (!e) return null;
+      const p = this.compactPositionPc(e);
+      out[0] = (p[0] - camPc[0]) * PC; out[1] = (p[1] - camPc[1]) * PC; out[2] = (p[2] - camPc[2]) * PC;
+      return out;
+    }
     if (key.startsWith('gal:') && this.galaxies) {
       const i = Number(key.slice(4));
       const c = this.galaxies.catalog, cam = this.galaxies.camMpc;
@@ -395,13 +611,12 @@ export class DeepSpace {
       return out;
     }
     if (key.startsWith('dso:') && this.deepSky) return this.deepSky.relativeMetres(Number(key.slice(4)), out);
-    if (key.startsWith('tyc:') && this.octree) {
-      const hit = this.octree.findStar(Number(key.slice(4)));
-      if (!hit) return null;
-      const p = hit.tile.positions;
-      out[0] = (hit.centerPc[0] + p[hit.i * 3]! - camPc[0]) * PC;
-      out[1] = (hit.centerPc[1] + p[hit.i * 3 + 1]! - camPc[1]) * PC;
-      out[2] = (hit.centerPc[2] + p[hit.i * 3 + 2]! - camPc[2]) * PC;
+    if (key.startsWith('tyc:')) {
+      const t = this.tycStar(Number(key.slice(4)));
+      if (!t) return null;
+      out[0] = (t.pc[0] - camPc[0]) * PC;
+      out[1] = (t.pc[1] - camPc[1]) * PC;
+      out[2] = (t.pc[2] - camPc[2]) * PC;
       return out;
     }
     return null;
@@ -409,6 +624,26 @@ export class DeepSpace {
 
   /** Description of a deep selection; positions are Sun-centred (parallax from Earth's orbit is negligible). */
   describe(key: string): DeepSelection | null {
+    if (key.startsWith('exotic:')) {
+      const e = COMPACT.find((x) => x.id === key.slice(7));
+      if (!e) return null;
+      const p = this.compactPositionPc(e);
+      const details: [string, string][] = [];
+      if (e.massSun) details.push(['Mass', e.massSun >= 1e5 ? `${(e.massSun / 1e6).toPrecision(3)} million M☉` : `${e.massSun} M☉`]);
+      if (e.kind === 'black-hole' && e.massSun) {
+        const rs = schwarzschild(e.massSun);
+        details.push(['Event horizon', rs > 1e9 ? `${(rs / 1.495978707e11).toPrecision(3)} AU across (radius)` : `${(rs / 1000).toPrecision(3)} km radius`]);
+      }
+      if (e.periodMs) details.push(['Spin', e.periodMs < 1000 ? `${(1000 / e.periodMs).toPrecision(3)} turns a second` : `once every ${(e.periodMs / 1000).toPrecision(3)} s`]);
+      if (e.discovered) details.push(['Discovered', `${e.discovered.year} · ${e.discovered.by}`]);
+      details.push(['Data', e.source]);
+      if (e.aliases.length) details.push(['Also known as', e.aliases.slice(0, 2).join(', ')]);
+      return {
+        kind: e.kind === 'black-hole' ? 'black-hole' : 'neutron-star', name: e.name, subtitle: e.subtype, details,
+        positionKm: [p[0] * PC / 1000, p[1] * PC / 1000, p[2] * PC / 1000], distanceM: e.distPc * PC,
+        approximate: !!e.approx,
+      };
+    }
     if (key.startsWith('gal:') && this.galaxies) {
       const i = Number(key.slice(4));
       const c = this.galaxies.catalog;
@@ -457,18 +692,17 @@ export class DeepSpace {
         magnitude: o.mag ?? undefined, approximate: !o.distPc || !!o.approx,
       };
     }
-    if (key.startsWith('tyc:') && this.octree) {
+    if (key.startsWith('tyc:')) {
       const id = Number(key.slice(4));
-      const hit = this.octree.findStar(id);
-      if (!hit) return null;
-      const p = hit.tile.positions;
-      const pc: Vec3 = [hit.centerPc[0] + p[hit.i * 3]!, hit.centerPc[1] + p[hit.i * 3 + 1]!, hit.centerPc[2] + p[hit.i * 3 + 2]!];
+      const t = this.tycStar(id);
+      if (!t) return null;
+      const pc = t.pc;
       const d = Math.hypot(...pc);
       return {
         kind: 'star', name: `AT-HYG ${id}`, subtitle: 'Star (Tycho-2 / Gaia DR3)',
-        details: [['Absolute magnitude', hit.tile.absMag[hit.i]!.toFixed(2)], ['Catalogue', 'AT-HYG v4.0 (Gaia DR3 distance)']],
+        details: [['Absolute magnitude', t.absMag.toFixed(2)], ['Catalogue', 'AT-HYG v4.0 (Gaia DR3 distance)']],
         positionKm: [pc[0] * PC / 1000, pc[1] * PC / 1000, pc[2] * PC / 1000], distanceM: d * PC,
-        magnitude: apparentMagnitude(hit.tile.absMag[hit.i]!, d), approximate: false,
+        magnitude: apparentMagnitude(t.absMag, d), approximate: false,
       };
     }
     return null;

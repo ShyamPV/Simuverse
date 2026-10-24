@@ -23,4 +23,21 @@ export const test = base.extend<{ consoleErrors: string[] }>({
   ],
 });
 
+/**
+ * The same, with a browser of its own per test: on software GL the deep-space
+ * scenes leave the GPU process busy for minutes after the page closes, which
+ * would stall the next test's context in a shared browser.
+ */
+export const isolatedTest = test.extend({
+  context: async ({ playwright, launchOptions, baseURL, viewport, timezoneId }, use) => {
+    const browser = await playwright.chromium.launch(launchOptions);
+    const context = await browser.newContext({ baseURL, viewport, timezoneId });
+    await use(context);
+    await browser.close();
+  },
+});
+
+/** Low quality and the perf overlay: affordable on software GL (CI without a GPU). */
+export const LOW_QUALITY_SETTINGS = JSON.stringify({ state: { quality: 'low', showPerf: true }, version: 2 });
+
 export { expect };

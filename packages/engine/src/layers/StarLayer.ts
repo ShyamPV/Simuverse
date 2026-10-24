@@ -75,6 +75,7 @@ export class StarLayer implements Layer {
   readonly object: Points;
   readonly material: ShaderMaterial;
   private readonly tmp: Vec3 = [0, 0, 0];
+  private hidden = -1;
 
   constructor(
     readonly stars: StarBuffers,
@@ -83,7 +84,8 @@ export class StarLayer implements Layer {
   ) {
     const geom = new BufferGeometry();
     geom.setAttribute('position', new BufferAttribute(stars.positions, 3));
-    geom.setAttribute('absMag', new BufferAttribute(stars.absMag, 1));
+    // Own copy, so a star drawn close up by another layer can be hidden without touching the catalogue.
+    geom.setAttribute('absMag', new BufferAttribute(stars.absMag.slice(), 1));
     geom.setAttribute('color', new BufferAttribute(stars.colors, 3));
     this.material = new ShaderMaterial({
       vertexShader,
@@ -110,6 +112,17 @@ export class StarLayer implements Layer {
     this.object = new Points(geom, this.material);
     this.object.frustumCulled = false;
     this.object.renderOrder = -10;
+  }
+
+  /** Hides one star's point (it is being drawn as a disc), or restores it with null. */
+  hideStar(index: number | null): void {
+    if (index === this.hidden) return;
+    const attr = this.object.geometry.getAttribute('absMag') as BufferAttribute;
+    const arr = attr.array as Float32Array;
+    if (this.hidden >= 0) arr[this.hidden] = this.stars.absMag[this.hidden]!;
+    if (index !== null) arr[index] = 99;
+    this.hidden = index ?? -1;
+    attr.needsUpdate = true;
   }
 
   setPhotometry(p: Partial<StarPhotometry>): void {

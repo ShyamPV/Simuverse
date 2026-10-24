@@ -31,7 +31,7 @@ scope.onmessage = async (ev: MessageEvent<TileRequest>) => {
     if (msg.type === 'star') {
       const tile = decodeStarTile(await fetchCached(msg.url), msg.node);
       scope.postMessage({ reqId: msg.reqId, ok: true, tile }, [
-        tile.positions.buffer, tile.absMag.buffer, tile.colors.buffer, tile.ids.buffer,
+        tile.positions.buffer, tile.absMag.buffer, tile.colors.buffer, tile.bv.buffer, tile.ids.buffer,
       ]);
     } else {
       const web = generateWebNode(msg.key);

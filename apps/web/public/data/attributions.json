@@ -131,5 +131,94 @@
     "source": "https://vizier.cds.unistra.fr/viz-bin/VizieR?-source=J/A+A/640/A1",
     "license": "Free for scientific and educational use with citation (VizieR)",
     "licenseUrl": "https://cds.unistra.fr/vizier-org/licences_vizier.html"
+  },
+  {
+    "asset": "data/exoplanets.json",
+    "title": "NASA Exoplanet Archive: Planetary Systems Composite Parameters",
+    "author": "NASA Exoplanet Science Institute (Caltech/IPAC)",
+    "source": "https://exoplanetarchive.ipac.caltech.edu/",
+    "license": "Public data; acknowledgement requested",
+    "licenseUrl": "https://exoplanetarchive.ipac.caltech.edu/docs/acknowledge.html",
+    "notes": "This research has made use of the NASA Exoplanet Archive, which is operated by the California Institute of Technology, under contract with the National Aeronautics and Space Administration under the Exoplanet Exploration Program. Orbit orientations on the sky are not catalogued and are estimated."
+  },
+  {
+    "asset": "packages/astro/src/moonElements.ts",
+    "title": "Major moon orbits fitted to JPL Horizons state vectors",
+    "author": "NASA/JPL Solar System Dynamics (satellite ephemerides)",
+    "source": "https://ssd.jpl.nasa.gov/horizons/",
+    "license": "Public domain (U.S. Government work)",
+    "licenseUrl": "https://www.jpl.nasa.gov/jpl-image-use-policy",
+    "notes": "Mean elements with secular rates and librations fitted by tools/build-moons.mjs (1950–2050)."
+  },
+  {
+    "asset": "data/images/* (survey ps1)",
+    "title": "Pan-STARRS1 DR1 r and g images",
+    "author": "Pan-STARRS1 Surveys (PS1) and the PS1 public science archive; STScI/MAST; Chambers et al. 2016",
+    "source": "https://outerspace.stsci.edu/display/PANSTARRS/",
+    "license": "Free use with acknowledgement",
+    "licenseUrl": "https://panstarrs.stsci.edu/",
+    "notes": "The Pan-STARRS1 Surveys (PS1) and the PS1 public science archive have been made possible through contributions by the Institute for Astronomy, the University of Hawaii, the Pan-STARRS Project Office, the Max-Planck Society and its participating institutes, the Johns Hopkins University, Durham University, the University of Edinburgh, the Queen’s University Belfast, the Harvard-Smithsonian Center for Astrophysics, the Las Cumbres Observatory Global Telescope Network Incorporated, the National Central University of Taiwan, STScI, NASA (NNX08AR22G), NSF (AST-1238877), the University of Maryland, Eotvos Lorand University, the Los Alamos National Laboratory, and the Gordon and Betty Moore Foundation. Cutouts made with the CDS hips2fits service (CDS, Strasbourg); stars, streaks and saturation artefacts removed and stretched by tools/build-images.mjs."
+  },
+  {
+    "asset": "data/images/* (survey vphas)",
+    "title": "VPHAS+ DR4 H-alpha and g images",
+    "author": "ESO; Drew et al. 2014 (VPHAS+ consortium)",
+    "source": "https://www.eso.org/qi/",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "notes": "Based on data products from observations made with ESO Telescopes at the La Silla Paranal Observatory under programme ID 177.D-3023. Cutouts made with the CDS hips2fits service (CDS, Strasbourg); stars, streaks and saturation artefacts removed and stretched by tools/build-images.mjs."
+  },
+  {
+    "asset": "data/images/* (survey decaps)",
+    "title": "DECaPS2 r and g images",
+    "author": "Saydjari et al. 2023 (DECam Plane Survey 2); NSF NOIRLab / CTIO",
+    "source": "http://decaps.skymaps.info/",
+    "license": "Public survey data; acknowledgement requested",
+    "licenseUrl": "https://noirlab.edu/public/copyright/",
+    "notes": "Used for 13 southern objects outside Pan-STARRS and VPHAS+ coverage. Cutouts made with the CDS hips2fits service (CDS, Strasbourg); stars, streaks and saturation artefacts removed and stretched by tools/build-images.mjs."
+  },
+  {
+    "asset": "data/images/* (survey shassa)",
+    "title": "Southern H-Alpha Sky Survey Atlas (SHASSA)",
+    "author": "Gaustad, McCullough, Rosing & Van Buren 2001 (Swarthmore College); NSF",
+    "source": "https://amundsen.swarthmore.edu/",
+    "license": "Free use with citation",
+    "licenseUrl": "https://amundsen.swarthmore.edu/",
+    "notes": "Used for large southern nebulae. Colours are an H-alpha palette, not true colour. Cutouts made with the CDS hips2fits service (CDS, Strasbourg); stars, streaks and saturation artefacts removed and stretched by tools/build-images.mjs."
+  },
+  {
+    "asset": "data/images/* (survey vtss)",
+    "title": "Virginia Tech Spectral-line Survey (VTSS) H-alpha",
+    "author": "Dennison, Simonetti & Topasna 1998 (Virginia Tech)",
+    "source": "https://www.phys.vt.edu/~halpha/",
+    "license": "Free use with citation",
+    "licenseUrl": "https://www.phys.vt.edu/~halpha/",
+    "notes": "Used for large northern nebulae. Colours are an H-alpha palette, not true colour. Cutouts made with the CDS hips2fits service (CDS, Strasbourg); stars, streaks and saturation artefacts removed and stretched by tools/build-images.mjs."
+  },
+  {
+    "asset": "data/smallbodies.json",
+    "title": "JPL Small-Body Database (orbits, H/G, comet M1/K1, diameters)",
+    "author": "NASA/JPL Solar System Dynamics",
+    "source": "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html",
+    "license": "Public domain (U.S. Government work)",
+    "licenseUrl": "https://www.jpl.nasa.gov/jpl-image-use-policy",
+    "notes": "Osculating elements propagated as two-body orbits. A few diameters are supplemented from occultation results (cited in the file)."
+  },
+  {
+    "asset": "data/deepsky.json (planetary nebula distances)",
+    "title": "Planetary nebula distances from Gaia EDR3 central stars",
+    "author": "Chornay & Walton 2021, A&A 656, A110",
+    "source": "https://vizier.cds.unistra.fr/viz-bin/VizieR?-source=J/A+A/656/A110",
+    "license": "VizieR: free use with citation",
+    "licenseUrl": "https://cds.unistra.fr/vizier-org/licences_vizier.html"
+  },
+  {
+    "asset": "packages/data/src/exotica.ts, packages/data/src/facts.ts",
+    "title": "Black holes, neutron stars, supernova remnants and curated facts",
+    "author": "Published measurements, each cited in the app next to its value (e.g. EHT 2019, GRAVITY 2019, ATNF Pulsar Catalogue, El-Badry et al. 2023, Gaia Collaboration 2024)",
+    "source": "https://www.atnf.csiro.au/research/pulsar/psrcat/",
+    "license": "Facts (not copyrightable); text written for Simuverse",
+    "licenseUrl": "https://www.atnf.csiro.au/research/pulsar/psrcat/",
+    "notes": "Facts for objects without a curated entry are generated from catalogue values."
   }
 ]
