@@ -4,6 +4,8 @@ import { defineConfig } from 'vite';
 import { serviceWorker } from './serviceWorkerPlugin.ts';
 
 export default defineConfig({
+  // Hosting under a sub-path (GitHub Pages serves a project at /<repo>/) sets SIMUVERSE_BASE=/<repo>/.
+  base: process.env.SIMUVERSE_BASE ?? '/',
   plugins: [react(), tailwindcss(), serviceWorker()],
   worker: { format: 'es' },
   build: {

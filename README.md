@@ -271,8 +271,14 @@ Settings → Offline shows whether the app is ready offline and how much the sit
 
 - **HTTPS is required** for the service worker (localhost is exempt).
 - **Cache headers.** Serve `sw.js` and `index.html` with `Cache-Control: no-cache`. Files under `assets/` are content-hashed and can be cached for a year. Data files are not hashed, so give them a short cache or `no-cache`.
-- **A sub-path** (e.g. GitHub Pages) needs `pnpm --filter @simuverse/web exec vite build --base=/your-path/`. All paths, the worker scope and the manifest are relative.
+- **A sub-path** needs the base path set at build time: `SIMUVERSE_BASE=/your-path/ pnpm build`. All paths, the worker scope and the manifest follow it.
 - **CelesTrak** element sets are fetched directly from the browser (CelesTrak allows cross-origin requests). If that fails, the app uses its 2-hour IndexedDB cache, then the bundled snapshot.
+
+**GitHub Pages.** [.github/workflows/deploy.yml](.github/workflows/deploy.yml) publishes the site on every push to `master` (or on demand from the Actions tab). It type-checks, runs the unit tests, builds under `/<repo>/`, and deploys to `https://<user>.github.io/<repo>/`.
+
+- **One-time setup:** in the repository's Settings → Pages, set Source to "GitHub Actions".
+- **Plan:** Pages needs a public repository on GitHub's free plan.
+- **Caching:** Pages caches every file for 10 minutes and the headers can't be changed. A new deployment therefore reaches visitors within about 10 minutes, as the in-app "new version" prompt.
 
 ## Browser support
 
