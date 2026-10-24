@@ -1,0 +1,180 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+
+  --color-space-950: #04050d;
+  --color-space-900: #080a1a;
+  --color-space-800: #0f1230;
+  --color-space-700: #1a1e4a;
+  --color-nebula-500: #7c6cff;
+  --color-nebula-400: #9d90ff;
+  --color-nebula-300: #c2b9ff;
+  --color-aurora-400: #2dd4bf;
+  --color-aurora-300: #5eead4;
+  --color-starlight: #e8ecff;
+  --color-dim: #8b93c2;
+}
+
+/* Semantic surface tokens, redefined by the theme switches below. */
+:root {
+  --panel-bg: rgb(12 14 36 / 0.62);
+  --panel-border: rgb(157 144 255 / 0.16);
+  --panel-blur: 14px;
+  --text: var(--color-starlight);
+  --text-dim: var(--color-dim);
+  --accent: var(--color-nebula-400);
+  --accent-2: var(--color-aurora-400);
+  --focus-ring: var(--color-aurora-300);
+  color-scheme: dark;
+}
+
+:root[data-theme='contrast'] {
+  --panel-bg: rgb(0 0 0 / 0.92);
+  --panel-border: rgb(255 255 255 / 0.7);
+  --panel-blur: 0px;
+  --text: #ffffff;
+  --text-dim: #d6dbff;
+  --accent: #b8adff;
+  --accent-2: #5ff5e0;
+  --focus-ring: #ffe066;
+}
+
+/* Night vision: everything (canvas included) rendered in dim red to protect dark adaptation. */
+:root[data-theme='night'] body {
+  filter: grayscale(1) sepia(1) hue-rotate(-50deg) saturate(5) brightness(0.62);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background: var(--color-space-950);
+  color: var(--text);
+  font-family: var(--font-sans);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+@layer components {
+  .glass {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    backdrop-filter: blur(var(--panel-blur)) saturate(140%);
+    -webkit-backdrop-filter: blur(var(--panel-blur)) saturate(140%);
+    box-shadow: 0 8px 32px rgb(0 0 0 / 0.35), inset 0 1px 0 rgb(255 255 255 / 0.04);
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    border-radius: 0.5rem;
+    padding: 0.375rem 0.625rem;
+    font-size: 0.8125rem;
+    color: var(--text);
+    transition: background-color 120ms, color 120ms, box-shadow 120ms;
+  }
+  .btn:hover:not(:disabled) {
+    background: rgb(157 144 255 / 0.14);
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .btn[aria-pressed='true'],
+  .btn.is-active {
+    background: rgb(124 108 255 / 0.24);
+    box-shadow: inset 0 0 0 1px rgb(157 144 255 / 0.45), 0 0 18px rgb(124 108 255 / 0.25);
+  }
+  .kbd {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 0.05rem 0.35rem;
+    border-radius: 0.3rem;
+    border: 1px solid var(--panel-border);
+    background: rgb(255 255 255 / 0.05);
+    color: var(--text-dim);
+  }
+  .label-dim {
+    color: var(--text-dim);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+}
+
+/* ---- 3D labels (DOM, positioned by the engine) ---- */
+.sv-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  font-family: var(--font-sans);
+}
+.sv-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  will-change: transform;
+}
+.sv-label__dot {
+  position: absolute;
+  left: -3px;
+  top: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sv-label-color, #fff);
+  box-shadow: 0 0 6px var(--sv-label-color, #fff);
+  display: none;
+}
+.sv-label.is-marker .sv-label__dot {
+  display: block;
+}
+.sv-label__text {
+  position: absolute;
+  left: var(--sv-label-offset, 8px);
+  top: -0.6em;
+  line-height: 1.2em;
+  font-size: 12px;
+  text-shadow: 0 0 4px #000, 0 0 8px #000;
+}
+.sv-label--body .sv-label__text {
+  pointer-events: auto;
+  cursor: pointer;
+  color: color-mix(in srgb, var(--sv-label-color, #fff) 45%, #e8ecff);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.sv-label--body .sv-label__text:hover {
+  color: #fff;
+}
+.sv-label--body.is-focused .sv-label__text {
+  color: #fff;
+  font-weight: 600;
+}
+.sv-label--star .sv-label__text {
+  color: rgb(190 200 255 / 0.62);
+  font-size: 11px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "simuverse",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.34.8",
+  "scripts": {
+    "dev": "pnpm --filter @simuverse/web dev",
+    "build": "pnpm --filter @simuverse/web build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "pnpm -r typecheck",
+    "data:stars": "node tools/build-stars.mjs",
+    "data:textures": "node tools/fetch-textures.mjs",
+    "test:e2e": "playwright test",
+    "data:fixtures": "node tools/fetch-horizons-fixtures.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

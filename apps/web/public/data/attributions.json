@@ -1,0 +1,35 @@
+[
+  {
+    "asset": "data/stars-hyg.bin, data/stars-hyg-names.json",
+    "title": "HYG Database v4.1",
+    "author": "David Nash (astronexus)",
+    "source": "https://github.com/astronexus/HYG-Database",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "notes": "Derived from Hipparcos, Yale Bright Star and Gliese catalogues. Our binary re-encoding is distributed under the same licence."
+  },
+  {
+    "asset": "textures/planets/*",
+    "title": "Solar System Scope planet textures (2K)",
+    "author": "INOVE / Solar System Scope, based on NASA imagery",
+    "source": "https://www.solarsystemscope.com/textures/",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  {
+    "asset": "packages/astro (test fixtures)",
+    "title": "JPL Horizons ephemeris vectors",
+    "author": "NASA/JPL Solar System Dynamics",
+    "source": "https://ssd.jpl.nasa.gov/horizons/",
+    "license": "Public domain (U.S. Government work)",
+    "licenseUrl": "https://www.jpl.nasa.gov/jpl-image-use-policy"
+  },
+  {
+    "asset": "packages/astro/src/planets.ts",
+    "title": "Keplerian Elements for Approximate Positions of the Major Planets",
+    "author": "E. M. Standish, JPL",
+    "source": "https://ssd.jpl.nasa.gov/planets/approx_pos.html",
+    "license": "Public domain (U.S. Government work)",
+    "licenseUrl": "https://ssd.jpl.nasa.gov/"
+  }
+]
